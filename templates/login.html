@@ -16,13 +16,24 @@ LOGIN
   {% endif %}
 
   <form action="" method="post">{% csrf_token %}
-    <label for="username">User name:</label>
-    <input type="text" name="username" value="" id="username">
-    <label for="password">Password:</label>
-    <input type="password" name="password" value="" id="password">
-
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value="{{ next|escape }}" />
+	<div id="inputs1" style="width:200px;height:90px;">
+		<div style="height:20px;width:100px;height:30px;float:left;">
+	    	<label for="username">User name:</label>
+	    </div>
+	    <div style="height:20px;width:100px;height:30px;float:left;">
+	    	<input type="text" name="username" value="" id="username">
+	    </div>
+		<div style="height:20px;width:100px;height:30px;float:left;">
+		    <label for="password">Password:</label>
+	    </div>
+	    <div style="height:20px;width:100px;height:30px;float:left;">
+		    <input type="password" name="password" value="" id="password">
+	    </div>
+		<div style="height:20px;width:200px;height:30px;">
+		    <input type="submit" value="login" />
+		    <input type="hidden" name="next" value="{{ next|escape }}" />
+	    </div>
+	</div>
   </form>
 
 {% endblock %}

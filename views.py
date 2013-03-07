@@ -16,6 +16,12 @@ def home(request):
     return render_to_response('home.html', {'world_kind':'happy'})
 
 def profile(request):
+    # somebody just logged in successfully
+    # based on what group they're in, redirect them appropriately
+    # exhibitors --> exhibitor page
+    # retailers --> retailer page
+    # neither --> admin portal??
+    # TODO: do this redirect next
     return render_to_response('home.html', {'world_kind':'loggy'})
 
 def dump(request):
