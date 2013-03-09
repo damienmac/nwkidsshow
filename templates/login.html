@@ -5,19 +5,21 @@
 <style type="text/css">
 	body {
 		font-family: 'Sorts Mill Goudy', serif;
+		font-size: large;
+		background: #ebe7d7;
 	}
 	
 	fieldset {
 		font-weight: bold;
 		border: 2px solid #70667d; /* purple */
 		background: #70667d; /* purple */
-		width: 16em
+		/*width: 20em*/
 	}
 
 	legend {
 		color: #70667d; /* purple */
-		background: #ebe7d7; /* tan */
-		border: 1px solid #ebe7d7; /* tan */
+		background: #c1d2cf; /* teal */
+		border: 1px solid #c1d2cf; /* teal */
 		padding: 2px 6px
 	}
 
@@ -31,20 +33,23 @@
 	}
 
 	input {
+		font-family: 'Sorts Mill Goudy', serif;
+		font-size: large;
 		color: #70667d; /* font color is purple */
 		background: #ebe7d7 /* tan */
 	}
 
 	.submit input {
 		font-family: 'Sorts Mill Goudy', serif;
+		font-size: large;
 		font-weight: bold;
 		color: #70667d;
 		background: #ebe7d7;
 		border: 2px outset #ebe7d7;
-		margin-left: 0.5em;
+		margin-left: 0.3em;
 	}
 	
-	.error {
+	/*.error {
 		border: 1px solid;
 		margin: 10px 0px;
 		padding:15px 10px 15px 50px;
@@ -52,7 +57,7 @@
 		background-position: 10px center;
 		color: #D8000C;
 		background-color: #FFBABA
-	}
+	}*/
 </style>
 {% endblock %}
 
@@ -66,8 +71,10 @@ LOGIN
 
 {% block content %}
 
+  {% with uname="User Name" pword="Password" %}
+  
   {% if form.errors %}
-    <p class="error">Sorry, that's not a valid User name or Password</p>
+    <p class="error">Sorry, that's not a valid <i>{{uname}}</i> or <i>{{pword}}</i></p>
   {% endif %}
 
   <form action="" method="post">
@@ -75,11 +82,11 @@ LOGIN
   	<fieldset>
 		<legend>LOGIN</legend>
 	  	<p>
-		<label for="username">User name:</label>
+		<label for="username">{{uname}}:</label>
 		<input type="text" name="username" value="" id="username" />
 		</p>
 		<p>
-		<label for="password">Password:</label>
+		<label for="password">{{pword}}:</label>
 		<input type="password" name="password" value="" id="password" />
 		</p>
 		<p class="submit">
@@ -88,4 +95,5 @@ LOGIN
 		</p>
 	</fieldset>
   </form>
+  {% endwith %}
 {% endblock %}
