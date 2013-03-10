@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block internal_css %}
+<style type="text/css">
+	body {
+		font-family: 'Sorts Mill Goudy', serif;
+		font-size: large;
+		background: #ebe7d7;
+	}
+</style>
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<!-- <p>{{ params }}</p> -->
+{% if params.advice %}
+
+	{% ifequal params.advice 'denied' %}
+		<p class="error">Access to that page is denied, please try another</p>
+	{% endifequal %}
+
+{% else %}
+
+{# should not get here #}
+<p class="error">Something bad happened. Wish I could tell you more.</p>
+
+{% endif %}
+
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

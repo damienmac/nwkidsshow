@@ -1,16 +1,43 @@
+
+# django request/response stuff
 from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
+
+# django exceptions
 from django.core.exceptions import ObjectDoesNotExist
 
+# django authentication
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required, user_passes_test
 
+# my models
 from nwkidsshow.models import Exhibitor
 from nwkidsshow.models import Retailer
 from nwkidsshow.models import Show
 
+# python stuff
 import datetime
+
+### notes ###
+#TODO: why is it looking fo rthis on retailer login? "GET /retailer/home/css/messages.css HTTP/1.1" 404 2991
+#TODO: why is it looking for this on exhibitor login?  "GET /exhibitor/home/css/messages.css HTTP/1.1" 404 2994
+
+
+### helpers ###
+
+def user_is_exhibitor(user):
+    if user:
+        return user.groups.filter(name='exhibitor_group').exists()
+    return False
+
+def user_is_retailer(user):
+    if user:
+        return user.groups.filter(name='retailer_group').exists()
+    return False
+
+### views ###
 
 def home(request):
     return render_to_response('home.html', {'world_kind':'happy'})
@@ -21,15 +48,14 @@ def profile(request):
     # exhibitors --> exhibitor page
     # retailers --> retailer page
     # neither --> admin portal??
-    # TODO: do this redirect next
     
     if not request.user.is_active:
         # TODO: add a message that their account is deactivated and how to get re-activated
         return redirect('/')
     
-    if request.user.groups.filter(name='exhibitor_group').exists():
+    if user_is_exhibitor(request.user):
         return redirect('/exhibitor/home/')
-    elif request.user.groups.filter(name='retailer_group').exists():
+    elif user_is_retailer(request.user):
         return redirect('/retailer/home/')
     elif request.user.is_staff:
         return redirect('/admin/')
@@ -37,9 +63,13 @@ def profile(request):
     return redirect('/')
     
 
+@login_required
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def exhibitor_home(request):
     return render_to_response('home.html', {'world_kind':'exhibitor home'})
 
+@login_required
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def retailer_home(request):
     return render_to_response('home.html', {'world_kind':'retailer home'})
 
