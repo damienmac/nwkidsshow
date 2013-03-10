@@ -14,6 +14,10 @@ urlpatterns = patterns('',
     url(r'^accounts/logout/$', logout, {'next_page':'logged_out.html'}),
     url(r'^accounts/profile/$', 'nwkidsshow.views.profile', name='profile'),
     # url(r'^nwkidsshow/', include('nwkidsshow.foo.urls')),
+    
+    url(r'^exhibitor/home/$', 'nwkidsshow.views.exhibitor_home', name='exhibitor_home'),
+    
+    url(r'^retailer/home/$', 'nwkidsshow.views.retailer_home', name='retailer_home'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

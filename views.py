@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.auth.models import User, Group
@@ -22,7 +22,26 @@ def profile(request):
     # retailers --> retailer page
     # neither --> admin portal??
     # TODO: do this redirect next
-    return render_to_response('home.html', {'world_kind':'loggy'})
+    
+    if not request.user.is_active:
+        # TODO: add a message that their account is deactivated and how to get re-activated
+        return redirect('/')
+    
+    if request.user.groups.filter(name='exhibitor_group').exists():
+        return redirect('/exhibitor/home/')
+    elif request.user.groups.filter(name='retailer_group').exists():
+        return redirect('/retailer/home/')
+    elif request.user.is_staff:
+        return redirect('/admin/')
+    # TODO log an error, this shold not happen, they logged in after all!
+    return redirect('/')
+    
+
+def exhibitor_home(request):
+    return render_to_response('home.html', {'world_kind':'exhibitor home'})
+
+def retailer_home(request):
+    return render_to_response('home.html', {'world_kind':'retailer home'})
 
 def dump(request):
     users      = User.objects.all()
@@ -47,8 +66,11 @@ def populate_users(users, group):
         u.first_name = user['first_name'] if not u.first_name else u.first_name
         u.last_name  = user['last_name']  if not u.last_name else u.last_name
         u.email      = user['email']      if not u.email else u.email
-        if not u.password:
+        if not u.password or not u.has_usable_password():
             u.set_password(user['password'])
+            print 'set %s password to %s' % (u.get_full_name(), user['password'])
+        else:
+            print 'password for %s is %s' % (u.get_full_name(), u.password)
         u.save()
         u.groups.add(group)
     return
