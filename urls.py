@@ -15,7 +15,8 @@ urlpatterns = patterns('',
     url(r'^seed/$', 'nwkidsshow.views.seed', name='seed'),
     
     url(r'^accounts/login/$',  login, {'template_name':'login.html'}), 
-    url(r'^accounts/logout/$', logout, {'next_page':'logged_out.html'}),
+#    url(r'^accounts/logout/$', logout, {'next_page':'logged_out.html'}),
+    url(r'^accounts/logout/$', logout, {'next_page':'/advising/logged_out'}),
     url(r'^accounts/profile/$', 'nwkidsshow.views.profile', name='profile'),
     
     url(r'^advising/(?P<advice>\w+)/$', direct_to_template, {'template':'advising.html'}),

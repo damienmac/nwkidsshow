@@ -21,7 +21,8 @@ from nwkidsshow.models import Show
 import datetime
 
 ### notes ###
-#TODO: why is it looking fo rthis on retailer login? "GET /retailer/home/css/messages.css HTTP/1.1" 404 2991
+#TODO: I need test accounts that are not real users: "testex" and "testret". Need to hide them from reports, but otherwise work like a real user.
+#TODO: why is it looking for this on retailer login? "GET /retailer/home/css/messages.css HTTP/1.1" 404 2991
 #TODO: why is it looking for this on exhibitor login?  "GET /exhibitor/home/css/messages.css HTTP/1.1" 404 2994
 
 
@@ -49,9 +50,10 @@ def profile(request):
     # retailers --> retailer page
     # neither --> admin portal??
     
+    # this might be moot, since deactivated users can't even
+    # log in and won't get to this point!
     if not request.user.is_active:
-        # TODO: add a message that their account is deactivated and how to get re-activated
-        return redirect('/')
+        return redirect('/advising/deactivated/')
     
     if user_is_exhibitor(request.user):
         return redirect('/exhibitor/home/')
