@@ -22,9 +22,13 @@ urlpatterns = patterns('',
     url(r'^advising/(?P<advice>\w+)/$', direct_to_template, {'template':'advising.html'}),
 
     url(r'^exhibitor/home/$', 'nwkidsshow.views.exhibitor_home', name='exhibitor_home'),
-    
     url(r'^retailer/home/$', 'nwkidsshow.views.retailer_home', name='retailer_home'),
-
+    url(r'^register/$', 'nwkidsshow.views.register', name='register'),
+    url(r'^lines/$', 'nwkidsshow.views.lines', name='lines'),
+    url(r'^edit/$', 'nwkidsshow.views.edit', name='edit'),
+    url(r'^report/retailers/$', 'nwkidsshow.views.report_retailers', name='report_retailers'),
+    url(r'^report/exhibitors/$', 'nwkidsshow.views.report_exhibitors', name='report_exhibitors'),
+    url(r'^report/lines/$', 'nwkidsshow.views.report_lines', name='report_lines'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+<style type="text/css">
+	body {
+		font-family: 'Sorts Mill Goudy', serif;
+		font-size: large;
+		background: #ebe7d7;
+	}
+	
+	fieldset {
+		border: 2px solid #70667d; /* purple */
+		background: #70667d; /* purple */
+		/*width: 20em*/
+	}
+
+	legend {
+		font-weight: bold;
+		color: #70667d; /* purple */
+		background: #c1d2cf; /* teal */
+		border: 1px solid #c1d2cf; /* teal */
+		padding: 2px 6px
+	}
+	
+	label {
+		color: #ebe7d7; /* tan */
+		width: 12em;
+		float: left;
+		text-align: right;
+		margin-right: 0.5em;
+		display: block
+	}
+
+	input, select {
+		/*font-family: 'Sorts Mill Goudy', serif;*/
+		font-size: large;
+		color: #70667d; /* font color is purple */
+		background: #ebe7d7 /* tan */
+	}
+
+	.submit input {
+		font-family: 'Sorts Mill Goudy', serif;
+		font-size: large;
+		font-weight: bold;
+		color: #70667d;
+		background: #ebe7d7;
+		border: 2px outset #ebe7d7;
+		margin-left: 0.3em;
+	}
+	
+	.action {
+		color: #ebe7d7; /* tan */
+	}
+	
+	a:link     { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+	a:visited  { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+	a:hover    { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+	a:active   { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+</style>
+{% endblock %}
+
+{% block jquery %}{# Set focus on the first input field, show picker #}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+     $(document).ready(function () {
+         $("#id_show").focus();
+     });
+</script>
+{% endblock %}
+
+{% block head %}
+REGISTER FOR A SHOW
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+{% if not shows%}
+	{# TODO: make this advice at top? Not in fieldset? #}
+	<p class="info">There appear to be no active shows right now. Please try again soon.</p>
+{% else %}
+{% if form.errors %}
+    <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
+{% endif %}
+
+<fieldset>
+	<legend>Register for a show</legend>
+    <form action="" method="post">
+	  	{% csrf_token %}
+        <p class="field">
+            <label for="id_show">{{ form.show.label }}:</label>
+            {{ form.show }}
+	        {% if form.show.errors %}
+	        	<span class="error">{{ form.show.errors|first }}</span>
+	        {% endif %}
+        </p>
+        <p class="field">
+            <label for="id_num_associates">{{form.num_associates.label}}:</label>
+            {{ form.num_associates }}
+	        {% if form.num_associates.errors %}
+    	        <span class="error">{{ form.num_associates.errors|first }}</span>
+        	{% endif %}
+        </p>
+        <p class="field">
+            <label for="id_message">{{form.num_assistants.label}}:</label>
+            {{ form.num_assistants }}
+	        {% if form.num_assistants.errors %}
+	        	<span class="error">{{ form.num_assistants.errors|first }}</span>
+	        {% endif %}
+        </p>
+        <p class="field">
+            <label for="id_message">{{form.num_racks.label}}:</label>
+            {{ form.num_racks }}
+	        {% if form.num_racks.errors %}
+	        	<span class="error">{{ form.num_racks.errors|first }}</span>
+	        {% endif %}
+        </p>
+        <p class="field">
+            <label for="id_message">{{form.num_tables.label}}:</label>
+            {{ form.num_tables }}
+	        {% if form.num_tables.errors %}
+	        	<span class="error">{{ form.num_tables.errors|first }}</span>
+	        {% endif %}
+        </p>
+        <p class="submit">
+        	<input type="submit" value="Submit">
+        </p>
+    </form>
+
+    {% endif %}
+</fieldset>
+{% endblock %}

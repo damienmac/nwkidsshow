@@ -10,13 +10,13 @@
 	}
 	
 	fieldset {
-		font-weight: bold;
 		border: 2px solid #70667d; /* purple */
 		background: #70667d; /* purple */
 		/*width: 20em*/
 	}
 
 	legend {
+		font-weight: bold;
 		color: #70667d; /* purple */
 		background: #c1d2cf; /* teal */
 		border: 1px solid #c1d2cf; /* teal */
@@ -33,7 +33,7 @@
 	}
 
 	input {
-		font-family: 'Sorts Mill Goudy', serif;
+		/*font-family: 'Sorts Mill Goudy', serif;*/
 		font-size: large;
 		color: #70667d; /* font color is purple */
 		background: #ebe7d7 /* tan */
@@ -48,17 +48,16 @@
 		border: 2px outset #ebe7d7;
 		margin-left: 0.3em;
 	}
-	
-	/*.error {
-		border: 1px solid;
-		margin: 10px 0px;
-		padding:15px 10px 15px 50px;
-		background-repeat: no-repeat;
-		background-position: 10px center;
-		color: #D8000C;
-		background-color: #FFBABA
-	}*/
 </style>
+{% endblock %}
+
+{% block jquery %}{# Set focus on the first input field, username #}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+     $(document).ready(function () {
+         $("#username").focus();
+     });
+</script>
 {% endblock %}
 
 {% block head %}
@@ -80,7 +79,7 @@ LOGIN
   <form action="" method="post">
   	{% csrf_token %}
   	<fieldset>
-		<legend>LOGIN</legend>
+		<legend>Login</legend>
 	  	<p>
 		<label for="username">{{uname}}:</label>
 		<input type="text" name="username" value="" id="username" />

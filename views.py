@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
-
+from django.template import RequestContext
 # django exceptions
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -16,6 +16,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from nwkidsshow.models import Exhibitor
 from nwkidsshow.models import Retailer
 from nwkidsshow.models import Show
+
+#my forms
+from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
+
+# django query stuff
+from django.db.models import Q
 
 # python stuff
 import datetime
@@ -36,6 +42,11 @@ def user_is_exhibitor(user):
 def user_is_retailer(user):
     if user:
         return user.groups.filter(name='retailer_group').exists()
+    return False
+
+def user_is_exhibitor_or_retailer(user):
+    if user:
+        return user.groups.filter(Q(name='exhibitor_group') | Q(name='retailer_group')).exists()
     return False
 
 ### views ###
@@ -68,12 +79,70 @@ def profile(request):
 @login_required
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def exhibitor_home(request):
-    return render_to_response('home.html', {'world_kind':'exhibitor home'})
+    return render_to_response('exhibitor.html', {})
 
 @login_required
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def retailer_home(request):
-    return render_to_response('home.html', {'world_kind':'retailer home'})
+    return render_to_response('retailer.html', {})
+
+@login_required
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
+def register(request):
+    # TODO: test show ordring somehow? 
+    shows = Show.objects.filter(closed_date__lt = datetime.date.today())
+    
+    if request.method != 'POST':
+        form = ExhibitorRegistrationForm()
+        if user_is_retailer(request.user):
+            form = RetailerRegistrationForm()
+        return render_to_response('register.html',
+                                  {'form':form, 'shows':shows},
+                                  context_instance=RequestContext(request))
+
+    
+    if user_is_exhibitor(request.user):
+        form = ExhibitorRegistrationForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            # TODO DM Add the user to the Show exhibitors
+            return render_to_response('invoice.html', cd)
+    else:
+        form = RetailerRegistrationForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            # TODO DM Add the user to the Show retailers
+            return render_to_response('registered.html', cd)
+    return render_to_response('register.html',
+                              {'form':form, 'shows':shows},
+                              context_instance=RequestContext(request))
+
+@login_required
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def lines(request):
+    return render_to_response('home.html', {'world_kind':'lines'})
+
+@login_required
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
+def edit(request):
+    return render_to_response('home.html', {'world_kind':'edit'})
+
+@login_required
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def report_retailers(request):
+    return render_to_response('home.html', {'world_kind':'report_retailers'})
+
+@login_required
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def report_exhibitors(request):
+    return render_to_response('home.html', {'world_kind':'report_exhibitors'})
+
+@login_required
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def report_lines(request):
+    return render_to_response('home.html', {'world_kind':'report_lines'})
+
+
 
 def dump(request):
     users      = User.objects.all()
