@@ -16,25 +16,24 @@ DUMP
 	{% if users %}
 		<table border="1">
 			<tr>
-				<th align="left">username</th>
-				<th align="left">first name</th>
-				<th align="left">last name</th>
-				<th align="left">email</th>
-				<th align="left">group</th>
+				<th>username</th>
+				<th>first name</th>
+				<th>last name</th>
+				<th>email</th>
+				<th>group</th>
 			</tr>
 			{% for u in users %}
 				<tr>
-					<td align="left">{{ u.username }}</td>
-					<td align="left">{{ u.first_name }}</td>
-					<td align="left">{{ u.last_name }}</td>
-					<td align="left">{{ u.email }}</td>
-					<td align="left">
+					<td>{{ u.username }}</td>
+					<td>{{ u.first_name }}</td>
+					<td>{{ u.last_name }}</td>
+					<td>{{ u.email }}</td>
+					<td>
 						{% for group in u.groups.all %}
 							{{ group.name }}{% if not forloop.last %}, {% else %}{% endif %}
 						{% endfor %}
-
 					</td>
-				</tr>
+			</tr>
 			{% endfor %}
 		</table>
 	{% else %}
@@ -49,35 +48,35 @@ DUMP
 	{% if exhibitors %}
 		<table border="1">
 			<tr>
-				<th align="left">username</th>
-				<th align="left">first name</th>
-				<th align="left">last name</th>
-				<th align="left">email</th>
-				<th align="left">company</th>
-				<th align="left">website</th>
-				<th align="left">address</th>
-				<th align="left">address2</th>
-				<th align="left">city</th>
-				<th align="left">state</th> 
-				<th align="left">phone</th>
-				<th align="left">fax</th>
-				<th align="left">lines</th>
+				<th>username</th>
+				<th>first name</th>
+				<th>last name</th>
+				<th>email</th>
+				<th>company</th>
+				<th>website</th>
+				<th>address</th>
+				<th>address2</th>
+				<th>city</th>
+				<th>state</th>
+				<th>phone</th>
+				<th>fax</th>
+				<th>lines</th>
 			</tr>
 			{% for e in exhibitors %}
 				<tr>
-					<td align="left">{{ e.user.username }}</td>
-					<td align="left">{{ e.user.first_name }}</td>
-					<td align="left">{{ e.user.last_name }}</td>
-					<td align="left">{{ e.user.email }}</td>
-					<td align="left">{{ e.company }}</td>
-					<td align="left">{{ e.website }}</td>
-					<td align="left">{{ e.address }}</td>
-					<td align="left">{{ e.address2 }}</td>
-					<td align="left">{{ e.city }}</td>
-					<td align="left">{{ e.state }}</td>
-					<td align="left">{{ e.phone }}</td>
-					<td align="left">{{ e.fax }}</td>
-					<td align="left" style="width: 1px; white-space: nowrap;">{{ e.lines }}</td>
+					<td>{{ e.user.username }}</td>
+					<td>{{ e.user.first_name }}</td>
+					<td>{{ e.user.last_name }}</td>
+					<td>{{ e.user.email }}</td>
+					<td>{{ e.company }}</td>
+					<td>{{ e.website }}</td>
+					<td>{{ e.address }}</td>
+					<td>{{ e.address2 }}</td>
+					<td>{{ e.city }}</td>
+					<td>{{ e.state }}</td>
+					<td>{{ e.phone }}</td>
+					<td>{{ e.fax }}</td>
+					<td style="width: 1px; white-space: nowrap;">{{ e.lines }}</td>
 				</tr>
 			{% endfor %}
 		</table>
@@ -93,33 +92,33 @@ DUMP
 	{% if retailers %}
 		<table border="1">
 			<tr>
-				<th align="left">username</th>
-				<th align="left">first name</th>
-				<th align="left">last name</th>
-				<th align="left">email</th>
-				<th align="left">company</th>
-				<th align="left">website</th>
-				<th align="left">address</th>
-				<th align="left">address2</th>
-				<th align="left">city</th>
-				<th align="left">state</th> 
-				<th align="left">phone</th>
-				<th align="left">fax</th>
+				<th>username</th>
+				<th>first name</th>
+				<th>last name</th>
+				<th>email</th>
+				<th>company</th>
+				<th>website</th>
+				<th>address</th>
+				<th>address2</th>
+				<th>city</th>
+				<th>state</th>
+				<th>phone</th>
+				<th>fax</th>
 			</tr>
 			{% for r in retailers %}
 				<tr>
-					<td align="left">{{ r.user.username }}</td>
-					<td align="left">{{ r.user.first_name }}</td>
-					<td align="left">{{ r.user.last_name }}</td>
-					<td align="left">{{ r.user.email }}</td>
-					<td align="left">{{ r.company }}</td>
-					<td align="left">{{ r.website }}</td>
-					<td align="left">{{ r.address }}</td>
-					<td align="left">{{ r.address2 }}</td>
-					<td align="left">{{ r.city }}</td>
-					<td align="left">{{ r.state }}</td>
-					<td align="left">{{ r.phone }}</td>
-					<td align="left">{{ r.fax }}</td>
+					<td>{{ r.user.username }}</td>
+					<td>{{ r.user.first_name }}</td>
+					<td>{{ r.user.last_name }}</td>
+					<td>{{ r.user.email }}</td>
+					<td>{{ r.company }}</td>
+					<td>{{ r.website }}</td>
+					<td>{{ r.address }}</td>
+					<td>{{ r.address2 }}</td>
+					<td>{{ r.city }}</td>
+					<td>{{ r.state }}</td>
+					<td>{{ r.phone }}</td>
+					<td>{{ r.fax }}</td>
 				</tr>
 			{% endfor %}
 		</table>
@@ -135,27 +134,35 @@ DUMP
 	{% if shows %}
 		<table border="1">
 			<tr>
-				<th align="left">name</th>
-				<th align="left">late date</th>
-				<th align="left">closed date</th>
-				<th align="left">start date</th>
-				<th align="left">end date</th>
-				<th align="left">exhibitors</th>
-				<th align="left">retailers</th>
+				<th>name</th>
+				<th>late date</th>
+				<th>closed date</th>
+				<th>start date</th>
+				<th>end date</th>
+                <th>registration fee</th>
+                <th>assistant fee</th>
+                <th>late fee</th>
+                <th>rack fee</th>
+				<th>exhibitors</th>
+				<th>retailers</th>
 			</tr>
 			{% for s in shows %}
 				<tr>
-					<td align="left">{{ s.name }}</td>
-					<td align="left">{{ s.late_date }}</td>
-					<td align="left">{{ s.closed_date }}</td>
-					<td align="left">{{ s.start_date }}</td>
-					<td align="left">{{ s.end_date }}</td>
-					<td align="left">
+					<td>{{ s.name }}</td>
+					<td>{{ s.late_date }}</td>
+					<td>{{ s.closed_date }}</td>
+					<td>{{ s.start_date }}</td>
+					<td>{{ s.end_date }}</td>
+                    <td>{{ s.registration_fee }}</td>
+                    <td>{{ s.assistant_fee }}</td>
+                    <td>{{ s.late_fee }}</td>
+                    <td>{{ s.rack_fee }}</td>
+					<td>
 						{% for exhibitor in s.exhibitors.all %}
 							{{ exhibitor.user.username }}{% if not forloop.last %}, {% else %}{% endif %}
 						{% endfor %}
 					</td>
-					<td align="left">
+					<td>
 						{% for retailer in s.retailers.all %}
 							{{ retailer.user.username }}{% if not forloop.last %}, {% else %}{% endif %}
 						{% endfor %}

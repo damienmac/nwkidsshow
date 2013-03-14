@@ -60,12 +60,12 @@ def profile(request):
     # exhibitors --> exhibitor page
     # retailers --> retailer page
     # neither --> admin portal??
-    
+
     # this might be moot, since deactivated users can't even
     # log in and won't get to this point!
     if not request.user.is_active:
         return redirect('/advising/deactivated/')
-    
+
     if user_is_exhibitor(request.user):
         return redirect('/exhibitor/home/')
     elif user_is_retailer(request.user):
@@ -74,7 +74,7 @@ def profile(request):
         return redirect('/admin/')
     # TODO log an error, this shold not happen, they logged in after all!
     return redirect('/')
-    
+
 
 @login_required
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -86,35 +86,33 @@ def exhibitor_home(request):
 def retailer_home(request):
     return render_to_response('retailer.html', {})
 
+
 @login_required
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
-    # TODO: test show ordring somehow? 
-    shows = Show.objects.filter(closed_date__lt = datetime.date.today())
-    
+    # TODO: test show ordering somehow?
+    show_count = Show.objects.filter(closed_date__gt=datetime.date.today()).count()
+
     if request.method != 'POST':
         form = ExhibitorRegistrationForm()
         if user_is_retailer(request.user):
             form = RetailerRegistrationForm()
-        return render_to_response('register.html',
-                                  {'form':form, 'shows':shows},
-                                  context_instance=RequestContext(request))
-
-    
-    if user_is_exhibitor(request.user):
-        form = ExhibitorRegistrationForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            # TODO DM Add the user to the Show exhibitors
-            return render_to_response('invoice.html', cd)
     else:
-        form = RetailerRegistrationForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            # TODO DM Add the user to the Show retailers
-            return render_to_response('registered.html', cd)
+        if user_is_exhibitor(request.user):
+            form = ExhibitorRegistrationForm(request.POST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                # TODO DM Add the user to the Show exhibitors
+                return render_to_response('invoice.html', cd)
+        else:
+            form = RetailerRegistrationForm(request.POST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                # TODO DM Add the user to the Show retailers
+                return render_to_response('registered.html', cd)
+
     return render_to_response('register.html',
-                              {'form':form, 'shows':shows},
+                              {'form': form, 'show_count': show_count},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -149,7 +147,7 @@ def dump(request):
     exhibitors = Exhibitor.objects.all()
     retailers  = Retailer.objects.all()
     shows      = Show.objects.all()
-    return render_to_response('dump.html', { 
+    return render_to_response('dump.html', {
                                             'users'      : users,
                                             'exhibitors' : exhibitors,
                                             'retailers'  : retailers,
@@ -182,7 +180,7 @@ exhibitors = [
          {'username':'allison', 'password':'password', 'first_name':'Allison', 'last_name':'Acken',   'email':'allisonshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'Los Angeles', 'state':'CA', 'zip':'', 'phone':'310-486-9354', 'fax':'', 'lines':"""Kanz * Wheat * Purebaby Organic * Finn and Emma Organic""", },
          {'username':'randee',  'password':'password', 'first_name':'Randee',  'last_name':'Arneson', 'email':'randeesshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'zip':'', 'phone':'213-624-8422', 'fax':'213-624-8946', 'lines':"""Petit Lem * Me Too * Losan * Blueberry Hill * Melton * Monkeybar Buddies * Nosilla Organics * She's the One * Thingamajiggies, PJ's * Marmalade * Ollie Baby * Nadi A Biffi * Imagine Greenwear *  Rose Cage * Everbloom Studio * Polka Dot Moon * Milla Reese Hair accessories * Toni Tierney""", },
 ]
-    
+
 def populate_exhibitors(exhibitors):
     for exhibitor in exhibitors:
         user = User.objects.get(username=exhibitor['username']) # had better be one already!
@@ -232,16 +230,43 @@ def populate_retailers(retailers):
     return
 
 shows = [
-         {
-          'name'       : 'February 2013',
-          'late_date'  : datetime.date(2012, 12, 24),
-          'closed_date': datetime.date(2013,  1, 24),
-          'start_date' : datetime.date(2013,  2, 24),
-          'end_date'   : datetime.date(2013,  2, 26),
-          },
-         ]
+    {
+        'name'       : 'February 2013',
+        'late_date'  : datetime.date(2012, 12, 24),
+        'closed_date': datetime.date(2013,  1, 24),
+        'start_date' : datetime.date(2013,  2, 24),
+        'end_date'   : datetime.date(2013,  2, 26),
+        'registration_fee' : 150.00,
+        'assistant_fee'    : 25.00,
+        'late_fee'         : 75.00,
+        'rack_fee'         : 20.00,
+    },
+    {
+        'name'       : 'October 2013',
+        'late_date'  : datetime.date(2013,  7, 24),
+        'closed_date': datetime.date(2013,  8, 24),
+        'start_date' : datetime.date(2013, 10, 24),
+        'end_date'   : datetime.date(2013, 10, 26),
+        'registration_fee' : 150.00,
+        'assistant_fee'    : 25.00,
+        'late_fee'         : 75.00,
+        'rack_fee'         : 20.00,
+    },
+    {
+        'name'       : 'February 2014',
+        'late_date'  : datetime.date(2013, 12, 24),
+        'closed_date': datetime.date(2014,  1, 24),
+        'start_date' : datetime.date(2014,  2, 24),
+        'end_date'   : datetime.date(2014,  2, 26),
+        'registration_fee' : 150.00,
+        'assistant_fee'    : 25.00,
+        'late_fee'         : 75.00,
+        'rack_fee'         : 20.00,
+    },
+]
 
 def populate_shows(shows):
+    #Show.objects.all().delete()
     for show in shows:
         try:
             s = Show.objects.get(name=show['name'])
@@ -253,16 +278,20 @@ def populate_shows(shows):
         s.closed_date = show['closed_date'] if not s.closed_date else s.closed_date
         s. start_date = show['start_date']  if not s.start_date  else s.start_date
         s.end_date    = show['end_date']    if not s.end_date    else s.end_date
+        s.registration_fee = show['registration_fee']
+        s.assistant_fee    = show['assistant_fee']
+        s.late_fee         = show['late_fee']
+        s.rack_fee         = show['rack_fee']
         # must save before add manytomany!
         s.save()
-        # !!! I probbaly need some indication in the seed data for which shows they went to, but for now let's do this
+        # TODO: I probably need some indication in the seed data for which shows they went to, but for now let's do this
         for exhibitor in Exhibitor.objects.all():
             s.exhibitors.add(exhibitor)
         for retailer in Retailer.objects.all():
             s.retailers.add(retailer)
 
 def seed(request):
-    
+
     exhibitor_group, created = Group.objects.get_or_create(name='exhibitor_group')
     if created:
         print "created new exhibitor_group"
@@ -279,5 +308,5 @@ def seed(request):
     populate_exhibitors(exhibitors)
     populate_retailers(retailers)
     populate_shows(shows)
-    
+
     return HttpResponseRedirect('/dump/')

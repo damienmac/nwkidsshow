@@ -39,6 +39,10 @@ class ShowAdmin(admin.ModelAdmin):
                     'closed_date',
                     'start_date',
                     'end_date',
+                    'registration_fee',
+                    'assistant_fee',
+                    'late_fee',
+                    'rack_fee',
                     )
     search_fields = ['name']
     date_hierarchy = 'start_date'

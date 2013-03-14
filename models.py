@@ -51,21 +51,24 @@ class Retailer(Attendee):
     pass
 
 class Show(models.Model):
-    
+
     name = models.CharField(max_length=50)
-    
+
     late_date   = models.DateField()  # last day to register without a late fee
     closed_date = models.DateField()  # last day to register
     start_date  = models.DateField()  # start date of the actual show
     end_date    = models.DateField()  # last day of the actual show
-    
+
+    registration_fee = models.FloatField()
+    assistant_fee    = models.FloatField() # each assistant
+    late_fee         = models.FloatField()
+    rack_fee         = models.FloatField() # each rack
+
     exhibitors = models.ManyToManyField(Exhibitor, blank=True, null=True)
     retailers  = models.ManyToManyField(Retailer, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % self.name
-    
+
     class Meta:
         ordering = ['closed_date']
-
-    
