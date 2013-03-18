@@ -78,8 +78,8 @@ class Show(models.Model):
 
 
 class Registration(models.Model):
-    show      = models.OneToOneField(Show)
-    exhibitor = models.OneToOneField(Exhibitor)
+    show      = models.ForeignKey(Show)
+    exhibitor = models.ForeignKey(Exhibitor)
 
     num_exhibitors  = models.SmallIntegerField()
     num_assistants  = models.SmallIntegerField()

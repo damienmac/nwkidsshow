@@ -99,7 +99,7 @@ def register(request):
             form = RetailerRegistrationForm()
     else:
         if user_is_exhibitor(request.user):
-            #TODO: do i need to test this found one thing? try/catch.
+            #TODO: do I need to test this found one thing? try/catch.
             exhibitor = Exhibitor.objects.get(user=request.user)
             print "### found exhibitor %s" % exhibitor.user
             form = ExhibitorRegistrationForm(request.POST)
@@ -126,14 +126,18 @@ def register(request):
                         rack_total + \
                         late_total
 
-                # store in the object for display on the next page
+                # store in the object for display on the next page !!! not if you fix this !!!
                 cd['registration_total'] = registration_total
                 cd['assistant_total']    = assistant_total
                 cd['rack_total']         = rack_total
                 cd['late_total']         = late_total
                 cd['total']              = total
 
+                # Add this exhibitor to the Show exhibitors
+                show.exhibitors.add(exhibitor)
+
                 # add a new registration object and associate with this exhibitor & show
+                # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
                 try:
                     r = Registration.objects.get(exhibitor=exhibitor, show=show)
                     print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
@@ -154,7 +158,6 @@ def register(request):
                 r.total              = total
                 r.save()
 
-                # TODO: Add the user to the Show exhibitors
                 # TODO: put data in the SESSION and then make this redirect to a URL that renders invoice with the data so that this is an INVOICE page
                 return render_to_response('invoice.html', cd)
         else:

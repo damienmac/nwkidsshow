@@ -31,6 +31,7 @@
 
     {% ifequal params.advice 'logged_out' %}
         <p class="success">You have been successfully logged out.</p>
+        <div class="info"><a href="/accounts/login">Click here to login</a>.</div>
     {% endifequal %}
 
     {% ifequal params.advice 'login' %}
