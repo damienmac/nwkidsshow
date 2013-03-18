@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from nwkidsshow.models import Exhibitor
 from nwkidsshow.models import Retailer
 from nwkidsshow.models import Show
+from nwkidsshow.models import Registration
 
 #my forms
 from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
@@ -72,70 +73,124 @@ def profile(request):
         return redirect('/retailer/home/')
     elif request.user.is_staff:
         return redirect('/admin/')
-    # TODO log an error, this shold not happen, they logged in after all!
+    # TODO log an error, this should not happen, they logged in after all!
     return redirect('/')
 
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def exhibitor_home(request):
     return render_to_response('exhibitor.html', {})
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def retailer_home(request):
     return render_to_response('retailer.html', {})
 
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
-    # TODO: test show ordering somehow?
-    show_count = Show.objects.filter(closed_date__gt=datetime.date.today()).count()
-
+    shows = Show.objects.filter(closed_date__gt=datetime.date.today())
+    show_count = shows.count()
     if request.method != 'POST':
         form = ExhibitorRegistrationForm()
         if user_is_retailer(request.user):
             form = RetailerRegistrationForm()
     else:
         if user_is_exhibitor(request.user):
+            #TODO: do i need to test this found one thing? try/catch.
+            exhibitor = Exhibitor.objects.get(user=request.user)
+            print "### found exhibitor %s" % exhibitor.user
             form = ExhibitorRegistrationForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
-                # TODO DM Add the user to the Show exhibitors
+
+                # grab some fields form the form
+                show           = cd['show']
+                num_associates = cd['num_associates']
+                num_assistants = cd['num_assistants']
+                num_racks      = cd['num_racks']
+                num_tables     = cd['num_tables']
+                is_late        = cd['show'].late_date < datetime.date.today()
+
+                # compute the individual charges...
+                registration_total = cd['show'].registration_fee
+                assistant_total    = cd['show'].assistant_fee * num_assistants
+                rack_total         = cd['show'].rack_fee * num_racks
+                late_total         = cd['show'].late_fee if is_late else 0.0
+
+                # ... and the final total
+                total = registration_total + \
+                        assistant_total + \
+                        rack_total + \
+                        late_total
+
+                # store in the object for display on the next page
+                cd['registration_total'] = registration_total
+                cd['assistant_total']    = assistant_total
+                cd['rack_total']         = rack_total
+                cd['late_total']         = late_total
+                cd['total']              = total
+
+                # add a new registration object and associate with this exhibitor & show
+                try:
+                    r = Registration.objects.get(exhibitor=exhibitor, show=show)
+                    print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
+                except ObjectDoesNotExist:
+                    r = Registration(exhibitor=exhibitor, show=show)
+                    r.has_paid = False
+                    print "created registration: (%s & %s)" % (exhibitor.user, show.name)
+                r.num_exhibitors     = num_associates
+                r.num_assistants     = num_assistants
+                r.num_racks          = num_racks
+                r.num_tables         = num_tables
+                r.is_late            = is_late
+                r.date_registered    = datetime.date.today()
+                r.registration_total = registration_total
+                r.assistant_total    = assistant_total
+                r.rack_total         = rack_total
+                r.late_total         = late_total
+                r.total              = total
+                r.save()
+
+                # TODO: Add the user to the Show exhibitors
+                # TODO: put data in the SESSION and then make this redirect to a URL that renders invoice with the data so that this is an INVOICE page
                 return render_to_response('invoice.html', cd)
         else:
             form = RetailerRegistrationForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
-                # TODO DM Add the user to the Show retailers
+                # TODO: add a new registration object and associate with this retailer
+                # TODO: Add the user to the Show retailers
+                # TODO: put data in the SESSION and then make this redirect to a URL that renders invoice with the data so that this is an INVOICE page
                 return render_to_response('registered.html', cd)
 
     return render_to_response('register.html',
                               {'form': form, 'show_count': show_count},
                               context_instance=RequestContext(request))
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def lines(request):
     return render_to_response('home.html', {'world_kind':'lines'})
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def edit(request):
     return render_to_response('home.html', {'world_kind':'edit'})
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def report_retailers(request):
     return render_to_response('home.html', {'world_kind':'report_retailers'})
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_exhibitors(request):
     return render_to_response('home.html', {'world_kind':'report_exhibitors'})
 
-@login_required
+@login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_lines(request):
     return render_to_response('home.html', {'world_kind':'report_lines'})
@@ -231,6 +286,7 @@ def populate_retailers(retailers):
 
 shows = [
     {
+        # fake up a closed show
         'name'       : 'February 2013',
         'late_date'  : datetime.date(2012, 12, 24),
         'closed_date': datetime.date(2013,  1, 24),
@@ -242,8 +298,9 @@ shows = [
         'rack_fee'         : 20.00,
     },
     {
+        # fake up a late fee show
         'name'       : 'October 2013',
-        'late_date'  : datetime.date(2013,  7, 24),
+        'late_date'  : datetime.date(2013,  3, 14),
         'closed_date': datetime.date(2013,  8, 24),
         'start_date' : datetime.date(2013, 10, 24),
         'end_date'   : datetime.date(2013, 10, 26),

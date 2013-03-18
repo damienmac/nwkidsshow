@@ -21,16 +21,22 @@
 {% if params.advice %}
 
 	{% ifequal params.advice 'denied' %}
-		<p class="error">Access to that page is denied, please try another.</p>
-	{% endifequal %}
+        <p class="error">Access to that page is denied, please try another.</p>
+        <div class="info"><a href="/accounts/login">Or click here to login</a>.</div>
+    {% endifequal %}
 
-	{% ifequal params.advice 'deactivated' %}
-		<p class="error">Your account has been deactivated. Please contact Laurie or email &ldquo;info&rdquo; at nwkidsshow.com.</p>
-	{% endifequal %}
+    {% ifequal params.advice 'deactivated' %}
+        <p class="error">Your account has been deactivated. Please contact Laurie or email &ldquo;info&rdquo; at nwkidsshow.com.</p>
+    {% endifequal %}
 
-	{% ifequal params.advice 'logged_out' %}
-		<p class="success">You have been successfully logged out.</p>
-	{% endifequal %}
+    {% ifequal params.advice 'logged_out' %}
+        <p class="success">You have been successfully logged out.</p>
+    {% endifequal %}
+
+    {% ifequal params.advice 'login' %}
+        <p class="error">Please login first.</p>
+        <div class="info"><a href="/accounts/login">Click here to login</a>.</div>
+    {% endifequal %}
 
 {% else %}
 

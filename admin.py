@@ -1,5 +1,5 @@
 from django.contrib import admin
-from nwkidsshow.models import Exhibitor, Retailer, Show
+from nwkidsshow.models import Exhibitor, Retailer, Show, Registration
 
 class ExhibitorAndRetailerAdmin(admin.ModelAdmin):
     list_display = ('username_display',
@@ -50,6 +50,21 @@ class ShowAdmin(admin.ModelAdmin):
     list_filter = ('start_date',)
     filter_horizontal = ('exhibitors','retailers',)
 
+
+class RegistrationAdmin(admin.ModelAdmin):
+    list_display = (
+        'exhibitor',
+        'show',
+        'is_late',
+    )
+    list_display_links = (
+        'exhibitor',
+        'show',
+    )
+    search_fields = ['show', 'exhibitor', 'is_late', 'has_paid']
+    list_filter = ('show', 'exhibitor', 'is_late', 'has_paid')
+
 admin.site.register(Exhibitor, ExhibitorAndRetailerAdmin)
 admin.site.register(Retailer,  ExhibitorAndRetailerAdmin)
 admin.site.register(Show, ShowAdmin)
+admin.site.register(Registration, RegistrationAdmin)

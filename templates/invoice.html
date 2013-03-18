@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+<style type="text/css">
+    @media print {
+        body {
+            color: black;
+        }
+        legend {
+            color: black;
+            border: 1px solid black;
+        }
+    }
+    @media screen {
+        body {
+            color: #ebe7d7; /* tan */
+        }
+        legend {
+            color: #70667d; /* purple */
+            border: 1px solid #c1d2cf; /* teal */
+        }
+    }
+    @media all {
+        body {
+            font-family: 'Sorts Mill Goudy', serif;
+            font-size: large;
+            background: #ebe7d7;
+        }
+
+        fieldset {
+            border: 2px solid #70667d; /* purple */
+            background: #70667d; /* purple */
+            /*width: 20em*/
+        }
+
+        legend {
+            font-weight: bold;
+            background: #c1d2cf; /* teal */
+            padding: 2px 6px
+        }
+
+        div.block {
+            overflow:hidden;
+        }
+
+        div.block .mylabel {
+            width: 8em;
+            display:block;
+            float:left;
+            text-align:right;
+            margin-right: 0.5em;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        div.block .myvalue{
+            margin-left:1em;
+            float:left;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        div.block .address{
+            display:block;
+            text-align:center;
+            width: 16em;
+            margin-top: 1em;
+            margin-bottom: 1em;
+            margin-left: 4em;
+        }
+        div.block .number{
+            width: 5em;
+            font-family: 'courier', sans-serif;
+            text-align: right;
+        }
+
+        div.block .date{
+            font-family: 'courier', sans-serif;
+            text-align: left;
+        }
+
+        div.block .extra{
+            font-family: 'courier', sans-serif;
+            margin-left: 2em;
+            float:left;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        a:link     { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+        a:visited  { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+        a:hover    { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+        a:active   { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+    }
+</style>
+{% endblock %}
+
+{% block head %}
+YOUR INVOICE AND DETAILS
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    {% load humanize %}
+
+    <fieldset>
+    <legend>Important Deadlines</legend>
+    <div class="block">
+        <p class="mylabel">Late after:</p>
+        <p class="myvalue date">{{ show.late_date|date:"l, F jS Y" }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Closed after:</p>
+        <p class="myvalue date">{{ show.closed_date|date:"l, F jS Y" }}</p>
+    </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset>
+    <legend>Show Details</legend>
+    <div class="block">
+        <p class="mylabel">Starts on:</p>
+        <p class="myvalue date">{{ show.start_date|date:"l, F jS Y" }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Ends on:</p>
+        <p class="myvalue date">{{ show.end_date|date:"l, F jS Y" }}</p>
+    </div>
+    <div class="block">
+        <p class="address">
+            DoubleTree by Hilton - Southcenter<br>
+            16500 Southcenter Parkway<br>
+            Seattle, WA 98188
+        </p>
+    </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset>
+    <legend>Your Invoice</legend>
+    <div class="block">
+        <p class="mylabel">Registration fee:</p>
+        <p class="myvalue number">{{ "$"|iriencode }}{{ registration_total|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Assistant fee:</p>
+        <p class="myvalue number">{{ "$"|iriencode }}{{ assistant_total|floatformat:2|intcomma }}</p>
+        <p class="extra">{{ "("|iriencode }}{{ num_assistants }} {{ "@"|iriencode }} {{ "$"|iriencode }}{{ show.assistant_fee }} each{{ ")"|iriencode }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Rack fee:</p>
+        <p class="myvalue number">{{ "$"|iriencode }}{{ rack_total|floatformat:2|intcomma }}</p>
+        <p class="extra">{{ "("|iriencode }}{{ num_racks }} {{ "@"|iriencode }} {{ "$"|iriencode }}{{ show.rack_fee }} each{{ ")"|iriencode }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Late fee:</p>
+        <p class="myvalue number">{{ "$"|iriencode }}{{ late_total|floatformat:2|intcomma }}</p>
+    </div>
+    <p></p>
+    <div class="block">
+        <p class="mylabel">TOTAL:</p>
+        <p class="myvalue number">{{ "$"|iriencode }}{{ total|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="block">
+        <p>Make checks payable to: <em>Laurel Event Management</em></p>
+        <p>Mail your check to:</p>
+        <p class="address">
+            Laurel Event Management<br>
+            PO Box 2791<br>
+            Tualatin, OR 97062
+        </p>
+    </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset>
+        <legend>Disclaimers</legend>
+        <div class="block">
+            <p>By registering for this show, you agree to all terms and conditions of Northwest Kids Show.</p>
+            <p>By registering and paying for this show, you agree that all fees are non-refundable.</p>
+        </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset>
+        <legend>Choose an Activity</legend>
+        <p class="action"><a href="/lines/">Edit</a> my lines.</p>
+        <p class="action"><a href="/edit/">Edit</a> my profile.</p>
+    </fieldset>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Attendee(models.Model):
     # Trying to keep this simple - does this work okay?
     # They edit their profile on a PAGE and not in django admin?
@@ -41,14 +42,16 @@ class Attendee(models.Model):
     def username_display(self):
         return self.user.username
     username_display.short_description = 'Username'
-    
+
 
 class Exhibitor(Attendee):
     lines = models.TextField() # TODO: find a better model for this, on a per-exhibitor basis.
 
+
 class Retailer(Attendee):
     # nothing more to add on top of the abstract base class... yet!
     pass
+
 
 class Show(models.Model):
 
@@ -72,3 +75,23 @@ class Show(models.Model):
 
     class Meta:
         ordering = ['closed_date']
+
+
+class Registration(models.Model):
+    show      = models.OneToOneField(Show)
+    exhibitor = models.OneToOneField(Exhibitor)
+
+    num_exhibitors  = models.SmallIntegerField()
+    num_assistants  = models.SmallIntegerField()
+    num_racks       = models.SmallIntegerField()
+    num_tables      = models.SmallIntegerField()
+    is_late         = models.BooleanField()
+    date_registered = models.DateField()
+
+    registration_total = models.FloatField()
+    assistant_total    = models.FloatField()
+    rack_total         = models.FloatField()
+    late_total         = models.FloatField()
+    total              = models.FloatField()
+
+    has_paid = models.BooleanField()
