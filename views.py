@@ -1,5 +1,6 @@
 
 # django request/response stuff
+from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -101,10 +102,28 @@ def get_better_choices(shows, show_count):
         for d in range(0, delta+1, 1):
             dateObject = show.start_date + datetime.timedelta(days=d)
             dateString = dateObject.strftime("%A, %B %d") # Thursday, October 24
-            choices.append((d+1, dateString))
+            # choices.append((d+1, dateString))
+            choices.append((d, dateString))
     # print 'CHOICES'
     # pprint(choices)
     return choices
+
+
+def get_initial_retailer_registration(retailer, shows):
+    try:
+        registration = RetailerRegistration.objects.get(show=shows[0], retailer=retailer)
+    except ObjectDoesNotExist:
+        return {}
+    # pprint(model_to_dict(registration))
+    return model_to_dict(registration)
+
+def get_initial_exhibitor_registration(exhibitor, shows):
+    try:
+        registration = Registration.objects.get(show=shows[0], exhibitor=exhibitor)
+    except ObjectDoesNotExist:
+        return {}
+    # pprint(model_to_dict(registration))
+    return model_to_dict(registration)
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
@@ -116,10 +135,17 @@ def register(request):
     if request.method != 'POST': # a GET
 
         if user_is_retailer(request.user):
-            form = RetailerRegistrationForm(better_choices=get_better_choices(shows, show_count))
+            retailer = Retailer.objects.get(user=request.user)
+            form = RetailerRegistrationForm(
+                initial=get_initial_retailer_registration(retailer, shows),
+                better_choices=get_better_choices(shows, show_count)
+            )
 
         if user_is_exhibitor(request.user):
-            form = ExhibitorRegistrationForm()
+            exhibitor = Exhibitor.objects.get(user=request.user)
+            form = ExhibitorRegistrationForm(
+                initial=get_initial_exhibitor_registration(exhibitor, shows)
+            )
 
     else: # a POST
 
@@ -198,10 +224,9 @@ def register(request):
                 # grab some fields form the form
                 show           = cd['show']
                 num_attendees  = cd['num_attendees']
-                days_attending = cd['days_attending'] # gives you: [u'1', u'2']
-                # adjust by -1 since if you're attending day #1 then that's (show.start_date - 0)
-                days_attending = [eval(x)-1 for x in days_attending] # gives you: [0, 1]
-                days_attending = [unicode(x) for x in days_attending] # gives you: [u'0', u'1']
+                days_attending = cd['days_attending'] # gives you: [u'0', u'1']
+                # days_attending = [eval(x) for x in days_attending] # gives you: [0, 1]
+                # days_attending = [unicode(x) for x in days_attending] # gives you: [u'0', u'1']
                 days_attending = ','.join(days_attending) # gives you: u'0,1', suitable for the stupid CommaSeparatedIntegerField
 
                 # Add this exhibitor to the Show exhibitors
