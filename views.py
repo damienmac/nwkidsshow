@@ -17,6 +17,7 @@ from nwkidsshow.models import Exhibitor
 from nwkidsshow.models import Retailer
 from nwkidsshow.models import Show
 from nwkidsshow.models import Registration
+from nwkidsshow.models import RetailerRegistration
 
 #my forms
 from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
@@ -26,6 +27,7 @@ from django.db.models import Q
 
 # python stuff
 import datetime
+from pprint import pprint
 
 ### notes ###
 #TODO: I need test accounts that are not real users: "testex" and "testret". Need to hide them from reports, but otherwise work like a real user.
@@ -94,9 +96,9 @@ def register(request):
     shows = Show.objects.filter(closed_date__gt=datetime.date.today())
     show_count = shows.count()
     if request.method != 'POST':
-        form = ExhibitorRegistrationForm()
-        if user_is_retailer(request.user):
-            form = RetailerRegistrationForm()
+        form = RetailerRegistrationForm()
+        if user_is_exhibitor(request.user):
+            form = ExhibitorRegistrationForm()
     else:
         if user_is_exhibitor(request.user):
             #TODO: do I need to test this found one thing? try/catch.
@@ -127,6 +129,7 @@ def register(request):
                         late_total
 
                 # store in the object for display on the next page !!! not if you fix this !!!
+                # TODO: can I remove this now?
                 cd['registration_total'] = registration_total
                 cd['assistant_total']    = assistant_total
                 cd['rack_total']         = rack_total
@@ -158,20 +161,81 @@ def register(request):
                 r.total              = total
                 r.save()
 
-                # TODO: put data in the SESSION and then make this redirect to a URL that renders invoice with the data so that this is an INVOICE page
-                return render_to_response('invoice.html', cd)
+                # display the show info, fees, disclaimers, etc. on a nice page
+                return redirect('/invoice/%s/' % show.id)
         else:
+            #TODO: do I need to test this found one thing? try/catch.
+            retailer = Retailer.objects.get(user=request.user)
+            print "### found retailer %s" % retailer.user
             form = RetailerRegistrationForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
-                # TODO: add a new registration object and associate with this retailer
-                # TODO: Add the user to the Show retailers
-                # TODO: put data in the SESSION and then make this redirect to a URL that renders invoice with the data so that this is an INVOICE page
-                return render_to_response('registered.html', cd)
+                pprint(cd)
+                pprint(','.join(cd['days_attending']))
+
+                # grab some fields form the form
+                show           = cd['show']
+                num_attendees  = cd['num_attendees']
+                days_attending = ','.join(cd['days_attending'])
+
+                # Add this exhibitor to the Show exhibitors
+                show.retailers.add(retailer)
+
+                # add a new registration object and associate with this retailer & show
+                # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
+                try:
+                    r = RetailerRegistration.objects.get(retailer=retailer, show=show)
+                    print "RetailerRegistration for (%s & %s) already exists" % (retailer.user, show.name)
+                except ObjectDoesNotExist:
+                    r = RetailerRegistration(retailer=retailer, show=show)
+                    r.has_paid = False
+                    print "created RetailerRegistration: (%s & %s)" % (retailer.user, show.name)
+                r.num_attendees  = num_attendees
+                r.days_attending = days_attending
+                r.save()
+
+                # TODO: convert days attending to actual dates and show on the "registered" page.
+                return redirect('/registered/%s/' % show.id)
 
     return render_to_response('register.html',
-                              {'form': form, 'show_count': show_count},
+                              {'form': form,
+                               'show_count': show_count,
+                               'is_exhibitor': user_is_exhibitor(request.user)},
                               context_instance=RequestContext(request))
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def registrations(request):
+    # TODO: do something smarter here like let them choose an registration to examine/print
+    return render_to_response('home.html', {'world_kind':'invoices'})
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def registered(request, showid):
+    try:
+        show = Show.objects.get(id=showid)
+        retailer = Retailer.objects.get(user=request.user)
+        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+    return render_to_response('registered.html', {'show': show, 'registration': registration})
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def invoices(request):
+    # TODO: do something smarter here like let them choose an invoice to examine/print
+    return render_to_response('home.html', {'world_kind':'invoices'})
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def invoice(request, showid):
+    try:
+        show = Show.objects.get(id=showid)
+        exhibitor = Exhibitor.objects.get(user=request.user)
+        registration = Registration.objects.get(show=show, exhibitor=exhibitor)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noinvoice/')
+    return render_to_response('invoice.html', {'show': show, 'registration': registration})
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')

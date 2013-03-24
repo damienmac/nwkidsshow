@@ -95,3 +95,11 @@ class Registration(models.Model):
     total              = models.FloatField()
 
     has_paid = models.BooleanField()
+
+
+class RetailerRegistration(models.Model):
+    show     = models.ForeignKey(Show)
+    retailer = models.ForeignKey(Retailer)
+
+    num_attendees  = models.PositiveSmallIntegerField()
+    days_attending = models.CommaSeparatedIntegerField(max_length=7)

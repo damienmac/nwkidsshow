@@ -23,7 +23,7 @@
         padding: 2px 6px
     }
 
-    label {
+    p label {
         color: #ebe7d7; /* tan */
         width: 8em;
         float: left;
@@ -31,6 +31,18 @@
         margin-right: 0.5em;
         display: block;
         padding-top: 2px;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    li label {
+        color: #ebe7d7; /* tan */
+        padding-top: 2px;
+        display: block;
+        padding-left: 8em;
+        text-indent: -1em;
     }
 
     input, select {
@@ -97,6 +109,7 @@ REGISTER FOR A SHOW
 	        	<span class="error">{{ form.show.errors|first }}</span>
 	        {% endif %}
         </p>
+    {% if is_exhibitor %}
         <p class="field">
             <label for="id_num_associates">{{form.num_associates.label}}:</label>
             {{ form.num_associates }}
@@ -105,26 +118,42 @@ REGISTER FOR A SHOW
         	{% endif %}
         </p>
         <p class="field">
-            <label for="id_message">{{form.num_assistants.label}}:</label>
+            <label for="id_num_assistants">{{form.num_assistants.label}}:</label>
             {{ form.num_assistants }}
 	        {% if form.num_assistants.errors %}
 	        	<span class="error">{{ form.num_assistants.errors|first }}</span>
 	        {% endif %}
         </p>
         <p class="field">
-            <label for="id_message">{{form.num_racks.label}}:</label>
+            <label for="id_num_racks">{{form.num_racks.label}}:</label>
             {{ form.num_racks }}
 	        {% if form.num_racks.errors %}
 	        	<span class="error">{{ form.num_racks.errors|first }}</span>
 	        {% endif %}
         </p>
         <p class="field">
-            <label for="id_message">{{form.num_tables.label}}:</label>
+            <label for="id_num_tables">{{form.num_tables.label}}:</label>
             {{ form.num_tables }}
 	        {% if form.num_tables.errors %}
 	        	<span class="error">{{ form.num_tables.errors|first }}</span>
 	        {% endif %}
         </p>
+        {% else %}
+        <p class="field">
+            <label for="id_num_attendees">{{ form.num_attendees.label }}:</label>
+            {{ form.num_attendees }}
+            {% if form.num_attendees.errors %}
+                <span class="error">{{  form.num_attendees.errors|first }}</span>
+            {%  endif %}
+        </p>
+        <p class="field">
+            <label for="id_days_attending">{{ form.days_attending.label }}:</label>
+            {% if form.days_attending.errors %}
+                <span class="error">{{ form.days_attending.errors|first }}</span>
+            {%  endif %}
+            {{ form.days_attending }}
+        </p>
+        {% endif %}
         <p class="submit">
         	<input type="submit" value="Submit">
         </p>

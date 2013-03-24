@@ -134,6 +134,7 @@ DUMP
 	{% if shows %}
 		<table border="1">
 			<tr>
+                <th>id</th>
 				<th>name</th>
 				<th>late date</th>
 				<th>closed date</th>
@@ -148,6 +149,7 @@ DUMP
 			</tr>
 			{% for s in shows %}
 				<tr>
+                    <td>{{ s.id }}</td>
 					<td>{{ s.name }}</td>
 					<td>{{ s.late_date }}</td>
 					<td>{{ s.closed_date }}</td>

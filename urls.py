@@ -23,7 +23,15 @@ urlpatterns = patterns('',
 
     url(r'^exhibitor/home/$', 'nwkidsshow.views.exhibitor_home', name='exhibitor_home'),
     url(r'^retailer/home/$', 'nwkidsshow.views.retailer_home', name='retailer_home'),
+
     url(r'^register/$', 'nwkidsshow.views.register', name='register'),
+
+    url(r'^invoices/$', 'nwkidsshow.views.invoices', name='invoices'),
+    url(r'^invoice/(?P<showid>\w+)/$', 'nwkidsshow.views.invoice', name='invoice'),
+
+    url(r'^registrations/$', 'nwkidsshow.views.registrations', name='registrations'),
+    url(r'^registered/(?P<showid>\w+)/$', 'nwkidsshow.views.registered', name='registered'),
+
     url(r'^lines/$', 'nwkidsshow.views.lines', name='lines'),
     url(r'^edit/$', 'nwkidsshow.views.edit', name='edit'),
     url(r'^report/retailers/$', 'nwkidsshow.views.report_retailers', name='report_retailers'),

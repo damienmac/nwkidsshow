@@ -96,7 +96,7 @@
 {% endblock %}
 
 {% block head %}
-YOUR INVOICE AND DETAILS
+YOUR REGISTRATION DETAILS
 {% endblock %}
 
 {% block title %}
@@ -104,18 +104,6 @@ YOUR INVOICE AND DETAILS
 
 {% block content %}
     {% load humanize %}
-
-    <fieldset>
-    <legend>Important Deadlines</legend>
-    <div class="block">
-        <p class="mylabel">Late after:</p>
-        <p class="myvalue date">{{ show.late_date|date:"l, F jS Y" }}</p>
-    </div>
-    <div class="block">
-        <p class="mylabel">Closed after:</p>
-        <p class="myvalue date">{{ show.closed_date|date:"l, F jS Y" }}</p>
-    </div>
-    </fieldset>
 
     <p></p>
     <fieldset>
@@ -139,54 +127,17 @@ YOUR INVOICE AND DETAILS
 
     <p></p>
     <fieldset>
-    <legend>Your Invoice</legend>
-    <div class="block">
-        <p class="mylabel">Registration fee:</p>
-        <p class="myvalue number">{{ "$"|iriencode }}{{ registration.registration_total|floatformat:2|intcomma }}</p>
-    </div>
-    <div class="block">
-        <p class="mylabel">Assistant fee:</p>
-        <p class="myvalue number">{{ "$"|iriencode }}{{ registration.assistant_total|floatformat:2|intcomma }}</p>
-        <p class="extra">{{ "("|iriencode }}{{ registration.num_assistants }} {{ "@"|iriencode }} {{ "$"|iriencode }}{{ show.assistant_fee }} each{{ ")"|iriencode }}</p>
-    </div>
-    <div class="block">
-        <p class="mylabel">Rack fee:</p>
-        <p class="myvalue number">{{ "$"|iriencode }}{{ registration.rack_total|floatformat:2|intcomma }}</p>
-        <p class="extra">{{ "("|iriencode }}{{ registration.num_racks }} {{ "@"|iriencode }} {{ "$"|iriencode }}{{ show.rack_fee }} each{{ ")"|iriencode }}</p>
-    </div>
-    <div class="block">
-        <p class="mylabel">Late fee:</p>
-        <p class="myvalue number">{{ "$"|iriencode }}{{ registration.late_total|floatformat:2|intcomma }}</p>
-    </div>
-    <p></p>
-    <div class="block">
-        <p class="mylabel">TOTAL:</p>
-        <p class="myvalue number">{{ "$"|iriencode }}{{ registration.total|floatformat:2|intcomma }}</p>
-    </div>
-    <div class="block">
-        <p>Make checks payable to: <em>Laurel Event Management</em></p>
-        <p>Mail your check to:</p>
-        <p class="address">
-            Laurel Event Management<br>
-            PO Box 2791<br>
-            Tualatin, OR 97062
-        </p>
-    </div>
-    </fieldset>
-
-    <p></p>
-    <fieldset>
         <legend>Disclaimers</legend>
         <div class="block">
             <p>By registering for this show, you agree to all terms and conditions of Northwest Kids Show.</p>
-            <p>By registering and paying for this show, you agree that all fees are non-refundable.</p>
         </div>
     </fieldset>
 
     <p></p>
     <fieldset>
         <legend>Choose an Activity</legend>
-        <p class="action"><a href="/lines/">Edit</a> my lines.</p>
         <p class="action"><a href="/edit/">Edit</a> my profile.</p>
+        <p class="action"><a href="/report/exhibitors/">Report</a> on the EXHIBITORS at a show.</p>
+        <p class="action"><a href="/report/lines/">Report</a> on the PRODUCT LINES at a show.</p>
     </fieldset>
 {% endblock %}
