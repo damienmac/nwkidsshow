@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from pprint import pprint
 
 class Attendee(models.Model):
     # Trying to keep this simple - does this work okay?
@@ -103,3 +103,11 @@ class RetailerRegistration(models.Model):
 
     num_attendees  = models.PositiveSmallIntegerField()
     days_attending = models.CommaSeparatedIntegerField(max_length=7)
+
+    def days_as_list(self):
+        # days_attending is something like u'0,1'
+        # convert it to [u'0', u'1']
+        char_list = self.days_attending.split(',')
+        # then make it integers like [0, 1]
+        num_list = [eval(x) for x in char_list]
+        return num_list

@@ -54,8 +54,11 @@
             margin-bottom: 0;
         }
         div.block .myvalue{
-            margin-left:1em;
-            float:left;
+            text-align: left;
+            padding-top: 2px;
+            display: block;
+            padding-left: 10em;
+            text-indent: -1em;
             margin-top: 0;
             margin-bottom: 0;
         }
@@ -76,7 +79,6 @@
 
         div.block .date{
             font-family: 'courier', sans-serif;
-            text-align: left;
         }
 
         div.block .extra{
@@ -104,6 +106,7 @@ YOUR REGISTRATION DETAILS
 
 {% block content %}
     {% load humanize %}
+    {% load datemath %}
 
     <p></p>
     <fieldset>
@@ -115,6 +118,12 @@ YOUR REGISTRATION DETAILS
     <div class="block">
         <p class="mylabel">Ends on:</p>
         <p class="myvalue date">{{ show.end_date|date:"l, F jS Y" }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Attending on:</p>
+        {% for d in registration.days_as_list %}
+            <p class="myvalue date">{{ show.start_date|dayadd:d|date:"l, F jS Y" }} from 9am to 6pm</p>
+        {%  endfor %}
     </div>
     <div class="block">
         <p class="address">

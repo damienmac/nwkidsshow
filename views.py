@@ -90,16 +90,39 @@ def retailer_home(request):
     return render_to_response('retailer.html', {})
 
 
+def get_better_choices(shows, show_count):
+    # SPECIAL: I am too lazy to AJAX back for the actual dates on the checkboxes.
+    # BUT there is usually only ONE show to register for at a time, so grab those
+    # dates, as strings, and pass to the form as better "choices"
+    choices = []
+    if show_count == 1:
+        show = shows[0]
+        delta = (show.end_date - show.start_date).days
+        for d in range(0, delta+1, 1):
+            dateObject = show.start_date + datetime.timedelta(days=d)
+            dateString = dateObject.strftime("%A, %B %d") # Thursday, October 24
+            choices.append((d+1, dateString))
+    # print 'CHOICES'
+    # pprint(choices)
+    return choices
+
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
     shows = Show.objects.filter(closed_date__gt=datetime.date.today())
     show_count = shows.count()
-    if request.method != 'POST':
-        form = RetailerRegistrationForm()
+    form = None
+
+    if request.method != 'POST': # a GET
+
+        if user_is_retailer(request.user):
+            form = RetailerRegistrationForm(better_choices=get_better_choices(shows, show_count))
+
         if user_is_exhibitor(request.user):
             form = ExhibitorRegistrationForm()
-    else:
+
+    else: # a POST
+
         if user_is_exhibitor(request.user):
             #TODO: do I need to test this found one thing? try/catch.
             exhibitor = Exhibitor.objects.get(user=request.user)
@@ -167,16 +190,19 @@ def register(request):
             #TODO: do I need to test this found one thing? try/catch.
             retailer = Retailer.objects.get(user=request.user)
             print "### found retailer %s" % retailer.user
-            form = RetailerRegistrationForm(request.POST)
+            form = RetailerRegistrationForm(request.POST, better_choices=get_better_choices(shows, show_count))
             if form.is_valid():
                 cd = form.cleaned_data
-                pprint(cd)
-                pprint(','.join(cd['days_attending']))
+                # pprint(cd)
 
                 # grab some fields form the form
                 show           = cd['show']
                 num_attendees  = cd['num_attendees']
-                days_attending = ','.join(cd['days_attending'])
+                days_attending = cd['days_attending'] # gives you: [u'1', u'2']
+                # adjust by -1 since if you're attending day #1 then that's (show.start_date - 0)
+                days_attending = [eval(x)-1 for x in days_attending] # gives you: [0, 1]
+                days_attending = [unicode(x) for x in days_attending] # gives you: [u'0', u'1']
+                days_attending = ','.join(days_attending) # gives you: u'0,1', suitable for the stupid CommaSeparatedIntegerField
 
                 # Add this exhibitor to the Show exhibitors
                 show.retailers.add(retailer)
@@ -188,7 +214,6 @@ def register(request):
                     print "RetailerRegistration for (%s & %s) already exists" % (retailer.user, show.name)
                 except ObjectDoesNotExist:
                     r = RetailerRegistration(retailer=retailer, show=show)
-                    r.has_paid = False
                     print "created RetailerRegistration: (%s & %s)" % (retailer.user, show.name)
                 r.num_attendees  = num_attendees
                 r.days_attending = days_attending
@@ -366,27 +391,27 @@ shows = [
     },
     {
         # fake up a late fee show
-        'name'       : 'October 2013',
-        'late_date'  : datetime.date(2013,  3, 14),
-        'closed_date': datetime.date(2013,  8, 24),
-        'start_date' : datetime.date(2013, 10, 24),
-        'end_date'   : datetime.date(2013, 10, 26),
+        'name'       : 'September 2013',
+        'late_date'  : datetime.date(2013,  3, 14), # really: July 26
+        'closed_date': datetime.date(2013,  8,  9),
+        'start_date' : datetime.date(2013,  9, 28),
+        'end_date'   : datetime.date(2013,  9, 30),
         'registration_fee' : 150.00,
         'assistant_fee'    : 25.00,
         'late_fee'         : 75.00,
         'rack_fee'         : 20.00,
     },
-    {
-        'name'       : 'February 2014',
-        'late_date'  : datetime.date(2013, 12, 24),
-        'closed_date': datetime.date(2014,  1, 24),
-        'start_date' : datetime.date(2014,  2, 24),
-        'end_date'   : datetime.date(2014,  2, 26),
-        'registration_fee' : 150.00,
-        'assistant_fee'    : 25.00,
-        'late_fee'         : 75.00,
-        'rack_fee'         : 20.00,
-    },
+    # {
+    #     'name'       : 'February 2014',
+    #     'late_date'  : datetime.date(2013, 12, 24),
+    #     'closed_date': datetime.date(2014,  1, 24),
+    #     'start_date' : datetime.date(2014,  2, 22),
+    #     'end_date'   : datetime.date(2014,  2, 24),
+    #     'registration_fee' : 150.00,
+    #     'assistant_fee'    : 25.00,
+    #     'late_fee'         : 75.00,
+    #     'rack_fee'         : 20.00,
+    # },
 ]
 
 def populate_shows(shows):
