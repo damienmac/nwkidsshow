@@ -62,22 +62,22 @@ CHOOSE AN INVOICE
     <fieldset>
         <legend>Your Invoices</legend>
         {% if invoices %}
-        <div class="block">
-            <p>Click on a show below.</p>
-        </div>
-        {% for invoice in invoices %}
             <div class="block">
-                <p>
-                    <a href="/invoice/{{ invoice.show_id }}/">
-                        {{ invoice.show.name }}
-                    </a>
-                </p>
+                <p>Click on a show below.</p>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="block">
-            <p>You don't have any show registrations yet.</p>
-        </div>
-    {% endif %}
+            {% for invoice in invoices %}
+                <div class="block">
+                    <p>
+                        <a href="/invoice/{{ invoice.show_id }}/">
+                            {{ invoice.show.name }}
+                        </a>
+                    </p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="block">
+                <p>You don't have any show registrations yet.</p>
+            </div>
+        {% endif %}
     </fieldset>
 {% endblock %}

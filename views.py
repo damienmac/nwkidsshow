@@ -263,9 +263,9 @@ def registrations(request):
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
-def registered(request, showid):
+def registered(request, show_id):
     try:
-        show = Show.objects.get(id=showid)
+        show = Show.objects.get(id=show_id)
         retailer = Retailer.objects.get(user=request.user)
         registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
     except ObjectDoesNotExist:
