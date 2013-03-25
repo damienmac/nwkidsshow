@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+    <style type="text/css">
+        @media print {
+            body {
+                color: black;
+            }
+            legend {
+                color: black;
+                border: 1px solid black;
+            }
+        }
+        @media screen {
+            body {
+                color: #ebe7d7; /* tan */
+            }
+            legend {
+                color: #70667d; /* purple */
+                border: 1px solid #c1d2cf; /* teal */
+            }
+        }
+        @media all {
+            body {
+                font-family: 'Sorts Mill Goudy', serif;
+                font-size: large;
+                background: #ebe7d7;
+            }
+
+            fieldset {
+                border: 2px solid #70667d; /* purple */
+                background: #70667d; /* purple */
+                /*width: 20em*/
+            }
+
+            legend {
+                font-weight: bold;
+                background: #c1d2cf; /* teal */
+                padding: 2px 6px
+            }
+
+            div.block {
+                overflow:hidden;
+            }
+
+            a:link     { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+            a:visited  { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+            a:hover    { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+            a:active   { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+    </style>
+{% endblock %}
+
+{% block head %}
+CHOOSE AN INVOICE
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    <fieldset>
+        <legend>Your Invoices</legend>
+        {% if invoices %}
+        <div class="block">
+            <p>Click on a show below.</p>
+        </div>
+        {% for invoice in invoices %}
+            <div class="block">
+                <p>
+                    <a href="/invoice/{{ invoice.show_id }}/">
+                        {{ invoice.show.name }}
+                    </a>
+                </p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="block">
+            <p>You don't have any show registrations yet.</p>
+        </div>
+    {% endif %}
+    </fieldset>
+{% endblock %}

@@ -254,10 +254,12 @@ def register(request):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def registrations(request):
-    # TODO: do something smarter here like let them choose an registration to examine/print
-    return render_to_response('home.html', {'world_kind':'invoices'})
+    retailer = Retailer.objects.get(user=request.user)
+    print "### found retailer %s" % retailer.user
+    regs = RetailerRegistration.objects.filter(retailer=retailer)
+    return render_to_response('registrations.html', {'registrations': regs})
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
@@ -273,8 +275,10 @@ def registered(request, showid):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def invoices(request):
-    # TODO: do something smarter here like let them choose an invoice to examine/print
-    return render_to_response('home.html', {'world_kind':'invoices'})
+    exhibitor = Exhibitor.objects.get(user=request.user)
+    print "### found exhibitor %s" % exhibitor.user
+    invoices = Registration.objects.filter(exhibitor=exhibitor)
+    return render_to_response('invoices.html', {'invoices': invoices})
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -349,8 +353,9 @@ def populate_users(users, group):
 # hey, this looks a lot like Exhibitor.objects.all().values()
 #        {'username':'', 'password':'', 'first_name':'', 'last_name':'', 'email':'', 'company':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'phone':'', 'fax':'', lines':""" """, },
 exhibitors = [
-         {'username':'allison', 'password':'password', 'first_name':'Allison', 'last_name':'Acken',   'email':'allisonshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'Los Angeles', 'state':'CA', 'zip':'', 'phone':'310-486-9354', 'fax':'', 'lines':"""Kanz * Wheat * Purebaby Organic * Finn and Emma Organic""", },
-         {'username':'randee',  'password':'password', 'first_name':'Randee',  'last_name':'Arneson', 'email':'randeesshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'zip':'', 'phone':'213-624-8422', 'fax':'213-624-8946', 'lines':"""Petit Lem * Me Too * Losan * Blueberry Hill * Melton * Monkeybar Buddies * Nosilla Organics * She's the One * Thingamajiggies, PJ's * Marmalade * Ollie Baby * Nadi A Biffi * Imagine Greenwear *  Rose Cage * Everbloom Studio * Polka Dot Moon * Milla Reese Hair accessories * Toni Tierney""", },
+    {'username':'testex',  'password':'testex',   'first_name':'Test',    'last_name':'Exhibitor',   'email':'info@nwkidsshow.com',   'company':'Laurel Event management', 'website':'http://www.nwkidsshow.com/', 'address':'17565 SW 108th place', 'address2':'', 'city':'Tualatin', 'state':'OR', 'zip':'97062', 'phone':'503-330-7167', 'fax':'503-555-1212', 'lines':"""no * lines * really""", },
+    {'username':'allison', 'password':'password', 'first_name':'Allison', 'last_name':'Acken',   'email':'allisonshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'Los Angeles', 'state':'CA', 'zip':'', 'phone':'310-486-9354', 'fax':'', 'lines':"""Kanz * Wheat * Purebaby Organic * Finn and Emma Organic""", },
+    {'username':'randee',  'password':'password', 'first_name':'Randee',  'last_name':'Arneson', 'email':'randeesshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'zip':'', 'phone':'213-624-8422', 'fax':'213-624-8946', 'lines':"""Petit Lem * Me Too * Losan * Blueberry Hill * Melton * Monkeybar Buddies * Nosilla Organics * She's the One * Thingamajiggies, PJ's * Marmalade * Ollie Baby * Nadi A Biffi * Imagine Greenwear *  Rose Cage * Everbloom Studio * Polka Dot Moon * Milla Reese Hair accessories * Toni Tierney""", },
 ]
 
 def populate_exhibitors(exhibitors):
@@ -377,8 +382,9 @@ def populate_exhibitors(exhibitors):
 
 #        {'username':'', 'password':'', 'first_name':'', 'last_name':'', 'email':'', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'phone':'', 'fax':'', },
 retailers = [
-        {'username':'jessica_thompson', 'password':'password', 'first_name':'Jessica', 'last_name':'Thompson', 'email':'jesthompson2010@gmail.com', 'company':'',        'website':'', 'address':'',                  'address2':'', 'city':'',         'state':'',   'zip':'',      'phone':'253-858-1147', 'fax':'', },
-        {'username':'reese_prouty',     'password':'password', 'first_name':'Reese',   'last_name':'Prouty',   'email':'',                          'company':'8 Women', 'website':'', 'address':'3614 SE Hawthorne', 'address2':'', 'city':'Portland', 'state':'OR', 'zip':'97214', 'phone':'503-236-8878', 'fax':'', },
+    {'username':'testre', 'password':'testre', 'first_name':'Tester', 'last_name':'Tester', 'email':'info@nwkidsshow.com', 'company':'Laurel Event Management',        'website':'http://www.nwkidsshow.com/', 'address':'17565 SW 108th Place',                  'address2':'', 'city':'Tualatin',         'state':'OR',   'zip':'97062',      'phone':'503-330-7167', 'fax':'503-555-1212', },
+    {'username':'jessica_thompson', 'password':'password', 'first_name':'Jessica', 'last_name':'Thompson', 'email':'jesthompson2010@gmail.com', 'company':'',        'website':'', 'address':'',                  'address2':'', 'city':'',         'state':'',   'zip':'',      'phone':'253-858-1147', 'fax':'', },
+    {'username':'reese_prouty',     'password':'password', 'first_name':'Reese',   'last_name':'Prouty',   'email':'',                          'company':'8 Women', 'website':'', 'address':'3614 SE Hawthorne', 'address2':'', 'city':'Portland', 'state':'OR', 'zip':'97214', 'phone':'503-236-8878', 'fax':'', },
 ]
 
 def populate_retailers(retailers):
@@ -426,17 +432,17 @@ shows = [
         'late_fee'         : 75.00,
         'rack_fee'         : 20.00,
     },
-    # {
-    #     'name'       : 'February 2014',
-    #     'late_date'  : datetime.date(2013, 12, 24),
-    #     'closed_date': datetime.date(2014,  1, 24),
-    #     'start_date' : datetime.date(2014,  2, 22),
-    #     'end_date'   : datetime.date(2014,  2, 24),
-    #     'registration_fee' : 150.00,
-    #     'assistant_fee'    : 25.00,
-    #     'late_fee'         : 75.00,
-    #     'rack_fee'         : 20.00,
-    # },
+    {
+        'name'       : 'February 2014',
+        'late_date'  : datetime.date(2013, 12, 24),
+        'closed_date': datetime.date(2014,  1, 24),
+        'start_date' : datetime.date(2014,  2, 22),
+        'end_date'   : datetime.date(2014,  2, 24),
+        'registration_fee' : 150.00,
+        'assistant_fee'    : 25.00,
+        'late_fee'         : 75.00,
+        'rack_fee'         : 20.00,
+    },
 ]
 
 def populate_shows(shows):
