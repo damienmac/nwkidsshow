@@ -1,6 +1,7 @@
 from django import forms
+from django.forms import ModelForm
 from django.forms.widgets import CheckboxSelectMultiple
-from nwkidsshow.models import Show
+from nwkidsshow.models import Show, Exhibitor, Retailer
 import datetime
 
 class ExhibitorRegistrationForm(forms.Form):
@@ -16,6 +17,7 @@ class ExhibitorRegistrationForm(forms.Form):
         else:
             super(ExhibitorRegistrationForm, self).__init__(initial=initial)
         self.fields['show'].queryset = Show.objects.filter(closed_date__gt=datetime.date.today())
+
 
 class RetailerRegistrationForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
@@ -38,3 +40,15 @@ class RetailerRegistrationForm(forms.Form):
         if better_choices:
             self.choices = better_choices
             self.fields['days_attending'].choices = self.choices
+
+
+class ExhibitorForm(ModelForm):
+    class Meta:
+        model = Exhibitor
+        exclude = ('user', 'lines', )
+
+
+class RetailerForm(ModelForm):
+    class Meta:
+        model = Retailer
+        exclude = ('user', )

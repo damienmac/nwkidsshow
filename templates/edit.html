@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+    <style type="text/css">
+        body {
+            font-family: 'Sorts Mill Goudy', serif;
+            font-size: large;
+            background: #ebe7d7;
+        }
+
+        fieldset {
+            border: 2px solid #70667d; /* purple */
+            background: #70667d; /* purple */
+            /*width: 20em*/
+        }
+
+        legend {
+            font-weight: bold;
+            color: #70667d; /* purple */
+            background: #c1d2cf; /* teal */
+            border: 1px solid #c1d2cf; /* teal */
+            padding: 2px 6px
+        }
+
+        p label {
+            color: #ebe7d7; /* tan */
+            width: 8em;
+            float: left;
+            text-align: right;
+            margin-right: 0.5em;
+            display: block;
+            padding-top: 2px;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li label {
+            color: #ebe7d7; /* tan */
+            padding-top: 2px;
+            display: block;
+            padding-left: 8em;
+            text-indent: -1.5em;
+        }
+
+        input, select {
+            /*font-family: 'Sorts Mill Goudy', serif;*/
+            font-size: large;
+            color: #70667d; /* font color is purple */
+            background: #ebe7d7; /* tan */
+        }
+
+        .submit input {
+            font-family: 'Sorts Mill Goudy', serif;
+            font-size: large;
+            font-weight: bold;
+            color: #70667d;
+            background: #ebe7d7;
+            border: 2px outset #ebe7d7;
+            margin-left: 0.3em;
+        }
+
+        .action {
+            color: #ebe7d7; /* tan */
+        }
+
+        a:link     { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+        a:visited  { font-weight:bold; color:#c1d2cf; text-decoration:none; }
+        a:hover    { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+        a:active   { font-weight:bold; color:#c1d2cf; text-decoration:underline; }
+    </style>
+{% endblock %}
+
+{% block jquery %}{# Set focus on the first input field, show picker #}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_show").focus();
+        });
+    </script>
+{% endblock %}
+
+{% block head %}
+    REGISTER FOR A SHOW
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    {% if form.errors %}
+        <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
+    {% endif %}
+
+    <fieldset>
+        <legend>Edit Your Profile</legend>
+        <form action="" method="post">
+            {% csrf_token %}
+            <p class="field">
+                <label>{{ form.company.label }}:</label>
+                {{ form.company }}
+                {% if form.company.errors %}
+                    <span class="error">{{ form.company.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.website.label }}</label>
+                {{ form.website }}
+                {% if form.website.errors %}
+                    <span class="error">{{ form.website.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.address.label }}</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <span class="error">{{ form.address.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.address2.label }}</label>
+                {{ form.address2 }}
+                {% if form.address2.errors %}
+                    <span class="error">{{ form.address2.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.city.label }}</label>
+                {{ form.city }}
+                {% if form.city.errors %}
+                    <span class="error">{{ form.city.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.state.label }}</label>
+                {{ form.state }}
+                {% if form.state.errors %}
+                    <span class="error">{{ form.state.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.zip.label }}</label>
+                {{ form.zip }}
+                {% if form.zip.errors %}
+                    <span class="error">{{ form.zip.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.phone.label }}</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <span class="error">{{ form.phone.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.fax.label }}</label>
+                {{ form.fax }}
+                {% if form.fax.errors %}
+                    <span class="error">{{ form.fax.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="submit">
+                <input type="submit" value="Submit">
+            </p>
+        </form>
+    </fieldset>
+{% endblock %}

@@ -1,5 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+
+from django.contrib.localflavor.us.models import PhoneNumberField
+from django.contrib.localflavor.us.us_states    import US_STATES
+from django.contrib.localflavor.ca.ca_provinces import PROVINCE_CHOICES
+US_CA_STATES = tuple(sorted(US_STATES + PROVINCE_CHOICES, key=lambda obj: obj[1]))
+
 from pprint import pprint
 
 class Attendee(models.Model):
@@ -9,14 +15,14 @@ class Attendee(models.Model):
     user = models.OneToOneField(User)
     
     company   = models.CharField(max_length=50)
-    website   = models.URLField() # default length is 200
+    website   = models.URLField(blank=True) # default length is 200
     address   = models.CharField(max_length=50)
-    address2  = models.CharField(max_length=50)
+    address2  = models.CharField(max_length=50, blank=True)
     city      = models.CharField(max_length=60)
-    state     = models.CharField(max_length=30)
-    zip       = models.CharField(max_length=5)
-    phone     = models.CharField(max_length=12)
-    fax       = models.CharField(max_length=12)
+    state     = models.CharField(choices=US_CA_STATES, max_length=2) # state = USStateField() # from django.contrib.localflavor.us.models
+    zip       = models.CharField(max_length=7) # Canada is "A0A 0A0"
+    phone     = PhoneNumberField()
+    fax       = PhoneNumberField(blank=True)
 
     class Meta:
         # make this an abstract base class which Exhibitor and Retailer can use

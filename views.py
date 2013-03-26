@@ -22,6 +22,7 @@ from nwkidsshow.models import RetailerRegistration
 
 #my forms
 from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
+from nwkidsshow.forms import ExhibitorForm, RetailerForm
 
 # django query stuff
 from django.db.models import Q
@@ -299,7 +300,29 @@ def lines(request):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def edit(request):
-    return render_to_response('home.html', {'world_kind':'edit'})
+    form = None
+    if user_is_retailer(request.user):
+        retailer = Retailer.objects.get(user=request.user)
+        if request.method != 'POST': # a GET
+            form = RetailerForm(instance=retailer)
+        else: # a POST
+            form = RetailerForm(request.POST, instance=retailer)
+            if form.is_valid():
+                form.save()
+                return redirect('/retailer/home/')
+    else:
+        exhibitor = Exhibitor.objects.get(user=request.user)
+        if request.method != 'POST': # a GET
+            form = ExhibitorForm(instance=exhibitor)
+        else: # a POST
+            form = ExhibitorForm(request.POST, instance=exhibitor)
+            if form.is_valid():
+                form.save()
+                return redirect('/exhibitor/home/')
+    return render_to_response('edit.html',
+                              {'form': form,},
+                              context_instance=RequestContext(request))
+
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -368,6 +391,7 @@ def populate_exhibitors(exhibitors):
             e = Exhibitor(user=user)
             print "creating exhibitor %s" % e
         e.company   = exhibitor['company']  if not e.company  else e.company
+        e.website   = exhibitor['website']  if not e.website  else e.website
         e.address   = exhibitor['address']  if not e.address  else e.address
         e.address2  = exhibitor['address2'] if not e.address2 else e.address2
         e.city      = exhibitor['city']     if not e.city     else e.city
@@ -397,6 +421,7 @@ def populate_retailers(retailers):
             r = Retailer(user=user)
             print "creating retailer %s" % r
         r.company   = retailer['company']  if not r.company  else r.company
+        r.website   = retailer['website']  if not r.website  else r.website
         r.address   = retailer['address']  if not r.address  else r.address
         r.address2  = retailer['address2'] if not r.address2 else r.address2
         r.city      = retailer['city']     if not r.city     else r.city
