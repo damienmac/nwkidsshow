@@ -23,6 +23,7 @@ from nwkidsshow.models import RetailerRegistration
 #my forms
 from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
 from nwkidsshow.forms import ExhibitorForm, RetailerForm
+from nwkidsshow.forms import ExhibitorLinesForm
 
 # django query stuff
 from django.db.models import Q
@@ -295,7 +296,43 @@ def invoice(request, showid):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def lines(request):
-    return render_to_response('home.html', {'world_kind':'lines'})
+    exhibitor = Exhibitor.objects.get(user=request.user)
+    lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
+    # pprint(lines_str)
+    lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
+    # pprint(lines_list)
+    num_lines = len(lines_list)
+    lines_dict = {} # {'line_0':'aline1', 'line_1':'aline2', 'line_2':'aline3' }
+    for i in xrange(num_lines):
+        lines_dict['line_%i' % i] = lines_list[i]
+    # pprint(lines_dict)
+    if request.method != 'POST': # a GET
+        form = ExhibitorLinesForm(num_lines=num_lines, initial=lines_dict)
+    else:
+        form = ExhibitorLinesForm(request.POST, num_lines=num_lines)
+        if form.is_valid():
+            lines_dict = form.cleaned_data # {'line_0': u'aline1', 'line_1': u'aline2', 'line_2': u'aline3'}
+            # pprint(lines_dict)
+            # grab some fields form the form
+            # build it back into my ' * ' delimited format
+            lines_list = []
+            for key in sorted(lines_dict.iterkeys()):
+                if lines_dict[key]:
+                    lines_list.append(lines_dict[key])
+                else:
+                    del lines_dict[key]
+            # pprint(lines_list)
+            lines_str = ' * '.join(lines_list)
+            # pprint(lines_str)
+            # and store it back to the database
+            exhibitor.lines = lines_str
+            exhibitor.save()
+            if 'save' in request.POST:
+                return redirect('/lines/')
+            elif 'done' in request.POST:
+                return redirect('/exhibitor/home/')
+
+    return render_to_response('lines.html', {'form': form}, context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')

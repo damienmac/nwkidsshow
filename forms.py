@@ -58,3 +58,13 @@ class RetailerForm(ModelForm):
     class Meta:
         model = Retailer
         exclude = ('user', )
+
+
+class ExhibitorLinesForm(forms.Form):
+    def __init__(self, request=None, num_lines=None, extra_empty=3, *args, **kwargs):
+        if request:
+            super(ExhibitorLinesForm, self).__init__(request, *args, **kwargs)
+        else:
+            super(ExhibitorLinesForm, self).__init__(*args, **kwargs)
+        for i in xrange(num_lines + extra_empty):
+            self.fields['line_%i' % i] = forms.CharField(required=False, max_length=100)
