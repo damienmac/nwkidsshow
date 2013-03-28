@@ -98,6 +98,31 @@
         <legend>Edit Your Profile</legend>
         <form action="" method="post">
             {% csrf_token %}
+
+            <p class="field">
+                <label>{{ form.first_name.label }}:</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <span class="error">{{ form.first_name.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.last_name.label }}:</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <span class="error">{{ form.last_name.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.email.label }}:</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <span class="error">{{ form.email.errors|first }}</span>
+                {% endif %}
+            </p>
+
             <p class="field">
                 <label>{{ form.company.label }}:</label>
                 {{ form.company }}

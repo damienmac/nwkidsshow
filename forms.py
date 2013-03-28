@@ -43,12 +43,18 @@ class RetailerRegistrationForm(forms.Form):
 
 
 class ExhibitorForm(ModelForm):
+    first_name = forms.CharField(max_length=30)
+    last_name  = forms.CharField(max_length=30)
+    email      = forms.EmailField()
     class Meta:
         model = Exhibitor
         exclude = ('user', 'lines', )
 
 
 class RetailerForm(ModelForm):
+    first_name = forms.CharField(max_length=30)
+    last_name  = forms.CharField(max_length=30)
+    email      = forms.EmailField()
     class Meta:
         model = Retailer
         exclude = ('user', )

@@ -301,23 +301,35 @@ def lines(request):
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def edit(request):
     form = None
+    user = User.objects.get(username=request.user.username)
+    # pprint(user)
     if user_is_retailer(request.user):
         retailer = Retailer.objects.get(user=request.user)
         if request.method != 'POST': # a GET
-            form = RetailerForm(instance=retailer)
+            form = RetailerForm(instance=retailer, initial=model_to_dict(user))
         else: # a POST
             form = RetailerForm(request.POST, instance=retailer)
             if form.is_valid():
                 form.save()
-                return redirect('/retailer/home/')
+                cd = form.cleaned_data
+                user.first_name = cd['first_name']
+                user.last_name  = cd['last_name']
+                user.email      = cd['email']
+                user.save()
+            return redirect('/retailer/home/')
     else:
         exhibitor = Exhibitor.objects.get(user=request.user)
         if request.method != 'POST': # a GET
-            form = ExhibitorForm(instance=exhibitor)
+            form = ExhibitorForm(instance=exhibitor, initial=model_to_dict(user))
         else: # a POST
             form = ExhibitorForm(request.POST, instance=exhibitor)
             if form.is_valid():
                 form.save()
+                cd = form.cleaned_data
+                user.first_name = cd['first_name']
+                user.last_name  = cd['last_name']
+                user.email      = cd['email']
+                user.save()
                 return redirect('/exhibitor/home/')
     return render_to_response('edit.html',
                               {'form': form,},
