@@ -68,3 +68,14 @@ class ExhibitorLinesForm(forms.Form):
             super(ExhibitorLinesForm, self).__init__(*args, **kwargs)
         for i in xrange(num_lines + extra_empty):
             self.fields['line_%i' % i] = forms.CharField(required=False, max_length=100)
+
+
+class RetailerReportForm(forms.Form):
+    show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
+    def __init__(self, request=None, initial=None, exhibitor=None):
+        if request:
+            super(RetailerReportForm, self).__init__(request, initial=initial)
+        else:
+            super(RetailerReportForm, self).__init__(initial=initial)
+        self.fields['show'].queryset = Show.objects.filter(exhibitors=exhibitor)
+

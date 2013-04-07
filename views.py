@@ -24,6 +24,7 @@ from nwkidsshow.models import RetailerRegistration
 from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
 from nwkidsshow.forms import ExhibitorForm, RetailerForm
 from nwkidsshow.forms import ExhibitorLinesForm
+from nwkidsshow.forms import RetailerReportForm
 
 # django query stuff
 from django.db.models import Q
@@ -375,8 +376,43 @@ def edit(request):
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
-def report_retailers(request):
-    return render_to_response('home.html', {'world_kind':'report_retailers'})
+def report_retailers_form(request):
+    # Have the exhibitor choose which show to report on.
+    # Only let them choose from shows they have registered for.
+    exhibitor = Exhibitor.objects.get(user=request.user)
+    shows = Show.objects.filter(exhibitors=exhibitor)
+    show_count = shows.count()
+    if request.method != 'POST': # a GET
+        form = RetailerReportForm(exhibitor=exhibitor)
+    else: # a POST
+        form = RetailerReportForm(request.POST, exhibitor=exhibitor)
+        if form.is_valid():
+            cd = form.cleaned_data
+            # pprint(cd)
+            show = cd['show']
+            return redirect('/report/retailers/%s/' % show.id)
+    return render_to_response('report_retailers_form.html',
+                              {'form': form,
+                               'show_count': show_count,},
+                              context_instance=RequestContext(request))
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def report_retailers(request, show_id):
+    try:
+        show = Show.objects.get(id=show_id)
+        # make sure this exhibitor has the right to see the retailers for this show:
+        # that they registered for it
+        exhibitor = Exhibitor.objects.get(user=request.user)
+        registration = Registration.objects.get(show=show, exhibitor=exhibitor)
+        # collect the data for the report: retailers at this show
+        # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+        retailers = Retailer.objects.filter(show=show).order_by('user__last_name')
+        # for retailer in retailers:
+        #     pprint(retailer)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+    return render_to_response('report_retailers.html', {'retailers': retailers, 'show': show})
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')

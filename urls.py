@@ -34,7 +34,10 @@ urlpatterns = patterns('',
 
     url(r'^lines/$', 'nwkidsshow.views.lines', name='lines'),
     url(r'^edit/$', 'nwkidsshow.views.edit', name='edit'),
-    url(r'^report/retailers/$', 'nwkidsshow.views.report_retailers', name='report_retailers'),
+
+    url(r'^report/retailers/$', 'nwkidsshow.views.report_retailers_form', name='report_retailers_form'),
+    url(r'^report/retailers/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_retailers', name='report_retailers'),
+
     url(r'^report/exhibitors/$', 'nwkidsshow.views.report_exhibitors', name='report_exhibitors'),
     url(r'^report/lines/$', 'nwkidsshow.views.report_lines', name='report_lines'),
     # Uncomment the admin/doc line below to enable admin documentation:
