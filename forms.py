@@ -79,3 +79,12 @@ class RetailerReportForm(forms.Form):
             super(RetailerReportForm, self).__init__(initial=initial)
         self.fields['show'].queryset = Show.objects.filter(exhibitors=exhibitor)
 
+class ExhibitorReportForm(forms.Form):
+    show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
+    def __init__(self, request=None, initial=None, retailer=None):
+        if request:
+            super(ExhibitorReportForm, self).__init__(request, initial=initial)
+        else:
+            super(ExhibitorReportForm, self).__init__(initial=initial)
+        self.fields['show'].queryset = Show.objects.filter(retailers=retailer)
+
