@@ -423,18 +423,26 @@ def report_exhibitors_form(request):
     retailer = Retailer.objects.get(user=request.user)
     shows = Show.objects.filter(retailers=retailer)
     show_count = shows.count()
+    if request.path == u'/report/exhibitors/':
+        title = u'List Exhibitors at a Show'
+    else:
+        title = u"List Exhibitors' Lines at a Show"
     if request.method != 'POST': # a GET
         form = ExhibitorReportForm(retailer=retailer)
     else: # a POST
         form = ExhibitorReportForm(request.POST, retailer=retailer)
         if form.is_valid():
             cd = form.cleaned_data
-            # pprint(cd)
             show = cd['show']
-            return redirect('/report/exhibitors/%s/' % show.id)
+            pprint(request.path)
+            if request.path == u'/report/exhibitors/':
+                return redirect('/report/exhibitors/%s/' % show.id)
+            else:
+                return redirect('/report/lines/%s/' % show.id)
     return render_to_response('report_exhibitors_form.html',
                               {'form': form,
-                               'show_count': show_count,},
+                               'show_count': show_count,
+                               'title': title, },
                               context_instance=RequestContext(request))
 
 
@@ -450,8 +458,8 @@ def report_exhibitors(request, show_id):
         # collect the data for the report: exhibitors at this show
         # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
         exhibitors = Exhibitor.objects.filter(show=show).order_by('user__last_name')
-        for exhibitor in exhibitors:
-            pprint(exhibitor)
+        # for exhibitor in exhibitors:
+        #     pprint(exhibitor)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     return render_to_response('report_exhibitors.html', {'exhibitors': exhibitors, 'show': show})
@@ -459,9 +467,34 @@ def report_exhibitors(request, show_id):
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
-def report_lines(request):
-    return render_to_response('home.html', {'world_kind':'report_lines'})
-
+def report_lines(request, show_id):
+    try:
+        show = Show.objects.get(id=show_id)
+        # make sure this retailer has the right to see the exhibitors for this show:
+        # that they registered for it
+        retailer = Retailer.objects.get(user=request.user)
+        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+    # collect the data for the report: all the lines at the show with exhibitor name (first,last)
+    # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+    exhibitors = Exhibitor.objects.filter(show=show)
+    lines_dict = {}
+    for exhibitor in exhibitors:
+        lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
+        # pprint(lines_str)
+        lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
+        # pprint(lines_list)
+        for line in lines_list:
+            if line in lines_dict.iterkeys():
+                print 'ERROR: line "%s" duplicate detected!' % line
+            lines_dict[line] = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
+    # pprint(lines_dict)
+    # lines_dict.items() makes a list of tuples [('aline','name'),...]
+    # case insensitive sort by the line name
+    lines_list = sorted(lines_dict.items(), key=lambda t: tuple(t[0].lower()))
+    # pprint(lines_list_of_tuples_sorted)
+    return render_to_response('report_lines.html', {'show': show, 'lines': lines_list})
 
 
 def dump(request):
@@ -501,7 +534,7 @@ def populate_users(users, group):
 exhibitors = [
     {'username':'testex',  'password':'testex',   'first_name':'Test',    'last_name':'Exhibitor',   'email':'info@nwkidsshow.com',   'company':'Laurel Event management', 'website':'http://www.nwkidsshow.com/', 'address':'17565 SW 108th place', 'address2':'', 'city':'Tualatin', 'state':'OR', 'zip':'97062', 'phone':'503-330-7167', 'fax':'503-555-1212', 'lines':"""no * lines * really""", },
     {'username':'allison', 'password':'password', 'first_name':'Allison', 'last_name':'Acken',   'email':'allisonshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'Los Angeles', 'state':'CA', 'zip':'', 'phone':'310-486-9354', 'fax':'', 'lines':"""Kanz * Wheat * Purebaby Organic * Finn and Emma Organic""", },
-    {'username':'randee',  'password':'password', 'first_name':'Randee',  'last_name':'Arneson', 'email':'randeesshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'zip':'', 'phone':'213-624-8422', 'fax':'213-624-8946', 'lines':"""Petit Lem * Me Too * Losan * Blueberry Hill * Melton * Monkeybar Buddies * Nosilla Organics * She's the One * Thingamajiggies, PJ's * Marmalade * Ollie Baby * Nadi A Biffi * Imagine Greenwear *  Rose Cage * Everbloom Studio * Polka Dot Moon * Milla Reese Hair accessories * Toni Tierney""", },
+    {'username':'randee',  'password':'password', 'first_name':'Randee',  'last_name':'Arneson', 'email':'randeesshowroom@gmail.com', 'company':'', 'website':'', 'address':'', 'address2':'', 'city':'', 'state':'', 'zip':'', 'phone':'213-624-8422', 'fax':'213-624-8946', 'lines':"""Petit Lem * Me Too * Losan * Blueberry Hill * Melton * Monkeybar Buddies * Nosilla Organics * She's the One * Thingamajiggies, PJ's * Marmalade * Ollie Baby * Nadi A Biffi * Imagine Greenwear * Rose Cage * Everbloom Studio * Polka Dot Moon * Milla Reese Hair accessories * Toni Tierney""", },
 ]
 
 def populate_exhibitors(exhibitors):
