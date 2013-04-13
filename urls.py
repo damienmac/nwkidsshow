@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import login, logout
+from django.contrib.auth.views import login, logout, password_change
 from django.views.generic.simple import direct_to_template
 
 # Uncomment the next two lines to enable the admin:
@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     url(r'^accounts/login/$',  login, {'template_name':'login.html'}), 
 #    url(r'^accounts/logout/$', logout, {'next_page':'logged_out.html'}),
     url(r'^accounts/logout/$', logout, {'next_page':'/advising/logged_out'}),
+    url(r'^accounts/password_change/$', password_change, {'template_name': 'password_change.html',
+                                                          'post_change_redirect': '/accounts/profile'}),
     url(r'^accounts/profile/$', 'nwkidsshow.views.profile', name='profile'),
     
     url(r'^advising/(?P<advice>\w+)/$', direct_to_template, {'template':'advising.html'}),
