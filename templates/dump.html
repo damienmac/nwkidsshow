@@ -60,7 +60,8 @@ DUMP
 				<th>state</th>
 				<th>phone</th>
 				<th>fax</th>
-				<th>lines</th>
+                <th>change password</th>
+                <th>lines</th>
 			</tr>
 			{% for e in exhibitors %}
 				<tr>
@@ -76,6 +77,7 @@ DUMP
 					<td>{{ e.state }}</td>
 					<td>{{ e.phone }}</td>
 					<td>{{ e.fax }}</td>
+                    <td>{{ e.must_change_password }}</td>
 					<td style="width: 1px; white-space: nowrap;">{{ e.lines }}</td>
 				</tr>
 			{% endfor %}
@@ -104,6 +106,7 @@ DUMP
 				<th>state</th>
 				<th>phone</th>
 				<th>fax</th>
+                <th>change password</th>
 			</tr>
 			{% for r in retailers %}
 				<tr>
@@ -119,6 +122,7 @@ DUMP
 					<td>{{ r.state }}</td>
 					<td>{{ r.phone }}</td>
 					<td>{{ r.fax }}</td>
+                    <td>{{ r.must_change_password }}</td>
 				</tr>
 			{% endfor %}
 		</table>

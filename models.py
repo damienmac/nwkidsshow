@@ -24,6 +24,8 @@ class Attendee(models.Model):
     phone     = PhoneNumberField()
     fax       = PhoneNumberField(blank=True)
 
+    must_change_password = models.BooleanField(blank=False, default=False)
+
     class Meta:
         # make this an abstract base class which Exhibitor and Retailer can use
         # there will be no Attendee table, just Exhibitor and Retailer tables.

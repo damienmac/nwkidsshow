@@ -1,5 +1,6 @@
 
 # django request/response stuff
+from django.core.context_processors import request
 from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.http import Http404
@@ -12,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # django authentication
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.views import password_change
 
 # my models
 from nwkidsshow.models import Exhibitor
@@ -57,10 +59,45 @@ def user_is_exhibitor_or_retailer(user):
         return user.groups.filter(Q(name='exhibitor_group') | Q(name='retailer_group')).exists()
     return False
 
+def get_user(request):
+    try:
+        user = Retailer.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        user = None
+    if not user:
+        try:
+            user = Exhibitor.objects.get(user=request.user)
+        except ObjectDoesNotExist:
+            user = None
+    return user
+
 ### views ###
 
 def home(request):
     return render_to_response('home.html', {'world_kind':'happy'})
+
+def password_change_wrapper(request, template_name, post_change_redirect):
+    """
+    I want to use the built-in password_change() view from django
+    but I also want to clear the must_change_password flag only when
+    the Retailer or Exhibitor has successfully changed their password.
+    See also: nwkidsshow.middleware.ForcePasswordChange where I implement
+    a middleware process_view() to redirect all requests to /accounts/password_change
+    whenever the must_change_password is set.
+    """
+    user = get_user(request)
+    # print(user.must_change_password)
+    check_return = password_change(request,
+                                   template_name=template_name,
+                                   post_change_redirect=post_change_redirect)
+    # pprint(check_return)
+    if isinstance(check_return, HttpResponseRedirect):
+        # Password changed successfully so
+        # clear the flag that forces user to change password
+        if (user):
+            user.must_change_password = False
+            user.save()
+    return check_return
 
 def profile(request):
     # somebody just logged in successfully
@@ -621,6 +658,7 @@ def populate_exhibitors(exhibitors):
         e.zip       = exhibitor['zip']      if not e.zip      else e.zip
         e.fax       = exhibitor['fax']      if not e.fax      else e.fax
         e.lines     = exhibitor['lines']    if not e.lines    else e.lines
+        e.must_change_password = False
         e.save()
     return
 
@@ -709,6 +747,7 @@ def populate_retailers(retailers):
         r.phone     = retailer['phone']    if not r.phone    else r.phone
         r.zip       = retailer['zip']      if not r.zip      else r.zip
         r.fax       = retailer['fax']      if not r.fax      else r.fax
+        r.must_change_password = False
         r.save()
     return
 
