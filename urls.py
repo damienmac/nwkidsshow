@@ -33,7 +33,7 @@ urlpatterns = patterns('',
     url(r'^invoice/(?P<showid>\w+)/$', 'nwkidsshow.views.invoice', name='invoice'),
 
     url(r'^registrations/$', 'nwkidsshow.views.registrations', name='registrations'),
-    url(r'^registered/(?P<showid>\w+)/$', 'nwkidsshow.views.registered', name='registered'),
+    url(r'^registered/(?P<show_id>\w+)/$', 'nwkidsshow.views.registered', name='registered'),
 
     url(r'^lines/$', 'nwkidsshow.views.lines', name='lines'),
     url(r'^edit/$', 'nwkidsshow.views.edit', name='edit'),
