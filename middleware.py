@@ -6,7 +6,9 @@ from nwkidsshow.views import password_change_wrapper
 class ForcePasswordChange(object):
 
     def process_view(self, request, view, args, kwargs):
-        user = get_user(request)  # helper method in my views.py
+        user = None
+        if request.user.is_authenticated():
+            user = get_user(request)  # helper method in my views.py
         # force a redirect to change the password iff
         # - the user was found in the Exhibitor or Retailer database
         # - the user has the flag set to force a change
