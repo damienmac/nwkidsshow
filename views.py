@@ -76,6 +76,8 @@ def get_user(request):
 def home(request):
     return render_to_response('home.html', {'world_kind':'happy'})
 
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def password_change_wrapper(request, template_name, post_change_redirect):
     """
     I want to use the built-in password_change() view from django
@@ -124,12 +126,12 @@ def profile(request):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def exhibitor_home(request):
-    return render_to_response('exhibitor.html', {})
+    return render_to_response('exhibitor.html', {}, context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def retailer_home(request):
-    return render_to_response('retailer.html', {})
+    return render_to_response('retailer.html', {}, context_instance=RequestContext(request))
 
 
 def get_better_choices(shows, show_count):
@@ -233,11 +235,11 @@ def register(request):
                 # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
                 try:
                     r = Registration.objects.get(exhibitor=exhibitor, show=show)
-                    print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
+                    # print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
                 except ObjectDoesNotExist:
                     r = Registration(exhibitor=exhibitor, show=show)
                     r.has_paid = False
-                    print "created registration: (%s & %s)" % (exhibitor.user, show.name)
+                    # print "created registration: (%s & %s)" % (exhibitor.user, show.name)
                 r.num_exhibitors     = num_associates
                 r.num_assistants     = num_assistants
                 r.num_racks          = num_racks
@@ -277,10 +279,10 @@ def register(request):
                 # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
                 try:
                     r = RetailerRegistration.objects.get(retailer=retailer, show=show)
-                    print "RetailerRegistration for (%s & %s) already exists" % (retailer.user, show.name)
+                    # print "RetailerRegistration for (%s & %s) already exists" % (retailer.user, show.name)
                 except ObjectDoesNotExist:
                     r = RetailerRegistration(retailer=retailer, show=show)
-                    print "created RetailerRegistration: (%s & %s)" % (retailer.user, show.name)
+                    # print "created RetailerRegistration: (%s & %s)" % (retailer.user, show.name)
                 r.num_attendees  = num_attendees
                 r.days_attending = days_attending
                 r.save()
@@ -298,9 +300,9 @@ def register(request):
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def registrations(request):
     retailer = Retailer.objects.get(user=request.user)
-    print "### found retailer %s" % retailer.user
     regs = RetailerRegistration.objects.filter(retailer=retailer)
-    return render_to_response('registrations.html', {'registrations': regs})
+    return render_to_response('registrations.html', {'registrations': regs},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
@@ -311,7 +313,8 @@ def registered(request, show_id):
         registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-    return render_to_response('registered.html', {'show': show, 'registration': registration})
+    return render_to_response('registered.html', {'show': show, 'registration': registration},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -319,7 +322,8 @@ def invoices(request):
     exhibitor = Exhibitor.objects.get(user=request.user)
     print "### found exhibitor %s" % exhibitor.user
     invoices = Registration.objects.filter(exhibitor=exhibitor)
-    return render_to_response('invoices.html', {'invoices': invoices})
+    return render_to_response('invoices.html', {'invoices': invoices},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -330,7 +334,8 @@ def invoice(request, showid):
         registration = Registration.objects.get(show=show, exhibitor=exhibitor)
     except ObjectDoesNotExist:
         return redirect('/advising/noinvoice/')
-    return render_to_response('invoice.html', {'show': show, 'registration': registration})
+    return render_to_response('invoice.html', {'show': show, 'registration': registration},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -450,7 +455,8 @@ def report_retailers(request, show_id):
         #     pprint(retailer)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-    return render_to_response('report_retailers.html', {'retailers': retailers, 'show': show})
+    return render_to_response('report_retailers.html', {'retailers': retailers, 'show': show},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
@@ -499,7 +505,8 @@ def report_exhibitors(request, show_id):
         #     pprint(exhibitor)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-    return render_to_response('report_exhibitors.html', {'exhibitors': exhibitors, 'show': show})
+    return render_to_response('report_exhibitors.html', {'exhibitors': exhibitors, 'show': show},
+                              context_instance=RequestContext(request))
 
 
 @login_required(login_url='/advising/login/')
@@ -531,7 +538,8 @@ def report_lines(request, show_id):
     # case insensitive sort by the line name
     lines_list = sorted(lines_dict.items(), key=lambda t: tuple(t[0].lower()))
     # pprint(lines_list_of_tuples_sorted)
-    return render_to_response('report_lines.html', {'show': show, 'lines': lines_list})
+    return render_to_response('report_lines.html', {'show': show, 'lines': lines_list},
+                              context_instance=RequestContext(request))
 
 
 def dump(request):
@@ -544,7 +552,8 @@ def dump(request):
                                             'exhibitors' : exhibitors,
                                             'retailers'  : retailers,
                                             'shows'      : shows,
-                                            })
+                                            },
+                              context_instance=RequestContext(request))
 
 def populate_users(users, group):
     for user in users:
