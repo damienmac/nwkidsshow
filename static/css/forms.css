@@ -1,0 +1,35 @@
+input, select {
+    /*font-family: 'Sorts Mill Goudy', serif;*/
+    font-size: large;
+    color: #70667d; /* font color is purple */
+    background: #ebe7d7; /* tan */
+}
+
+.submit input {
+    font-family: 'Sorts Mill Goudy', serif;
+    font-size: large;
+    font-weight: bold;
+    color: #70667d;
+    background: #ebe7d7;
+    border: 2px outset #ebe7d7;
+    margin-left: 0.3em;
+}
+
+p label {
+    color: #ebe7d7; /* tan */
+    width: 10em; /*8em;*/
+    float: left;
+    text-align: right;
+    margin-right: 0.5em;
+    display: block;
+    padding-top: 4px; /*2px;*/
+}
+
+li label {
+    color: #ebe7d7; /* tan */
+    padding-top: 2px;
+    display: block;
+    padding-left: 8em;
+    text-indent: -1.5em;
+}
+
