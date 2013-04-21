@@ -783,7 +783,7 @@ exhibitors = [
        'zip': '',
        'phone': '415-742-5422',
        'fax': '415-661-2296',
-       'lines': """Crocs Kids Apparel * Crocs Accessories * Colette Kids *  Girl & Co. * Lime Apple * New Jammies * Origany *  Real Kids Shades * Wayi Bamboo * Wugbug * Breganwood Organics * Shinobi Baby""",
+       'lines': """Crocs Kids Apparel * Crocs Accessories * Colette Kids * Girl & Co. * Lime Apple * New Jammies * Origany * Real Kids Shades * Wayi Bamboo * Wugbug * Breganwood Organics * Shinobi Baby""",
    },
     {
        'username': 'afton_farley',
@@ -817,7 +817,7 @@ exhibitors = [
        'zip': '',
        'phone': '415-255-9899',
        'fax': '415-255-9929',
-       'lines': """Kissy Kissy * Newborn by Mayoral * Mulberribush * Love U Lots * Down East Girls * Haven Girl * Little Handprint * Lollipop Twirl * Flap Happy *  Zoocchini * Bows Arts * Konfetti * Kai Kreations * Ragtop - Neptune Zoo""",
+       'lines': """Kissy Kissy * Newborn by Mayoral * Mulberribush * Love U Lots * Down East Girls * Haven Girl * Little Handprint * Lollipop Twirl * Flap Happy * Zoocchini * Bows Arts * Konfetti * Kai Kreations * Ragtop - Neptune Zoo""",
    },
     {
        'username': 'sandra_gorecke',
@@ -885,7 +885,7 @@ exhibitors = [
        'zip': '',
        'phone': '503-799-6221',
        'fax': '503-244-9914',
-       'lines': """Petunia Pickle Bottom * See Kai Run * Trumpette * Bebe au lait *  Magnificent Baby * Minnie & Lola * Zootie B Little * Giddy Giddy * Noodle & Boo * Crawlings * Tadpole & Lily * Via Cacao""",
+       'lines': """Petunia Pickle Bottom * See Kai Run * Trumpette * Bebe au lait * Magnificent Baby * Minnie & Lola * Zootie B Little * Giddy Giddy * Noodle & Boo * Crawlings * Tadpole & Lily * Via Cacao""",
    },
     {
        'username': 'cristy_howe',
@@ -970,7 +970,7 @@ exhibitors = [
        'zip': '',
        'phone': '888-732-6103',
        'fax': '866-902-1401',
-       'lines': """i Play/green sprouts *  Kushies Basics * Halo Innovations * Sock Ons * Baby Jogger * Recaro Car Seats * Moonlight Slumber * 4moms""",
+       'lines': """i Play/green sprouts * Kushies Basics * Halo Innovations * Sock Ons * Baby Jogger * Recaro Car Seats * Moonlight Slumber * 4moms""",
    },
     {
        'username': 'sandra_martinez',
@@ -1106,7 +1106,7 @@ exhibitors = [
        'zip': '',
        'phone': '213-623-0993',
        'fax': '213-244-9645',
-       'lines': """New ICM/Laura Dare *  Little Adventures * Max Daniel Blankets * Luli and Me * Hello Kitty * Baby Bling * Sara Kety * Julius Berger * Malibu Swimwear * Ska Doo Shoes * Carriage Boutique * Boutique Collection * Feltman * Toe Blooms * Woolrich * Drench Raingear * Baby Buns""",
+       'lines': """New ICM/Laura Dare * Little Adventures * Max Daniel Blankets * Luli and Me * Hello Kitty * Baby Bling * Sara Kety * Julius Berger * Malibu Swimwear * Ska Doo Shoes * Carriage Boutique * Boutique Collection * Feltman * Toe Blooms * Woolrich * Drench Raingear * Baby Buns""",
    },
     {
        'username': 'cathe_verdusco',
