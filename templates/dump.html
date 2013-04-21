@@ -188,6 +188,79 @@ DUMP
 		no shows found
 	{% endif %}
 	</p>
+
+	<hr>
+
+	<h2>EXHIBITOR REGISTRATIONS</h2>
+	<p>
+	{% if exh_regs %}
+		<table border="1">
+			<tr>
+                <th>show</th>
+				<th>exhibitor</th>
+				<th># exhibitors</th>
+				<th># assistants</th>
+				<th># racks</th>
+				<th># tables</th>
+                <th>late?</th>
+                <th>date registered</th>
+                <th>registration fee</th>
+                <th>assistant fee</th>
+				<th>rack fee</th>
+				<th>late fee</th>
+				<th>total</th>
+                <th>paid?</th>
+			</tr>
+			{% for r in exh_regs %}
+				<tr>
+                    <td>{{ r.show }}</td>
+					<td>{{ r.exhibitor }}</td>
+					<td>{{ r.num_exhibitors }}</td>
+					<td>{{ r.num_assistants }}</td>
+					<td>{{ r.num_racks }}</td>
+					<td>{{ r.num_tables }}</td>
+                    <td>{{ r.is_late }}</td>
+                    <td>{{ r.date_registered }}</td>
+                    <td>{{ r.registration_total }}</td>
+                    <td>{{ r.assistant_total }}</td>
+                    <td>{{ r.rack_total }}</td>
+                    <td>{{ r.late_total }}</td>
+                    <td>{{ r.total }}</td>
+                    <td>{{ r.has_paid }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% else %}
+		no exhibitor registrations found
+	{% endif %}
+	</p>
+
+	<hr>
+
+	<h2>RETAILER REGISTRATIONS</h2>
+	<p>
+	{% if ret_regs %}
+		<table border="1">
+			<tr>
+                <th>show</th>
+				<th>retailer</th>
+				<th># attendees</th>
+				<th>days attending</th>
+			</tr>
+			{% for r in ret_regs %}
+				<tr>
+                    <td>{{ r.show }}</td>
+					<td>{{ r.retailer }}</td>
+					<td>{{ r.num_attendees }}</td>
+					<td>{{ r.days_attending }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% else %}
+		no exhibitor registrations found
+	{% endif %}
+	</p>
+
 {% endblock %}
 
 {% block footer %}
