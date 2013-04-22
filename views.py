@@ -74,7 +74,11 @@ def get_user(request):
 ### views ###
 
 def home(request):
-    return render_to_response('home.html', {'world_kind':'happy'})
+    show = Show.objects.filter(end_date__gt=datetime.date.today()).latest('end_date')
+    # TODO this still assumes only one active show at a time ever.
+    return render_to_response('home.html',
+                              {'show': show, },
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')

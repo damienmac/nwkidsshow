@@ -43,6 +43,29 @@
         overflow: hidden;
     }
 
+    .block .myheader {
+        font-weight:bold;
+        font-size:x-large;
+        /*color: red;*/
+        color: #FF3300;
+        text-shadow: black 0.1em 0.1em 0.2em;
+        width: 400px;
+        display: block;
+        text-align: center;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 12px;
+    }
+
+    .block .myparagraph {
+        display: block;
+        text-align: center;
+        width: 400px;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        margin-left: 12px;
+    }
+
     .block .mylabel {
         width: 8em;
         display: block;
@@ -79,7 +102,7 @@
         margin-bottom: 0;
     }
 
-.block .address {
+    .block .address {
         display: block;
         text-align: center;
         width: 16em;
