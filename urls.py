@@ -21,7 +21,10 @@ urlpatterns = patterns('',
         {'template_name': 'password_change.html',
          'post_change_redirect': '/accounts/profile/'}),
     url(r'^accounts/profile/$', 'nwkidsshow.views.profile', name='profile'),
-    
+
+    url(r'^contact/$', 'nwkidsshow.views.contact', name='contact'),
+    url(r'^about/$', 'nwkidsshow.views.about', name='about'),
+
     url(r'^advising/(?P<advice>\w+)/$', direct_to_template, {'template':'advising.html'}),
 
     url(r'^exhibitor/home/$', 'nwkidsshow.views.exhibitor_home', name='exhibitor_home'),

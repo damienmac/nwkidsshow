@@ -40,6 +40,7 @@
     width: 120px;
     font-weight: bold;
     color: #ebe7d7;
+    text-shadow: black 0.1em 0.1em 0.2em;
     background-color: #70667d;
     text-align: center;
     padding: 4px;
@@ -50,4 +51,5 @@
 .navblock a:hover, .navblock a:active {
     color: #70667d;
     background-color: #c1d2cf;
+    text-shadow: white 0.1em 0.1em 0.2em;
 }

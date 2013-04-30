@@ -23,19 +23,19 @@
     </div>
     <div class="navbar">
         <ul>
+            <li><a href="/">Home</a></li>
             {% if not user.is_authenticated %}
-                <li><a href="/">Home</a></li>
                 <li><a href="/accounts/login/">Login</a></li>
             {% else %}
-                <li><a href="/">Home</a></li>
                 {% ifexhibitor %}
                     <li><a href="/exhibitor/home/">Exhibitor</a></li>
                 {% endifexhibitor %}
                 {%  ifretailer %}
                     <li><a href="/retailer/home/">Retailer</a></li>
                 {% endifretailer %}
-                <li><a href="/accounts/logout/">Logout</a></li>
             {% endif %}
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/about/">About</a></li>
         </ul>
     </div>
 </div>

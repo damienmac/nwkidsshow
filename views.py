@@ -80,6 +80,12 @@ def home(request):
                               {'show': show, },
                               context_instance=RequestContext(request))
 
+def contact(request):
+    return render_to_response('contact.html', {}, context_instance=RequestContext(request))
+
+def about(request):
+    return render_to_response('about.html', {}, context_instance=RequestContext(request))
+
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def password_change_wrapper(request, template_name, post_change_redirect):
