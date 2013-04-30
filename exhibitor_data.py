@@ -474,7 +474,7 @@ exhibitors = [
         'zip': '',
         'phone': '719-539-3812',
         'fax': '719-539-3813',
-        'lines': """Young Colors * Frumpy Rumps *Silly Sarongs * Young Colors Hats * College Colors""",
+        'lines': """Young Colors * Frumpy Rumps * Silly Sarongs * Young Colors Hats * College Colors""",
     },
     {
         'username': 'julie_smith',
