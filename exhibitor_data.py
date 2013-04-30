@@ -185,7 +185,7 @@ exhibitors = [
         'zip': '',
         'phone': '503-327-4868',
         'fax': '888-946-4828',
-        'lines': """GuavaKids""", #TODO: test this! one entry, no delimiters.
+        'lines': """GuavaKids""",
     },
     {
         'username': 'joann_farese',
@@ -321,7 +321,7 @@ exhibitors = [
         'zip': '',
         'phone': '805-746-4985',
         'fax': '415-321-2478',
-        'lines': """Tea Collection""", # TODO test this with one entry
+        'lines': """Tea Collection""",
     },
     {
         'username': 'judy_johnson',
@@ -338,7 +338,7 @@ exhibitors = [
         'zip': '',
         'phone': '503-246-5707',
         'fax': '503-452-8840',
-        'lines': """ """, # TODO test this with NO entries
+        'lines': """ """,
     },
     {
         'username': 'sarah_kaufman',

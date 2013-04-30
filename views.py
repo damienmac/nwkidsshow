@@ -542,7 +542,9 @@ def report_lines(request, show_id):
         for line in lines_list:
             if line in lines_dict.iterkeys():
                 print 'ERROR: line "%s" duplicate detected!' % line
-            lines_dict[line] = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
+            stripped_line = line.strip()
+            if stripped_line:
+                lines_dict[stripped_line] = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
     # pprint(lines_dict)
     # lines_dict.items() makes a list of tuples [('aline','name'),...]
     # case insensitive sort by the line name
