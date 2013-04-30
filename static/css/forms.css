@@ -25,11 +25,15 @@ p label {
     padding-top: 4px; /*2px;*/
 }
 
+ul {
+    list-style-type: none;
+}
+
 li label {
     color: #ebe7d7; /* tan */
     padding-top: 2px;
     display: block;
-    padding-left: 8em;
+    padding-left: 10em;
     text-indent: -1.5em;
 }
 
