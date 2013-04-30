@@ -1228,7 +1228,7 @@ retailers = [
         'last_name': 'Miller',
         'email': 'readmeastory@gmail.com',
         'company': 'Read Me A Story',
-        'website': '',
+        'website': 'http://readmeastoryonline.com/',
         'address': '',
         'address2': '',
         'city': '',
