@@ -7,12 +7,39 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/links.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/messages.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/forms.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/nav.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css"/>
     {% block internal_css %}{% endblock %}
     <title>{% block head %}{% endblock %}</title>
 </head>
 
 <body>
+
+{% load user_type %}
+
+<div class="navblock">
+    <div class="navimage">
+    <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">
+    </div>
+    <div class="navbar">
+        <ul>
+            {% if not user.is_authenticated %}
+                <li><a href="/">Home</a></li>
+                <li><a href="/accounts/login/">Login</a></li>
+            {% else %}
+                <li><a href="/">Home</a></li>
+                {% ifexhibitor %}
+                    <li><a href="/exhibitor/home/">Exhibitor</a></li>
+                {% endifexhibitor %}
+                {%  ifretailer %}
+                    <li><a href="/retailer/home/">Retailer</a></li>
+                {% endifretailer %}
+                <li><a href="/accounts/logout/">Logout</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
 <h1>{% block title %}{% endblock %}</h1>
 
 {% block content %}{% endblock %}

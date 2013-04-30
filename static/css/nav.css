@@ -1,0 +1,53 @@
+.navblock {
+    display: block;
+    height: 128px;
+    /*border: 4px solid #70667d;  *//* purple */
+    background: #70667d; /* purple */
+    /*width: 20em*/
+}
+
+.navimage {
+    display: block;
+    /*background: #ebe7d7;*/
+    float: left;
+    padding: 8px;
+}
+
+.navbar {
+    display: block;
+    float: left;
+    text-align: left;
+    line-height: 120px;
+    /*width: 400px;*/
+    /*margin-top: 1em;*/
+    /*margin-bottom: 1em;*/
+    /*margin-left: 12px;*/
+}
+
+.navblock ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.navblock li {
+    float: left;
+}
+
+.navblock a:link, .navblock a:visited {
+    display: block;
+    width: 120px;
+    font-weight: bold;
+    color: #ebe7d7;
+    background-color: #70667d;
+    text-align: center;
+    padding: 4px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.navblock a:hover, .navblock a:active {
+    color: #70667d;
+    background-color: #c1d2cf;
+}
