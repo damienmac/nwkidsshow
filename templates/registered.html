@@ -28,12 +28,12 @@ YOUR REGISTRATION DETAILS
         <p class="mylabel">Ends on:</p>
         <p class="myvalue date">{{ show.end_date|date:"l, F jS Y" }}</p>
     </div>
-    <div class="block">
-        <p class="mylabel">Attending on:</p>
-        {% for d in registration.days_as_list %}
+    {% for d in registration.days_as_list %}
+        <div class="block">
+            <p class="mylabel">{% if forloop.first %}Attending on:{% else %}&nbsp;{% endif %}</p>
             <p class="myvalue date">{{ show.start_date|dayadd:d|date:"l, F jS Y" }} from 9am to 6pm</p>
-        {%  endfor %}
-    </div>
+        </div>
+    {%  endfor %}
     <div class="block">
         <p class="address">
             DoubleTree by Hilton - Southcenter<br>

@@ -40,7 +40,7 @@ from pprint import pprint
 #TODO: I need test accounts that are not real users: "testex" and "testret". Need to hide them from reports, but otherwise work like a real user.
 #TODO: why is it looking for this on retailer login? "GET /retailer/home/css/messages.css HTTP/1.1" 404 2991
 #TODO: why is it looking for this on exhibitor login?  "GET /exhibitor/home/css/messages.css HTTP/1.1" 404 2994
-
+#TODO: no-cache on our pages? how? Laurie was seeing cached pages on FF.
 
 ### helpers ###
 
