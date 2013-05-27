@@ -15,6 +15,7 @@ YOUR INVOICE AND DETAILS
 
 {% block content %}
     {% load humanize %}
+    {% load datemath %}
 
     <fieldset>
     <legend>Important Deadlines</legend>
@@ -32,12 +33,20 @@ YOUR INVOICE AND DETAILS
     <fieldset>
     <legend>Show Details</legend>
     <div class="block">
+        <p class="mylabel">Setup day:</p>
+        <p class="myvalue date">{{ show.start_date|dayadd:-1|date:"l, F jS Y" }} (check in at 4pm)</p>
+    </div>
+    <div class="block">
         <p class="mylabel">Starts on:</p>
         <p class="myvalue date">{{ show.start_date|date:"l, F jS Y" }}</p>
     </div>
     <div class="block">
         <p class="mylabel">Ends on:</p>
         <p class="myvalue date">{{ show.end_date|date:"l, F jS Y" }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Daily hours:</p>
+        <p class="myvalue date">9am to 6pm</p>
     </div>
     <div class="block">
         <p class="address">

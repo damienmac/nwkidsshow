@@ -66,7 +66,7 @@ class ExhibitorLinesForm(forms.Form):
             super(ExhibitorLinesForm, self).__init__(request, *args, **kwargs)
         else:
             super(ExhibitorLinesForm, self).__init__(*args, **kwargs)
-        for i in xrange(num_lines + extra_empty):
+        for i in xrange(1, num_lines + extra_empty + 1):
             self.fields['line_%i' % i] = forms.CharField(required=False, max_length=100)
 
 

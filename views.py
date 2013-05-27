@@ -205,7 +205,7 @@ def register(request):
         if user_is_exhibitor(request.user):
             #TODO: do I need to test this found one thing? try/catch.
             exhibitor = Exhibitor.objects.get(user=request.user)
-            print "### found exhibitor %s" % exhibitor.user
+            # print "### found exhibitor %s" % exhibitor.user
             form = ExhibitorRegistrationForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
@@ -268,7 +268,7 @@ def register(request):
         else:
             #TODO: do I need to test this found one thing? try/catch.
             retailer = Retailer.objects.get(user=request.user)
-            print "### found retailer %s" % retailer.user
+            # print "### found retailer %s" % retailer.user
             form = RetailerRegistrationForm(request.POST, better_choices=get_better_choices(shows, show_count))
             if form.is_valid():
                 cd = form.cleaned_data
@@ -330,7 +330,7 @@ def registered(request, show_id):
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def invoices(request):
     exhibitor = Exhibitor.objects.get(user=request.user)
-    print "### found exhibitor %s" % exhibitor.user
+    # print "### found exhibitor %s" % exhibitor.user
     invoices = Registration.objects.filter(exhibitor=exhibitor)
     return render_to_response('invoices.html', {'invoices': invoices},
                               context_instance=RequestContext(request))
@@ -356,16 +356,16 @@ def lines(request):
     lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
     # pprint(lines_list)
     num_lines = len(lines_list)
-    lines_dict = {} # {'line_0':'aline1', 'line_1':'aline2', 'line_2':'aline3' }
-    for i in xrange(num_lines):
-        lines_dict['line_%i' % i] = lines_list[i]
+    lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
+    for i in xrange(1, num_lines + 1):
+        lines_dict['line_%i' % i] = lines_list[i-1]
     # pprint(lines_dict)
     if request.method != 'POST': # a GET
         form = ExhibitorLinesForm(num_lines=num_lines, initial=lines_dict)
     else:
         form = ExhibitorLinesForm(request.POST, num_lines=num_lines)
         if form.is_valid():
-            lines_dict = form.cleaned_data # {'line_0': u'aline1', 'line_1': u'aline2', 'line_2': u'aline3'}
+            lines_dict = form.cleaned_data # {'line_1': u'aline1', 'line_2': u'aline2', 'line_3': u'aline3'}
             # pprint(lines_dict)
             # grab some fields form the form
             # build it back into my ' * ' delimited format
@@ -435,10 +435,12 @@ def report_retailers_form(request):
     exhibitor = Exhibitor.objects.get(user=request.user)
     shows = Show.objects.filter(exhibitors=exhibitor)
     show_count = shows.count()
+    show_latest = shows.latest('end_date')
+    show_latest_id = show_latest.id
     if request.method != 'POST': # a GET
-        form = RetailerReportForm(exhibitor=exhibitor)
+        form = RetailerReportForm(exhibitor=exhibitor, initial={'show': show_latest_id})
     else: # a POST
-        form = RetailerReportForm(request.POST, exhibitor=exhibitor)
+        form = RetailerReportForm(request.POST, exhibitor=exhibitor,  initial={'show': show_latest_id})
         if form.is_valid():
             cd = form.cleaned_data
             # pprint(cd)
@@ -476,14 +478,16 @@ def report_exhibitors_form(request):
     retailer = Retailer.objects.get(user=request.user)
     shows = Show.objects.filter(retailers=retailer)
     show_count = shows.count()
+    show_latest = shows.latest('end_date')
+    show_latest_id = show_latest.id
     if request.path == u'/report/exhibitors/':
-        title = u'List Exhibitors at a Show'
+        title = u'List Exhibitors Registered for a Show'
     else:
         title = u"List Exhibitors' Lines at a Show"
     if request.method != 'POST': # a GET
-        form = ExhibitorReportForm(retailer=retailer)
+        form = ExhibitorReportForm(retailer=retailer, initial={'show': show_latest_id})
     else: # a POST
-        form = ExhibitorReportForm(request.POST, retailer=retailer)
+        form = ExhibitorReportForm(request.POST, retailer=retailer,  initial={'show': show_latest_id})
         if form.is_valid():
             cd = form.cleaned_data
             show = cd['show']

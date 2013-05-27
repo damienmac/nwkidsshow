@@ -35,6 +35,9 @@
             <p class="field">
                 <label>{{ form.first_name.label }}:</label>
                 {{ form.first_name }}
+                {% if form.first_name.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.first_name.errors %}
                     <span class="error">{{ form.first_name.errors|first }}</span>
                 {% endif %}
@@ -43,6 +46,9 @@
             <p class="field">
                 <label>{{ form.last_name.label }}:</label>
                 {{ form.last_name }}
+                {% if form.last_name.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.last_name.errors %}
                     <span class="error">{{ form.last_name.errors|first }}</span>
                 {% endif %}
@@ -51,6 +57,9 @@
             <p class="field">
                 <label>{{ form.email.label }}:</label>
                 {{ form.email }}
+                {% if form.email.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.email.errors %}
                     <span class="error">{{ form.email.errors|first }}</span>
                 {% endif %}
@@ -59,6 +68,9 @@
             <p class="field">
                 <label>{{ form.company.label }}:</label>
                 {{ form.company }}
+                {% if form.company.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.company.errors %}
                     <span class="error">{{ form.company.errors|first }}</span>
                 {% endif %}
@@ -67,6 +79,9 @@
             <p class="field">
                 <label>{{ form.website.label }}</label>
                 {{ form.website }}
+                {% if form.website.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.website.errors %}
                     <span class="error">{{ form.website.errors|first }}</span>
                 {% endif %}
@@ -75,6 +90,9 @@
             <p class="field">
                 <label>{{ form.address.label }}</label>
                 {{ form.address }}
+                {% if form.address.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.address.errors %}
                     <span class="error">{{ form.address.errors|first }}</span>
                 {% endif %}
@@ -83,6 +101,9 @@
             <p class="field">
                 <label>{{ form.address2.label }}</label>
                 {{ form.address2 }}
+                {% if form.address2.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.address2.errors %}
                     <span class="error">{{ form.address2.errors|first }}</span>
                 {% endif %}
@@ -91,6 +112,9 @@
             <p class="field">
                 <label>{{ form.city.label }}</label>
                 {{ form.city }}
+                {% if form.city.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.city.errors %}
                     <span class="error">{{ form.city.errors|first }}</span>
                 {% endif %}
@@ -99,6 +123,9 @@
             <p class="field">
                 <label>{{ form.state.label }}</label>
                 {{ form.state }}
+                {% if form.state.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.state.errors %}
                     <span class="error">{{ form.state.errors|first }}</span>
                 {% endif %}
@@ -107,6 +134,9 @@
             <p class="field">
                 <label>{{ form.zip.label }}</label>
                 {{ form.zip }}
+                {% if form.zip.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.zip.errors %}
                     <span class="error">{{ form.zip.errors|first }}</span>
                 {% endif %}
@@ -115,6 +145,9 @@
             <p class="field">
                 <label>{{ form.phone.label }}</label>
                 {{ form.phone }}
+                {% if form.phone.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.phone.errors %}
                     <span class="error">{{ form.phone.errors|first }}</span>
                 {% endif %}
@@ -123,10 +156,15 @@
             <p class="field">
                 <label>{{ form.fax.label }}</label>
                 {{ form.fax }}
+                {% if form.fax.field.required %}
+                    <span class="required"></span>
+                {% endif %}
                 {% if form.fax.errors %}
                     <span class="error">{{ form.fax.errors|first }}</span>
                 {% endif %}
             </p>
+
+        <p class="block">&ldquo;<span class="required"></span>&rdquo; indicates a required field</p>
 
             <p class="submit">
                 <input type="submit" value="Submit">

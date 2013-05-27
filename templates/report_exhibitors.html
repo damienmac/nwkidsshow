@@ -16,7 +16,7 @@ EXHIBITORS AT A SHOW
 {% block content %}
     <p></p>
     <fieldset>
-        <legend>Exhibitors at a Show</legend>
+        <legend>Exhibitors Registered for a Show</legend>
         <div class="block">
             <p class="mylabel">For Show:</p>
             <p class="myvalue2 date">{{ show.start_date|date:"F Y" }}</p>
@@ -26,18 +26,19 @@ EXHIBITORS AT A SHOW
             <div class="block">
                 <p class="mylabel">{{ forloop.counter }}</p>
                 <p class="myvalue2">
-                    {{ e.first_name_display }}&nbsp;{{ e.last_name_display }}<br>
-                    {% if e.company %}{{ e.company }}<br>{% endif %}
-                    {% if e.email_display %}<a href="mailto:{{ e.email_display }}">{{ e.email_display }}</a><br>{% endif %}
-                    {% if e.website %}<a href="{{ e.website }}">{{ e.website }}</a><br>{% endif %}
-                    {% if e.phone %}{{ e.phone }}<br>{% endif %}
-                    {% if e.fax %}{{  e.fax }}&nbsp;fax<br>{% endif %}
-                    {% if e.address %}{{ e.address }}<br>{% endif %}
-                    {% if e.address2 %}{{ e.address2 }}<br>{% endif %}
+                    {{ e.first_name_display }}&nbsp;{{ e.last_name_display }}
+                    {% if e.company %}<br>{{ e.company }}{% endif %}
+                    {% if e.email_display %}<br><a href="mailto:{{ e.email_display }}">{{ e.email_display }}</a>{% endif %}
+                    {% if e.website %}<br><a href="{{ e.website }}">{{ e.website }}</a>{% endif %}
+                    {% if e.phone %}<br>{{ e.phone }}{% endif %}
+                    {% if e.fax %}<br>{{  e.fax }}&nbsp;fax{% endif %}
+                    {% if e.address %}<br>{{ e.address }}{% endif %}
+                    {% if e.address2 %}<br>{{ e.address2 }}{% endif %}
+                    {% if e.city or e.state or e.zip %}<br>{% endif %}
                     {% if e.city %}{{ e.city }},&nbsp;{% endif %}
                     {% if e.state %}{{ e.state }}&nbsp;{% endif %}
-                    {% if e.zip %}{{ e.zip }}<br>{% endif %}
-                    {% if e.lines %}{{  e.lines }}<br>{% endif %}
+                    {% if e.zip %}{{ e.zip }}{% endif %}
+                    {% if e.lines %}<br>{{ e.lines }}{% endif %}
                 </p>
                 <hr>
             </div>

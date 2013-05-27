@@ -14,7 +14,7 @@ class Attendee(models.Model):
     # first_name, last_name, email are in here already
     user = models.OneToOneField(User)
     
-    company   = models.CharField(max_length=50)
+    company   = models.CharField(max_length=50, blank=True)
     website   = models.URLField(blank=True) # default length is 200
     address   = models.CharField(max_length=50)
     address2  = models.CharField(max_length=50, blank=True)

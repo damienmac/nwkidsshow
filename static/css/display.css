@@ -67,6 +67,11 @@
         margin-left: 12px;
     }
 
+    .block .myaddress {
+        font-weight: bold;
+        font-size: 14pt;
+    }
+
     .block .mylabel {
         width: 8em;
         display: block;
@@ -101,6 +106,10 @@
         padding-left: 10em;
         margin-top: 0;
         margin-bottom: 0;
+    }
+
+    span.required:after {
+        content: "*";
     }
 
     .block .address {

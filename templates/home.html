@@ -22,7 +22,7 @@ Northwest Kids Show
     <div class="block">
         <p class="myheader">
             {{ show.start_date|date:"l, F jS" }}<br>
-            to<br>
+            through<br>
             {{ show.end_date|date:"l, F jS" }}<br>
             {{ show.end_date|date:"Y" }}
         </p>
@@ -30,6 +30,33 @@ Northwest Kids Show
             DoubleTree by Hilton - Southcenter<br>
             16500 Southcenter Parkway<br>
             Seattle, WA 98188
+        </p>
+    </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset>
+    <legend>
+        Exhibitors
+    </legend>
+    <div class="block">
+        <p class="myheader">
+            Important Dates
+        </p>
+        <p class="myparagraph">
+            Registration is <em>LATE</em> after<br>
+            <span class="myaddress">{{ show.late_date }}</span><br>
+            Registration is <em>CLOSED</em> after<br>
+            <span class="myaddress">{{ show.closed_date }}</span>
+        </p>
+        <p class="myheader">
+            Register Online!
+        </p>
+        <p class="myparagraph">
+            Already have an account?<br>
+            <a href="/accounts/login/">LOGIN HERE</a><br>
+            ... or request one by sending email to<br>
+            <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
         </p>
     </div>
     </fieldset>
@@ -55,33 +82,6 @@ Northwest Kids Show
     <p></p>
     <fieldset>
     <legend>
-        Exhibitors
-    </legend>
-    <div class="block">
-        <p class="myheader">
-            Important Dates
-        </p>
-        <p class="myparagraph">
-            Registration is LATE after<br>
-            <em>{{ show.late_date }}</em><br>
-            Registration is CLOSED after<br>
-            <em>{{ show.closed_date }}</em>
-        </p>
-        <p class="myheader">
-            Register Online!
-        </p>
-        <p class="myparagraph">
-            Already have an account?<br>
-            <a href="/accounts/login/">LOGIN HERE</a><br>
-            ... or request one by sending email to<br>
-            <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
-        </p>
-    </div>
-    </fieldset>
-
-    <p></p>
-    <fieldset>
-    <legend>
         Hotel Reservations
     </legend>
     <div class="block">
@@ -89,9 +89,10 @@ Northwest Kids Show
             Need to make a hotel reservation?
         </p>
         <p class="myparagraph">
-            <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-KID-20130223/index.jhtml?WT.mc_id=POG">
+           {#<a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-KID-20130223/index.jhtml?WT.mc_id=POG">#}
+            <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-NWK-20130927/index.jhtml?WT.mc_id=POG">
                 Click here
-            </a> to make your Doubletree reservation online.
+            </a> to make your DoubleTree reservation online.
         </p>
     </div>
     </fieldset>
