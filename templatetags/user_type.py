@@ -1,6 +1,6 @@
 from django import template
 from django.template import resolve_variable, NodeList
-from views import user_is_exhibitor, user_is_retailer
+from nwkidsshow.views import user_is_exhibitor, user_is_retailer
 
 register = template.Library()
 

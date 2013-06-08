@@ -615,7 +615,7 @@ def populate_exhibitors(exhibitors):
         e.zip       = exhibitor['zip']      if not e.zip      else e.zip
         e.fax       = exhibitor['fax']      if not e.fax      else e.fax
         e.lines     = exhibitor['lines']    if not e.lines    else e.lines
-        e.must_change_password = False
+        e.must_change_password = True # False
         e.save()
     return
 
@@ -638,7 +638,7 @@ def populate_retailers(retailers):
         r.phone     = retailer['phone']    if not r.phone    else r.phone
         r.zip       = retailer['zip']      if not r.zip      else r.zip
         r.fax       = retailer['fax']      if not r.fax      else r.fax
-        r.must_change_password = False
+        r.must_change_password = True # False
         r.save()
     return
 
