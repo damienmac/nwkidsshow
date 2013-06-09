@@ -137,7 +137,7 @@ exhibitors = [
         'lines': """7 For All Mankind Kids * City Threads * Egg by Susan Lazar * Juicy Couture Baby * Kiniki * LA Made kids * Ode * PAIGELAUREN baby * The Green Egg""",
     },
     {
-        'username': 'susie_cinningham',
+        'username': 'susie_cunningham',
         'password': 'password',
         'first_name': 'Susie',
         'last_name': 'Cunningham',
