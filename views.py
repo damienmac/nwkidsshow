@@ -407,7 +407,7 @@ def edit(request):
                 user.last_name  = cd['last_name']
                 user.email      = cd['email']
                 user.save()
-            return redirect('/retailer/home/')
+                return redirect('/retailer/home/')
     else:
         exhibitor = Exhibitor.objects.get(user=request.user)
         if request.method != 'POST': # a GET
@@ -744,6 +744,9 @@ import retailer_data
 import exhibitor_data
 
 def seed(request):
+
+    # TURNING THIS OFF NOW
+    return HttpResponseRedirect('/dump/')
 
     exhibitor_group, created = Group.objects.get_or_create(name='exhibitor_group')
     if created:
