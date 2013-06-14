@@ -6,7 +6,7 @@ import datetime
 
 class ExhibitorRegistrationForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
-    num_associates = forms.IntegerField(required=False, min_value=1, max_value=20, initial=1, label='Exhibitors')
+    num_associates = forms.IntegerField(required=False, min_value=1, max_value=1,  initial=1, label='Exhibitors')
     num_assistants = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Assistants')
     num_racks      = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Racks')
     num_tables     = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Tables')
