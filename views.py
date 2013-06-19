@@ -746,7 +746,7 @@ import exhibitor_data
 def seed(request):
 
     # TURNING THIS OFF NOW
-    return HttpResponseRedirect('/dump/')
+    # return HttpResponseRedirect('/dump/')
 
     exhibitor_group, created = Group.objects.get_or_create(name='exhibitor_group')
     if created:

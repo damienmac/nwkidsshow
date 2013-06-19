@@ -22,12 +22,24 @@ if (False):
             'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         }
     }
-else:
+elif (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+    # Running on production App Engine, so use a Google Cloud SQL database.:
     DATABASES = {
         'default': {
             'ENGINE': 'google.appengine.ext.django.backends.rdbms',
             'INSTANCE': 'nwkidsshow.com:nwkidsshowdb:instance1',
             'NAME': 'nwkidsshowdb1',
+        }
+    }
+else:
+    # Running in development, so use a local MySQL database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'NAME': 'nwkidsshowdevdb',
         }
     }
 
