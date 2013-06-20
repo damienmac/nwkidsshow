@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import password_change
+from django.contrib.admin.views.decorators import staff_member_required
 
 # my models
 from nwkidsshow.models import Exhibitor
@@ -557,7 +558,7 @@ def report_lines(request, show_id):
     return render_to_response('report_lines.html', {'show': show, 'lines': lines_list},
                               context_instance=RequestContext(request))
 
-
+@staff_member_required
 def dump(request):
     users      = User.objects.all()
     exhibitors = Exhibitor.objects.all()
@@ -743,6 +744,7 @@ def populate_shows(shows):
 import retailer_data
 import exhibitor_data
 
+@staff_member_required
 def seed(request):
 
     # TURNING THIS OFF NOW
