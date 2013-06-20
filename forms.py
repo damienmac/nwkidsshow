@@ -1,7 +1,11 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import CheckboxSelectMultiple
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+
 from nwkidsshow.models import Show, Exhibitor, Retailer
+
 import datetime
 
 class ExhibitorRegistrationForm(forms.Form):
@@ -40,6 +44,28 @@ class RetailerRegistrationForm(forms.Form):
         if better_choices:
             self.choices = better_choices
             self.fields['days_attending'].choices = self.choices
+
+class AddUserForm(forms.Form):
+    username      = forms.CharField(max_length=30, label='Login ID')
+    password      = forms.CharField(max_length=30, label='Password', initial='password')
+    first_name    = forms.CharField(max_length=30, label='First Name')
+    last_name     = forms.CharField(max_length=30, label='Last Name')
+    email         = forms.EmailField(label='Email', required=False)
+    attendee_type = forms.ChoiceField(choices=[('exhibitor','Exhibitor'),
+                                               ('retailer','Retailer')],
+                                      label='Type',
+                                      widget=forms.RadioSelect())
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        try:
+            u = User.objects.get(username=username)
+        except ObjectDoesNotExist:
+            print "will be creating user: %s" % username
+            return username
+        msg = 'username "%s" already exists (%s)' % (u.username, u.get_full_name())
+        print msg
+        raise forms.ValidationError(msg)
 
 
 class ExhibitorForm(ModelForm):

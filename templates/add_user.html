@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{% block jquery %}{# Set focus on the first input field, show picker #}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_username").focus();
+        });
+    </script>
+{% endblock %}
+
+{% block head %}
+CREATE A NEW USER
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    {% if form.errors %}
+        <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
+    {% endif %}
+
+    <fieldset>
+        <legend>New User Info</legend>
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <p class="field">
+                <label>{{ form.username.label }}
+                    {% if form.username.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <span class="error">{{ form.username.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.password.label }}
+                    {% if form.password.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <span class="error">{{ form.password.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.first_name.label }}
+                    {% if form.first_name.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <span class="error">{{ form.first_name.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.last_name.label }}
+                    {% if form.last_name.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <span class="error">{{ form.last_name.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.email.label }}
+                    {% if form.email.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <span class="error">{{ form.email.errors|first }}</span>
+                {% endif %}
+            </p>
+
+            <p class="field">
+                <label>{{ form.attendee_type.label }}
+                    {% if form.attendee_type.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+                {{ form.attendee_type }}
+                {% if form.attendee_type.errors %}
+                    <span class="error">{{ form.attendee_type.errors|first }}</span>
+                {% endif %}
+            </p>
+
+
+        <p class="block">&ldquo;<span class="required"></span>&rdquo; indicates a required field</p>
+
+            <p class="submit">
+                <input type="submit" value="Submit">
+            </p>
+        </form>
+    </fieldset>
+{% endblock %}

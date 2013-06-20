@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 
     url(r'^dump/$', 'nwkidsshow.views.dump', name='dump'),
     url(r'^seed/$', 'nwkidsshow.views.seed', name='seed'),
+    url(r'^add-user/$', 'nwkidsshow.views.add_user', name='adduser'),
     
     url(r'^accounts/login/$',  login, {'template_name':'login.html'}), 
 #    url(r'^accounts/logout/$', logout, {'next_page':'logged_out.html'}),

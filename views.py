@@ -29,6 +29,7 @@ from nwkidsshow.forms import ExhibitorForm, RetailerForm
 from nwkidsshow.forms import ExhibitorLinesForm
 from nwkidsshow.forms import RetailerReportForm
 from nwkidsshow.forms import ExhibitorReportForm
+from nwkidsshow.forms import AddUserForm
 
 # django query stuff
 from django.db.models import Q
@@ -557,6 +558,38 @@ def report_lines(request, show_id):
     # pprint(lines_list_of_tuples_sorted)
     return render_to_response('report_lines.html', {'show': show, 'lines': lines_list},
                               context_instance=RequestContext(request))
+
+@staff_member_required
+def add_user(request):
+    form = None
+    if request.method != 'POST': # a GET
+        form = AddUserForm()
+    else: # a POST
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            # see clean_username in AddUserForm for where I make sure it does not exist yet
+            u = User.objects.create_user(username=cd['username'])
+            u.first_name = cd['first_name']
+            u.last_name  = cd['last_name']
+            u.email      = cd['email']
+            u.set_password(cd['password'])
+            u.save()
+            if cd['attendee_type'] == 'exhibitor':
+                e = Exhibitor(user=u)
+                e.must_change_password = True
+                e.save()
+                print "creating exhibitor %s" % e
+                group = Group.objects.get(name='exhibitor_group')
+            else:
+                r = Retailer(user=u)
+                r.must_change_password = True
+                r.save()
+                print "creating retailer %s" % r
+                group = Group.objects.get(name='retailer_group')
+            u.groups.add(group)
+            return redirect('/')
+    return render_to_response('add_user.html', {'form': form,}, context_instance=RequestContext(request))
 
 @staff_member_required
 def dump(request):
