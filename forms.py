@@ -61,10 +61,10 @@ class AddUserForm(forms.Form):
         try:
             u = User.objects.get(username=username)
         except ObjectDoesNotExist:
-            print "will be creating user: %s" % username
+            # print "will be creating user: %s" % username
             return username
         msg = 'username "%s" already exists (%s)' % (u.username, u.get_full_name())
-        print msg
+        # print msg
         raise forms.ValidationError(msg)
 
 

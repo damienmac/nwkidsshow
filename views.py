@@ -493,7 +493,7 @@ def report_exhibitors_form(request):
         if form.is_valid():
             cd = form.cleaned_data
             show = cd['show']
-            pprint(request.path)
+            # pprint(request.path)
             if request.path == u'/report/exhibitors/':
                 return redirect('/report/exhibitors/%s/' % show.id)
             else:
@@ -579,13 +579,13 @@ def add_user(request):
                 e = Exhibitor(user=u)
                 e.must_change_password = True
                 e.save()
-                print "creating exhibitor %s" % e
+                # print "creating exhibitor %s" % e
                 group = Group.objects.get(name='exhibitor_group')
             else:
                 r = Retailer(user=u)
                 r.must_change_password = True
                 r.save()
-                print "creating retailer %s" % r
+                # print "creating retailer %s" % r
                 group = Group.objects.get(name='retailer_group')
             u.groups.add(group)
             return redirect('/')
@@ -613,18 +613,19 @@ def populate_users(users, group):
     for user in users:
         try:
             u = User.objects.get(username=user['username'])
-            print "user already exists: %s (%s)" % (u.username, u.get_full_name())
+            # print "user already exists: %s (%s)" % (u.username, u.get_full_name())
         except ObjectDoesNotExist:
             u = User.objects.create_user(username=user['username'])
-            print "created user: %s" % u.username
+            # print "created user: %s" % u.username
         u.first_name = user['first_name'] if not u.first_name else u.first_name
         u.last_name  = user['last_name']  if not u.last_name else u.last_name
         u.email      = user['email']      if not u.email else u.email
         if not u.password or not u.has_usable_password():
             u.set_password(user['password'])
-            print 'set %s password to %s' % (u.get_full_name(), user['password'])
+            # print 'set %s password to %s' % (u.get_full_name(), user['password'])
         else:
-            print 'password for %s is %s' % (u.get_full_name(), u.password)
+            pass
+            # print 'password for %s is %s' % (u.get_full_name(), u.password)
         u.save()
         u.groups.add(group)
     return
@@ -635,10 +636,10 @@ def populate_exhibitors(exhibitors):
         user = User.objects.get(username=exhibitor['username']) # had better be one already!
         try:
             e = Exhibitor.objects.get(user=user)
-            print "updating exhibitor %s" % e
+            # print "updating exhibitor %s" % e
         except ObjectDoesNotExist:
             e = Exhibitor(user=user)
-            print "creating exhibitor %s" % e
+            # print "creating exhibitor %s" % e
         e.company   = exhibitor['company']  if not e.company  else e.company
         e.website   = exhibitor['website']  if not e.website  else e.website
         e.address   = exhibitor['address']  if not e.address  else e.address
@@ -659,10 +660,10 @@ def populate_retailers(retailers):
         user = User.objects.get(username=retailer['username']) # had better be one already!
         try:
             r = Retailer.objects.get(user=user)
-            print "updating retailer %s" % r
+            # print "updating retailer %s" % r
         except ObjectDoesNotExist:
             r = Retailer(user=user)
-            print "creating retailer %s" % r
+            # print "creating retailer %s" % r
         r.company   = retailer['company']  if not r.company  else r.company
         r.website   = retailer['website']  if not r.website  else r.website
         r.address   = retailer['address']  if not r.address  else r.address
@@ -716,10 +717,10 @@ shows = [
 def register_exhibitor(e,s):
     try:
         reg = Registration.objects.get(exhibitor=e, show=s)
-        print "Exhibitor Registration for %s to %s already exists" % (e,s)
+        # print "Exhibitor Registration for %s to %s already exists" % (e,s)
     except ObjectDoesNotExist:
         reg = Registration(exhibitor=e, show=s)
-        print "Exhibitor Registration created for %s to %s" % (e,s)
+        # print "Exhibitor Registration created for %s to %s" % (e,s)
         reg.num_exhibitors = 0
         reg.num_assistants = 0
         reg.num_racks = 0
@@ -737,10 +738,10 @@ def register_exhibitor(e,s):
 def register_retailer(r,s):
     try:
         reg = RetailerRegistration.objects.get(retailer=r, show=s)
-        print "Retailer Registration for %s to %s already exists" % (r,s)
+        # print "Retailer Registration for %s to %s already exists" % (r,s)
     except ObjectDoesNotExist:
         reg = RetailerRegistration(retailer=r, show=s)
-        print "Retailer Registration created for %s to %s" % (r,s)
+        # print "Retailer Registration created for %s to %s" % (r,s)
         reg.num_attendees = 0
         reg.days_attending = "0"
         reg.save()
@@ -751,10 +752,10 @@ def populate_shows(shows):
     for show in shows:
         try:
             s = Show.objects.get(name=show['name'])
-            print "updating show %s" % s
+            # print "updating show %s" % s
         except ObjectDoesNotExist:
             s = Show(name=show['name'])
-            print "creating show %s" % s
+            # print "creating show %s" % s
         s.late_date   = show['late_date']   if not s.late_date   else s.late_date
         s.closed_date = show['closed_date'] if not s.closed_date else s.closed_date
         s. start_date = show['start_date']  if not s.start_date  else s.start_date
@@ -781,18 +782,18 @@ import exhibitor_data
 def seed(request):
 
     # TURNING THIS OFF NOW
-    # return HttpResponseRedirect('/dump/')
+    return HttpResponseRedirect('/dump/')
 
     exhibitor_group, created = Group.objects.get_or_create(name='exhibitor_group')
-    if created:
-        print "created new exhibitor_group"
-    else:
-        print "exhibitor_group already exists"
+    # if created:
+    #     print "created new exhibitor_group"
+    # else:
+    #     print "exhibitor_group already exists"
     retailer_group,  created = Group.objects.get_or_create(name='retailer_group')
-    if created:
-        print "created new retailer_group"
-    else:
-        print "retailer_group already exists"
+    # if created:
+    #     print "created new retailer_group"
+    # else:
+    #     print "retailer_group already exists"
 
     populate_users(exhibitor_data.exhibitors, exhibitor_group)
     populate_users(retailer_data.retailers, retailer_group)
