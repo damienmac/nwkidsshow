@@ -18,8 +18,8 @@ retailers = [
     {
         'username': 'testre',
         'password': 'testre',
-        'first_name': 'Tester',
-        'last_name': 'Tester',
+        'first_name': 'Test',
+        'last_name': 'Retailer',
         'email': 'info@nwkidsshow.com',
         'company': 'Laurel Event Management',
         'website': 'http://www.nwkidsshow.com/',

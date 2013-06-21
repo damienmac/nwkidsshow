@@ -464,7 +464,7 @@ def report_retailers(request, show_id):
         registration = Registration.objects.get(show=show, exhibitor=exhibitor)
         # collect the data for the report: retailers at this show
         # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
-        retailers = Retailer.objects.filter(show=show).order_by('user__last_name')
+        retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
         # for retailer in retailers:
         #     pprint(retailer)
     except ObjectDoesNotExist:
@@ -516,7 +516,7 @@ def report_exhibitors(request, show_id):
         registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
         # collect the data for the report: exhibitors at this show
         # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
-        exhibitors = Exhibitor.objects.filter(show=show).order_by('user__last_name')
+        exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
         # for exhibitor in exhibitors:
         #     pprint(exhibitor)
     except ObjectDoesNotExist:
@@ -538,7 +538,7 @@ def report_lines(request, show_id):
         return redirect('/advising/noregistration/')
     # collect the data for the report: all the lines at the show with exhibitor name (first,last)
     # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
-    exhibitors = Exhibitor.objects.filter(show=show)
+    exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test')
     lines_dict = {}
     for exhibitor in exhibitors:
         lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
