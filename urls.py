@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout, password_change
-from django.views.generic.simple import direct_to_template
+from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -26,7 +26,7 @@ urlpatterns = patterns('',
     url(r'^contact/$', 'nwkidsshow.views.contact', name='contact'),
     url(r'^about/$', 'nwkidsshow.views.about', name='about'),
 
-    url(r'^advising/(?P<advice>\w+)/$', direct_to_template, {'template':'advising.html'}),
+    url(r'^advising/(?P<advice>\w+)/$', TemplateView.as_view(template_name="advising.html")),
 
     url(r'^exhibitor/home/$', 'nwkidsshow.views.exhibitor_home', name='exhibitor_home'),
     url(r'^retailer/home/$', 'nwkidsshow.views.retailer_home', name='retailer_home'),

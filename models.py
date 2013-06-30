@@ -1,9 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from django.contrib.localflavor.us.models import PhoneNumberField
-from django.contrib.localflavor.us.us_states    import US_STATES
-from nwkidsshow.ca_provinces import PROVINCE_CHOICES
+from django_localflavor_us.models       import PhoneNumberField
+from django_localflavor_us.us_states    import US_STATES
+from django_localflavor_ca.ca_provinces import PROVINCE_CHOICES
 US_CA_STATES = tuple(sorted(US_STATES + PROVINCE_CHOICES, key=lambda obj: obj[1]))
 
 from pprint import pprint

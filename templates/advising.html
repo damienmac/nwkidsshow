@@ -13,31 +13,31 @@
 
 {% block content %}
 <!-- <p>{{ params }}</p> -->
-{% if params.advice %}
+{% if advice %}
 
-	{% ifequal params.advice 'denied' %}
+	{% ifequal advice 'denied' %}
         <p class="error">Access to that page is denied, please try another.</p>
         <div class="info"><a href="/accounts/login">Or click here to login</a>.</div>
     {% endifequal %}
 
-    {% ifequal params.advice 'deactivated' %}
+    {% ifequal advice 'deactivated' %}
         <p class="error">Your account has been deactivated. Please contact Laurie or email &ldquo;info&rdquo; at nwkidsshow.com.</p>
     {% endifequal %}
 
-    {% ifequal params.advice 'noinvoice' %}
+    {% ifequal advice 'noinvoice' %}
         <p class="error">There is no registration invoice for you for that show.</p>
     {% endifequal %}
 
-    {% ifequal params.advice 'noregistration' %}
+    {% ifequal advice 'noregistration' %}
         <p class="error">There is no registration for you for that show.</p>
     {% endifequal %}
 
-    {% ifequal params.advice 'logged_out' %}
+    {% ifequal advice 'logged_out' %}
         <p class="success">You have been successfully logged out.</p>
         <div class="info"><a href="/accounts/login">Click here to login</a>.</div>
     {% endifequal %}
 
-    {% ifequal params.advice 'login' %}
+    {% ifequal advice 'login' %}
         <p class="error">Please login first.</p>
         <div class="info"><a href="/accounts/login">Click here to login</a>.</div>
     {% endifequal %}
