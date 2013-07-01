@@ -1,28 +1,29 @@
 # Django settings for nwkidsshow project.
 import os
 
+BASE_DIR = (os.path.abspath(os.path.dirname(__file__)) + os.sep).replace('\\','/')
+
+running_in_prod = False
+if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+    running_in_prod = True
+
 DEBUG = True
+if running_in_prod:
+    DEBUG = False
+
 TEMPLATE_DEBUG = DEBUG
 
+#A tuple that lists people who get code error notifications.
+# When DEBUG=False and a view raises an exception, Django will
+# email these people with the full exception information.
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
+    ('Damien Macielinski', 'damien@macielinski.com')
 )
 
 MANAGERS = ADMINS
 
-if (False):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            # 'NAME': 'C:\\Users\\Damien\\workspace\\nwkidsshow\\sqlite.db',                      # Or path to database file if using sqlite3.
-            'NAME': 'C:\\Users\\Damien\\PycharmProjects\\nwkidsshow\\sqlite.db',                      # Or path to database file if using sqlite3.
-            'USER': '',                      # Not used with sqlite3.
-            'PASSWORD': '',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-        }
-    }
-elif (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+if running_in_prod:
     # Running on production App Engine, so use a Google Cloud SQL database.:
     DATABASES = {
         'default': {
@@ -80,7 +81,6 @@ MEDIA_URL = ''
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 # STATIC_ROOT = ''
-BASE_DIR = (os.path.abspath(os.path.dirname(__file__)) + os.sep).replace('\\','/')
 STATIC_ROOT = BASE_DIR + 'static'
 
 # URL prefix for static files.
@@ -182,3 +182,59 @@ LOGGING = {
         },
     }
 }
+
+###########################################################
+# some line in the yaml file has:
+#   version: 6
+# in it, I want it in my template context
+###########################################################
+
+# here's a method to get that number out of the yaml
+# uses NO REGEX on purpose.
+# I am using just INT versions right now, so return an INT not FLOAT
+def get_app_yaml_version():
+    version = '#' # some bad default
+    try:
+        yaml = open(BASE_DIR+'../app.yaml', 'r')
+    except IOError as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        return version
+    while True:
+        line = yaml.readline()
+        if not line:
+            break
+        if line.startswith('version:'):
+            version_string = line.split(':')[-1]
+            try:
+                version = int(version_string)
+            except ValueError:
+                print 'Could not convert "%s" from app.yaml to int()' % version_string
+            break
+    yaml.close()
+    return version
+
+# set it to a settings variable
+VERSION = get_app_yaml_version()
+
+# If you ever want to get ALL the capitalized settings vars into the context, try this (untested!)
+# import re
+# _context = {}
+# local_context = locals()
+# for (k,v) in local_context.items():
+#     if re.search('^[A-Z0-9_]+$',k):
+#         _context[k] = str(v)
+
+# but for now I just want VERSION
+_context = {
+    'VERSION': str(VERSION),
+}
+
+def settings_context(context):
+    return _context
+
+#CAREFUL: adding my own, but don't squash the defaults!
+from django.conf import global_settings
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+    'nwkidsshow.settings.settings_context', # this comma is important
+)
+###########################################################

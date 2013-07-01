@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/messages.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/forms.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/nav.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/footer.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css"/>
     {% block internal_css %}{% endblock %}
     <title>{% block head %}{% endblock %}</title>
@@ -47,6 +48,32 @@
 
 {% block footer %}{% endblock %}
 <!-- footer for all pages -->
+<p></p>
+<fieldset>
+    <div class="footerbar">
+        <p class="myparagraph">
+            v&nbsp;{{ VERSION }}.0&nbsp;&copy;{% now "Y" %} Laurel Event Management LLC
+        </p>
+        <ul>
+            <li>
+                <a href="http://www.python.org/">
+                    <img id="badges" src="http://www.python.org/community/logos/python-powered-w-70x28.png" border=0 alt="Python Powered.">
+                </a>
+            </li>
+            <li>
+                <a href="http://www.djangoproject.com/">
+                    <img id="badges" src="https://www.djangoproject.com/m/img/badges/djangomade124x25.gif" border="0" alt="Made with Django." title="Made with Django." />
+                </a>
+            </li>
+            <li>
+                <a href="https://developers.google.com/appengine/">
+                    <img id="badges" src="https://developers.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine" />
+                </a>
+            </li>
+        </ul>
+    </div>
+</fieldset>
+
 </body>
 
 </html>
