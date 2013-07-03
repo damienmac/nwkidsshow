@@ -18,8 +18,11 @@ TEMPLATE_DEBUG = DEBUG
 # email these people with the full exception information.
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ('Damien Macielinski', 'damien@macielinski.com')
 )
+
+ALLOWED_HOSTS = [
+    'www.nwkidsshow.com',
+]
 
 MANAGERS = ADMINS
 
