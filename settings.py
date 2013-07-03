@@ -4,7 +4,7 @@ import os
 BASE_DIR = (os.path.abspath(os.path.dirname(__file__)) + os.sep).replace('\\','/')
 
 running_in_prod = False
-if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod':
     running_in_prod = True
 
 DEBUG = True
