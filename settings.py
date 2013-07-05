@@ -43,7 +43,8 @@ else:
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
-            'NAME': 'nwkidsshowdevdb',
+            # 'NAME': 'nwkidsshowdevdb',
+            'NAME': 'nwkidsshowdb1',
         }
     }
 
