@@ -46,6 +46,10 @@
         <p class="error">A record for that exhibitor does not exist.</p>
     {% endifequal %}
 
+    {% ifequal advice 'not_allowed_exhibitor' %}
+        <p class="error">You did not register for a show that exhibitor attended.</p>
+    {% endifequal %}
+
 {% else %}
 
 {# should not get here #}

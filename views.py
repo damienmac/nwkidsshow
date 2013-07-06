@@ -564,13 +564,22 @@ def report_lines(request, show_id):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def exhibitor(request, exhibitor_id):
+    retailer = Retailer.objects.get(user=request.user)
     try:
         exhibitor = Exhibitor.objects.get(id=exhibitor_id)
     except ObjectDoesNotExist:
         return redirect('/advising/noexhibitor/')
-    return render_to_response('exhibitor_info.html',
-                              {'e': exhibitor,},
-                              context_instance=RequestContext(request))
+
+    # make sure this retailer and exhibitor (they want to see) have a registered show in common!
+    shows_for_exhibitor = Show.objects.filter(exhibitors__id=exhibitor_id)
+    shows_for_retailer  = Show.objects.filter(retailers__id=retailer.id)
+    for se in shows_for_exhibitor:
+        for sr in shows_for_retailer:
+            if se.id == sr.id:
+                return render_to_response('exhibitor_info.html',
+                                          {'e': exhibitor,},
+                                          context_instance=RequestContext(request))
+    return redirect('/advising/not_allowed_exhibitor/')
 
 
 @staff_member_required
