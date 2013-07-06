@@ -23,10 +23,12 @@ EXHIBITORS' LINES AT A SHOW
         </div>
         <hr>
 {#    {{ lines.items|pprint }}#}
-        {% for line, exhibitor in lines %}
+        {% for line, tuple in lines %}
+            {# tuple.0 is the exhibitor #}
+            {# tuple.1 is the exhibitor id #}
             <div class="block">
                 <p class="mywidelabel">{{ line }}</p>
-                <p class="myvalue2">{{ exhibitor }}</p>
+                <p class="myvalue2"><a href="/exhibitors/{{ tuple.1 }}/">{{ tuple.0 }}</a></p>
             </div>
         {% endfor %}
     </fieldset>

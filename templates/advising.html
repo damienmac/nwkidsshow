@@ -42,6 +42,10 @@
         <div class="info"><a href="/accounts/login">Click here to login</a>.</div>
     {% endifequal %}
 
+    {% ifequal advice 'noexhibitor' %}
+        <p class="error">A record for that exhibitor does not exist.</p>
+    {% endifequal %}
+
 {% else %}
 
 {# should not get here #}

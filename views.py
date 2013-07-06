@@ -541,23 +541,37 @@ def report_lines(request, show_id):
     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test')
     lines_dict = {}
     for exhibitor in exhibitors:
-        lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
+        exhibitor_name = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
+        exhibitor_id = exhibitor.id
+        lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
         # pprint(lines_str)
-        lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
+        lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
         # pprint(lines_list)
         for line in lines_list:
             if line in lines_dict.iterkeys():
                 print 'ERROR: line "%s" duplicate detected!' % line
             stripped_line = line.strip()
             if stripped_line:
-                lines_dict[stripped_line] = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
+                lines_dict[stripped_line] = (exhibitor_name, exhibitor_id)
     # pprint(lines_dict)
     # lines_dict.items() makes a list of tuples [('aline','name'),...]
     # case insensitive sort by the line name
     lines_list = sorted(lines_dict.items(), key=lambda t: tuple(t[0].lower()))
-    # pprint(lines_list_of_tuples_sorted)
+    # pprint(lines_list)
     return render_to_response('report_lines.html', {'show': show, 'lines': lines_list},
                               context_instance=RequestContext(request))
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def exhibitor(request, exhibitor_id):
+    try:
+        exhibitor = Exhibitor.objects.get(id=exhibitor_id)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noexhibitor/')
+    return render_to_response('exhibitor_info.html',
+                              {'e': exhibitor,},
+                              context_instance=RequestContext(request))
+
 
 @staff_member_required
 def add_user(request):
