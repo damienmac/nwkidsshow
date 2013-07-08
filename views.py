@@ -519,9 +519,18 @@ def report_exhibitors(request, show_id):
         exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
         # for exhibitor in exhibitors:
         #     pprint(exhibitor)
+        rooms = {}
+        registrations = Registration.objects.filter(show=show)
+        for r in registrations:
+            rooms[r.exhibitor.id] = r.room
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-    return render_to_response('report_exhibitors.html', {'exhibitors': exhibitors, 'show': show},
+    return render_to_response('report_exhibitors.html',
+                              {
+                                  'exhibitors': exhibitors,
+                                  'show': show,
+                                  'rooms': rooms,
+                               },
                               context_instance=RequestContext(request))
 
 
@@ -570,6 +579,14 @@ def exhibitor(request, exhibitor_id):
     except ObjectDoesNotExist:
         return redirect('/advising/noexhibitor/')
 
+    # bah. just get the room number of the latest show, assuming they don't need room number of shows in the past
+    # TODO: fix this by passing in the show id that they were looking at he lines in?
+    show = Show.objects.filter(exhibitors__id=exhibitor_id, end_date__gt=datetime.date.today()).latest('end_date')
+    registrations = Registration.objects.filter(show=show, exhibitor=exhibitor)
+    rooms = {}
+    if registrations:
+        rooms[exhibitor.id] = registrations[0].room
+
     # make sure this retailer and exhibitor (they want to see) have a registered show in common!
     shows_for_exhibitor = Show.objects.filter(exhibitors__id=exhibitor_id)
     shows_for_retailer  = Show.objects.filter(retailers__id=retailer.id)
@@ -577,7 +594,10 @@ def exhibitor(request, exhibitor_id):
         for sr in shows_for_retailer:
             if se.id == sr.id:
                 return render_to_response('exhibitor_info.html',
-                                          {'e': exhibitor,},
+                                          {
+                                              'e': exhibitor,
+                                              'rooms': rooms,
+                                          },
                                           context_instance=RequestContext(request))
     return redirect('/advising/not_allowed_exhibitor/')
 

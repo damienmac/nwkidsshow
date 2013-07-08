@@ -14,6 +14,7 @@ EXHIBITORS AT A SHOW
 {% endblock %}
 
 {% block content %}
+    {% load get_item %}
     <p></p>
     <fieldset>
         <legend>Exhibitors Registered for a Show</legend>
@@ -39,6 +40,7 @@ EXHIBITORS AT A SHOW
                     {% if e.state %}{{ e.state }}&nbsp;{% endif %}
                     {% if e.zip %}{{ e.zip }}{% endif %}
                     {% if e.lines %}<br>{{ e.lines }}{% endif %}
+                    {% if rooms|get_item:e.id %}<br>Room #{{ rooms|get_item:e.id }}{% endif %}
                 </p>
                 <hr>
             </div>
