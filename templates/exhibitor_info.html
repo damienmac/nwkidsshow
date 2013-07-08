@@ -32,7 +32,7 @@ EXHIBITOR DETAIL
                 {% if e.state %}{{ e.state }}&nbsp;{% endif %}
                 {% if e.zip %}{{ e.zip }}{% endif %}
                 {% if e.lines %}<br>{{ e.lines }}{% endif %}
-                {% if rooms|get_item:e.id %}<br>Room #{{ rooms|get_item:e.id }}{% endif %}
+                {% if room %}<br>Room #{{ room }}{% endif %}
             </p>
         </div>
     </fieldset>

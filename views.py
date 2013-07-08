@@ -567,39 +567,31 @@ def report_lines(request, show_id):
     # case insensitive sort by the line name
     lines_list = sorted(lines_dict.items(), key=lambda t: tuple(t[0].lower()))
     # pprint(lines_list)
-    return render_to_response('report_lines.html', {'show': show, 'lines': lines_list},
+    return render_to_response('report_lines.html',
+                              {
+                                  'show': show,
+                                  'lines': lines_list,
+                              },
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
-def exhibitor(request, exhibitor_id):
-    retailer = Retailer.objects.get(user=request.user)
+def exhibitor(request, exhibitor_id, show_id):
+    # make sure this retailer and exhibitor (they want to see) have both registered for this show!
     try:
-        exhibitor = Exhibitor.objects.get(id=exhibitor_id)
+        show         = Show.objects.get(id=show_id)
+        retailer     = Retailer.objects.get(user=request.user)
+        RetailerRegistration.objects.get(show=show, retailer=retailer)
+        exhibitor    = Exhibitor.objects.get(id=exhibitor_id)
+        registration = Registration.objects.get(show=show, exhibitor=exhibitor)
     except ObjectDoesNotExist:
-        return redirect('/advising/noexhibitor/')
-
-    # bah. just get the room number of the latest show, assuming they don't need room number of shows in the past
-    # TODO: fix this by passing in the show id that they were looking at he lines in?
-    show = Show.objects.filter(exhibitors__id=exhibitor_id, end_date__gt=datetime.date.today()).latest('end_date')
-    registrations = Registration.objects.filter(show=show, exhibitor=exhibitor)
-    rooms = {}
-    if registrations:
-        rooms[exhibitor.id] = registrations[0].room
-
-    # make sure this retailer and exhibitor (they want to see) have a registered show in common!
-    shows_for_exhibitor = Show.objects.filter(exhibitors__id=exhibitor_id)
-    shows_for_retailer  = Show.objects.filter(retailers__id=retailer.id)
-    for se in shows_for_exhibitor:
-        for sr in shows_for_retailer:
-            if se.id == sr.id:
-                return render_to_response('exhibitor_info.html',
-                                          {
-                                              'e': exhibitor,
-                                              'rooms': rooms,
-                                          },
-                                          context_instance=RequestContext(request))
-    return redirect('/advising/not_allowed_exhibitor/')
+        return redirect('/advising/not_allowed_exhibitor/')
+    return render_to_response('exhibitor_info.html',
+                              {
+                                  'e': exhibitor,
+                                  'room': registration.room,
+                              },
+                              context_instance=RequestContext(request))
 
 
 @staff_member_required

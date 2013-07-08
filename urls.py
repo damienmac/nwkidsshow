@@ -50,7 +50,7 @@ urlpatterns = patterns('',
 
     url(r'^report/lines/$', 'nwkidsshow.views.report_exhibitors_form', name='report_exhibitors_form'),
     url(r'^report/lines/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_lines', name='report_lines'),
-    url(r'^exhibitors/(?P<exhibitor_id>\w+)/$', 'nwkidsshow.views.exhibitor', name='exhibitor'),
+    url(r'^exhibitors/(?P<exhibitor_id>\w+)/(?P<show_id>\w+)/$', 'nwkidsshow.views.exhibitor', name='exhibitor'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
