@@ -6,6 +6,32 @@
     </style>
 {% endblock %}
 
+{% block jquery %}
+<script>
+
+/* straight off this page, in the iframe below, for Chrome and FF, not IE*/
+print_styles = '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css" media="all"/>';
+function printme() {
+    window.frames["print_frame"].document.head.innerHTML = print_styles;
+    window.frames["print_frame"].document.body.innerHTML = document.getElementById('printme').innerHTML;
+    window.frames["print_frame"].window.focus();
+    window.frames["print_frame"].window.print();
+}
+
+/* in a separate window (no iframe), to make IE work (seems ok in FF and Chrome too) */
+add_css = '<head><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css" media="all"/></head><body>';
+function printme2() {
+    var p = document.getElementById('printme');
+    var newWin = window.open();
+    newWin.document.write(add_css + '<fieldset>' + p.innerHTML + '</fieldset></body>');
+    newWin.location.reload();
+    newWin.focus();
+    newWin.print();
+    newWin.close();
+}
+</script>
+{% endblock %}
+
 {% block head %}
 EXHIBITORS AT A SHOW
 {% endblock %}
@@ -15,8 +41,28 @@ EXHIBITORS AT A SHOW
 
 {% block content %}
     {% load get_item %}
+
+    <fieldset class="footer_fieldset">
+        <div class="footerbar">
+            <p class="myparagraph">
+            <p class="submit">
+                <input type="button"
+                       {# onClick="window.print()" #}
+                       {# onClick="printme()" #}
+                       onClick="printme2()"
+                       value="Print This Report"
+                       alt="Print This Report"/>
+                &nbsp;&nbsp;
+                <input type="button"
+                       onclick="location.href='xls/'"
+                       value="Export This Report to Excel"
+                       alt="Export This Report to Excel"/>
+            </p>
+        </div>
+    </fieldset>
+
     <p></p>
-    <fieldset>
+    <fieldset id="printme">
         <legend>Exhibitors Registered for a Show</legend>
         <div class="block">
             <p class="mylabel">For Show:</p>
@@ -46,4 +92,8 @@ EXHIBITORS AT A SHOW
             </div>
         {% endfor %}
     </fieldset>
+{% endblock %}
+
+{% block hidden %}
+{#<iframe name=print_frame width=0 height=0 frameborder="0" seamless="1" src='about:blank'></iframe>#}
 {% endblock %}

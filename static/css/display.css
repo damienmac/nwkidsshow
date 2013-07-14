@@ -20,7 +20,7 @@
     }
 }
 
-@media all {
+@media screen,print {
     body {
         font-family: 'Sorts Mill Goudy', serif;
         font-size: large;
@@ -49,7 +49,9 @@
         font-size:x-large;
         /*color: red;*/
         color: #FF3300;
-        text-shadow: black 0.1em 0.1em 0.2em;
+        /*text-shadow: black 0.1em 0.1em 0.2em;*/
+        text-shadow: 1px 1px 2px black;
+        filter: dropshadow(color=black, offx=1, offy=1);
         width: 400px;
         display: block;
         text-align: center;

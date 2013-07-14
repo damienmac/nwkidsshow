@@ -47,6 +47,7 @@ urlpatterns = patterns('',
 
     url(r'^report/exhibitors/$', 'nwkidsshow.views.report_exhibitors_form', name='report_exhibitors_form'),
     url(r'^report/exhibitors/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_exhibitors', name='report_exhibitors'),
+    url(r'^report/exhibitors/(?P<show_id>\w+)/xls/$', 'nwkidsshow.views.report_exhibitors_xls', name='report_exhibitors_xls'),
 
     url(r'^report/lines/$', 'nwkidsshow.views.report_exhibitors_form', name='report_exhibitors_form'),
     url(r'^report/lines/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_lines', name='report_lines'),

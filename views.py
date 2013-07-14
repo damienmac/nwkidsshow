@@ -34,6 +34,9 @@ from nwkidsshow.forms import AddUserForm
 # django query stuff
 from django.db.models import Q
 
+# my excel exporting methods
+from nwkidsshow.excel import exhibitor_xls
+
 # python stuff
 import datetime
 from pprint import pprint
@@ -505,6 +508,15 @@ def report_exhibitors_form(request):
                               context_instance=RequestContext(request))
 
 
+
+def _get_rooms(show):
+    rooms = {}
+    registrations = Registration.objects.filter(show=show)
+    for r in registrations:
+        rooms[r.exhibitor.id] = r.room
+    return rooms
+
+
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_exhibitors(request, show_id):
@@ -519,10 +531,7 @@ def report_exhibitors(request, show_id):
         exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
         # for exhibitor in exhibitors:
         #     pprint(exhibitor)
-        rooms = {}
-        registrations = Registration.objects.filter(show=show)
-        for r in registrations:
-            rooms[r.exhibitor.id] = r.room
+        rooms = _get_rooms(show)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     return render_to_response('report_exhibitors.html',
@@ -532,6 +541,54 @@ def report_exhibitors(request, show_id):
                                   'rooms': rooms,
                                },
                               context_instance=RequestContext(request))
+
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def report_exhibitors_xls(request, show_id):
+    try:
+        show = Show.objects.get(id=show_id)
+        # make sure this retailer has the right to see the exhibitors for this show:
+        # that they registered for it
+        retailer = Retailer.objects.get(user=request.user)
+        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
+        # collect the data for the report: exhibitors at this show
+        # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+        exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+
+    rooms = _get_rooms(show)
+
+    fields = ['company',
+              'website',
+              'address',
+              'address2',
+              'city',
+              'state',
+              'zip',
+              'phone',
+              'fax',
+              'lines', ]
+
+    exhibitors_list = []
+    for exhibitor in exhibitors:
+        e = model_to_dict(exhibitor, fields=fields)
+        t = ()
+        t = t + (rooms[exhibitor.id],)
+        t = t + (exhibitor.first_name_display(),)
+        t = t + (exhibitor.last_name_display(),)
+        t = t + (exhibitor.email_display(),)
+        for f in fields:
+            t = t + (e[f],)
+        exhibitors_list += [t]
+
+    http_response = HttpResponse(mimetype='application/vnd.ms-excel')
+    http_response['Content-Transfer-Encoding'] = 'Binary'
+    http_response['Content-disposition'] = 'attachment; filename="nwkidsshow_exhibitors.xls"'
+
+    exhibitor_xls(exhibitors_list, http_response)
+    return http_response
 
 
 @login_required(login_url='/advising/login/')
