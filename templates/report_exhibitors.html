@@ -24,7 +24,7 @@ function printme2() {
     var p = document.getElementById('printme');
     var newWin = window.open();
     newWin.document.write(add_css + '<fieldset>' + p.innerHTML + '</fieldset></body>');
-    newWin.location.reload();
+    newWin.document.close();
     newWin.focus();
     newWin.print();
     newWin.close();
