@@ -56,3 +56,28 @@ def exhibitor_xls(exhibitor_data, stream):
     widths = [256 * int(widths[i]) for i in xrange(0,len(widths))]
 
     write_xls(stream, 'Exhibitors', hdngs, widths, exhibitor_data, heading_xf, data_xfs)
+
+def exhibitor_lines_xls(lines_data, stream):
+    hdngs  = ['Line', 'Exhibitor', 'Room #', ]
+    kinds  = ' text    text         text  '.split()
+    widths = ' 30      30           10     '.split()
+    data_xfs = [kind_to_xf_map[k] for k in kinds]
+
+    widths = [256 * int(widths[i]) for i in xrange(0,len(widths))]
+
+    write_xls(stream, "Exhibitors' Lines", hdngs, widths, lines_data, heading_xf, data_xfs)
+
+def retailer_xls(retailer_data, stream):
+
+    hdngs  = ['First Name', 'Last Name', 'Email', 'Company', 'Website', 'Address', 'Address2', 'City', 'State', 'Zip', 'Phone', 'Fax',]
+    kinds  = ' text          text         text     text       text       text       text        text    text     text   text     text'.split()
+    widths = ' 14            14           28       30         30         20         20          20      8        10     12       12  '.split()
+    data_xfs = [kind_to_xf_map[k] for k in kinds]
+
+    retailer_data = hyperlink_website(retailer_data, position=3)
+    retailer_data = hyperlink_email(retailer_data, position=1)
+
+    widths = [256 * int(widths[i]) for i in xrange(0,len(widths))]
+
+    write_xls(stream, 'Retailers', hdngs, widths, retailer_data, heading_xf, data_xfs)
+

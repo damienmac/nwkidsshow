@@ -1,0 +1,60 @@
+<script>
+
+if ( !Array.prototype.forEach ) {
+  Array.prototype.forEach = function(fn, scope) {
+    for(var i = 0, len = this.length; i < len; ++i) {
+      if (i in this) {
+        fn.call(scope, this[i], i, this);
+      }
+    }
+  };
+}
+
+/* straight off this page, in the iframe below, for Chrome and FF, not IE*/
+print_styles = '';
+print_styles += '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/links.css" media="all"/>';
+print_styles += '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css" media="all"/>';
+function printme() {
+    window.frames["print_frame"].document.head.innerHTML = print_styles;
+    window.frames["print_frame"].document.body.innerHTML = document.getElementById('printme').innerHTML;
+    window.frames["print_frame"].window.focus();
+    window.frames["print_frame"].window.print();
+}
+
+/* in a separate window (no iframe), to make IE work (seems ok in FF and Chrome too) */
+add_css =  '<head>';
+add_css += '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/links.css" media="all"/>';
+add_css += '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css" media="all"/>';
+add_css += '</head><body>';
+function printme2() {
+    var p = document.getElementById('printme');
+    var newWin = window.open();
+{#    newWin.document.write(add_css + '<fieldset>' + p.innerHTML + '</fieldset></body>');#}
+    newWin.document.write(add_css + p.outerHTML + '</body>');
+    newWin.document.close();
+    newWin.focus();
+    newWin.print();
+    newWin.close();
+}
+
+/* in a separate window (no iframe), to make IE work (seems ok in FF and Chrome too) */
+add_css =  '<head>';
+add_css += '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/links.css" media="all"/>';
+add_css += '<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css" media="all"/>';
+add_css += '</head><body>';
+function printme3() {
+    var p = add_css;
+    Array.prototype.forEach.call( document.getElementsByClassName('printme'), function(element) {
+        p += '<p></p>'
+        p += element.outerHTML;
+    });
+    p += '</body>';
+
+    var newWin = window.open();
+    newWin.document.write(p);
+    newWin.document.close();
+    newWin.focus();
+    newWin.print();
+    newWin.close();
+}
+</script>

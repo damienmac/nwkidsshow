@@ -1,21 +1,17 @@
 {% extends "base.html" %}
 
-
-{% block internal_css %}
-    <style type="text/css">
-    </style>
+{% block jquery %}
+{% include "printer_script.html" %}
 {% endblock %}
 
 {% block head %}
 RETAILERS AT A SHOW
 {% endblock %}
 
-{% block title %}
-{% endblock %}
-
 {% block content %}
+    {% include "printer_export_bar.html" %}
     <p></p>
-    <fieldset>
+    <fieldset class="printme">
         <legend>Retailers Registered for a Show</legend>
         <div class="block">
             <p class="mylabel">For Show:</p>

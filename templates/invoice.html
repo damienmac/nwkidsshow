@@ -1,22 +1,20 @@
 {% extends "base.html" %}
 
-
-{% block internal_css %}
-<style type="text/css">
-</style>
+{% block jquery %}
+{% include "printer_script.html" %}
 {% endblock %}
 
 {% block head %}
 YOUR INVOICE AND DETAILS
 {% endblock %}
 
-{% block title %}
-{% endblock %}
-
 {% block content %}
     {% load humanize %}
     {% load datemath %}
 
+    {% include "printer_bar.html" %}
+
+    <p></p>
     <fieldset>
     <legend>Important Deadlines</legend>
     <div class="block">
@@ -30,7 +28,7 @@ YOUR INVOICE AND DETAILS
     </fieldset>
 
     <p></p>
-    <fieldset>
+    <fieldset class="printme">
     <legend>Show Details</legend>
     <div class="block">
         <p class="mylabel">Setup day:</p>
@@ -58,7 +56,7 @@ YOUR INVOICE AND DETAILS
     </fieldset>
 
     <p></p>
-    <fieldset>
+    <fieldset class="printme">
     <legend>Your Invoice</legend>
     <div class="block">
         <p class="mylabel">Registration fee:</p>
@@ -95,7 +93,7 @@ YOUR INVOICE AND DETAILS
     </fieldset>
 
     <p></p>
-    <fieldset>
+    <fieldset class="printme">
         <legend>Disclaimers</legend>
         <div class="block">
             <p>By registering for this show, you agree to all terms and conditions of Northwest Kids Show.</p>

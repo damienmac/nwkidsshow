@@ -44,6 +44,7 @@ urlpatterns = patterns('',
 
     url(r'^report/retailers/$', 'nwkidsshow.views.report_retailers_form', name='report_retailers_form'),
     url(r'^report/retailers/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_retailers', name='report_retailers'),
+    url(r'^report/retailers/(?P<show_id>\w+)/xls/$', 'nwkidsshow.views.report_retailers_xls', name='report_retailers_xls'),
 
     url(r'^report/exhibitors/$', 'nwkidsshow.views.report_exhibitors_form', name='report_exhibitors_form'),
     url(r'^report/exhibitors/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_exhibitors', name='report_exhibitors'),
@@ -51,6 +52,7 @@ urlpatterns = patterns('',
 
     url(r'^report/lines/$', 'nwkidsshow.views.report_exhibitors_form', name='report_exhibitors_form'),
     url(r'^report/lines/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_lines', name='report_lines'),
+    url(r'^report/lines/(?P<show_id>\w+)/xls/$', 'nwkidsshow.views.report_lines_xls', name='report_lines_xls'),
     url(r'^exhibitors/(?P<exhibitor_id>\w+)/(?P<show_id>\w+)/$', 'nwkidsshow.views.exhibitor', name='exhibitor'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

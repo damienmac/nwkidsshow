@@ -1,34 +1,31 @@
 {% extends "base.html" %}
 
-
-{% block internal_css %}
-    <style type="text/css">
-    </style>
+{% block jquery %}
+{% include "printer_script.html" %}
 {% endblock %}
 
 {% block head %}
 EXHIBITORS' LINES AT A SHOW
 {% endblock %}
 
-{% block title %}
-{% endblock %}
-
 {% block content %}
+    {% include "printer_export_bar.html" %}
     <p></p>
-    <fieldset>
+    <fieldset class="printme">
         <legend>Exhibitors' Lines at a Show</legend>
         <div class="block">
             <p class="mywidelabel">For Show:</p>
             <p class="myvalue2 date">{{ show.start_date|date:"F Y" }}</p>
         </div>
         <hr>
-{#    {{ lines.items|pprint }}#}
-        {% for line, tuple in lines %}
-            {# tuple.0 is the exhibitor #}
-            {# tuple.1 is the exhibitor id #}
+        {# {{ lines|pprint }} #}
+        {% for line, name, id, room in lines %}
             <div class="block">
                 <p class="mywidelabel">{{ line }}</p>
-                <p class="myvalue2"><a href="/exhibitors/{{ tuple.1 }}/{{ show.id }}/">{{ tuple.0 }}</a></p>
+                <p class="myvalue3"><a href="/exhibitors/{{ id }}/{{ show.id }}/">{{ name }}</a></p>
+                {% if room %}
+                    <p class="myvalue3">Room #{{ room }}</p>
+                {% endif %}
             </div>
         {% endfor %}
     </fieldset>

@@ -35,7 +35,7 @@ from nwkidsshow.forms import AddUserForm
 from django.db.models import Q
 
 # my excel exporting methods
-from nwkidsshow.excel import exhibitor_xls
+from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
 
 # python stuff
 import datetime
@@ -75,6 +75,37 @@ def get_user(request):
         except ObjectDoesNotExist:
             user = None
     return user
+
+# make sure this exhibitor has the right to see the retailers for this show:
+# that they registered for it
+# is meant to throw ObjectDoesNotExist when fails
+def _fetch_exhibitor(user, show_id=None):
+    exhibitor = Exhibitor.objects.get(user=user)
+    show = Show.objects.get(id=show_id) if show_id else None
+    registration = Registration.objects.get(show=show, exhibitor=exhibitor) if show_id else None
+    return exhibitor, show, registration
+
+def _fetch_exhibitor_id(exhibitor_id, show_id=None):
+    exhibitor = Exhibitor.objects.get(id=exhibitor_id)
+    show = Show.objects.get(id=show_id) if show_id else None
+    registration = Registration.objects.get(show=show, exhibitor=exhibitor) if show_id else None
+    return exhibitor, show, registration
+
+# make sure this retailer has the right to see the exhibitors for this show:
+# that they registered for it
+# is meant to throw ObjectDoesNotExist when fails
+def _fetch_retailer(user, show_id=None):
+    retailer = Retailer.objects.get(user=user)
+    show = Show.objects.get(id=show_id) if show_id else None
+    registration = RetailerRegistration.objects.get(show=show, retailer=retailer) if show_id else None
+    return retailer, show, registration
+
+def _get_rooms(show):
+    rooms = {}
+    registrations = Registration.objects.filter(show=show)
+    for r in registrations:
+        rooms[r.exhibitor.id] = r.room
+    return rooms
 
 ### views ###
 
@@ -323,12 +354,14 @@ def registrations(request):
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def registered(request, show_id):
     try:
-        show = Show.objects.get(id=show_id)
-        retailer = Retailer.objects.get(user=request.user)
-        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
+        retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-    return render_to_response('registered.html', {'show': show, 'registration': registration},
+    return render_to_response('registered.html',
+                              {
+                                  'show': show,
+                                  'registration': registration
+                              },
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
@@ -342,14 +375,16 @@ def invoices(request):
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
-def invoice(request, showid):
+def invoice(request, show_id):
     try:
-        show = Show.objects.get(id=showid)
-        exhibitor = Exhibitor.objects.get(user=request.user)
-        registration = Registration.objects.get(show=show, exhibitor=exhibitor)
+        exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/noinvoice/')
-    return render_to_response('invoice.html', {'show': show, 'registration': registration},
+    return render_to_response('invoice.html',
+                              {
+                                  'show': show,
+                                  'registration': registration
+                              },
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
@@ -460,20 +495,55 @@ def report_retailers_form(request):
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def report_retailers(request, show_id):
     try:
-        show = Show.objects.get(id=show_id)
-        # make sure this exhibitor has the right to see the retailers for this show:
-        # that they registered for it
-        exhibitor = Exhibitor.objects.get(user=request.user)
-        registration = Registration.objects.get(show=show, exhibitor=exhibitor)
-        # collect the data for the report: retailers at this show
-        # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+        exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
         retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
-        # for retailer in retailers:
-        #     pprint(retailer)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-    return render_to_response('report_retailers.html', {'retailers': retailers, 'show': show},
+    return render_to_response('report_retailers.html',
+                              {
+                                  'retailers': retailers,
+                                  'show': show,
+                              },
                               context_instance=RequestContext(request))
+
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def report_retailers_xls(request, show_id):
+    try:
+        exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+        retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+    fields = ['company',
+              'website',
+              'address',
+              'address2',
+              'city',
+              'state',
+              'zip',
+              'phone',
+              'fax',
+              ]
+
+    retailers_list = []
+    for retailer in retailers:
+        e = model_to_dict(retailer, fields=fields)
+        t = ()
+        t = t + (retailer.first_name_display(),)
+        t = t + (retailer.last_name_display(),)
+        t = t + (retailer.email_display(),)
+        for f in fields:
+            t = t + (e[f],)
+        retailers_list += [t]
+
+    http_response = HttpResponse(mimetype='application/vnd.ms-excel')
+    http_response['Content-Transfer-Encoding'] = 'Binary'
+    http_response['Content-disposition'] = 'attachment; filename="nwkidsshow_retailers.xls"'
+
+    retailer_xls(retailers_list, http_response)
+    return http_response
+
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
@@ -509,31 +579,15 @@ def report_exhibitors_form(request):
 
 
 
-def _get_rooms(show):
-    rooms = {}
-    registrations = Registration.objects.filter(show=show)
-    for r in registrations:
-        rooms[r.exhibitor.id] = r.room
-    return rooms
-
-
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_exhibitors(request, show_id):
     try:
-        show = Show.objects.get(id=show_id)
-        # make sure this retailer has the right to see the exhibitors for this show:
-        # that they registered for it
-        retailer = Retailer.objects.get(user=request.user)
-        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
-        # collect the data for the report: exhibitors at this show
-        # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+        retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
         exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
-        # for exhibitor in exhibitors:
-        #     pprint(exhibitor)
-        rooms = _get_rooms(show)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
+    rooms = _get_rooms(show)
     return render_to_response('report_exhibitors.html',
                               {
                                   'exhibitors': exhibitors,
@@ -547,17 +601,10 @@ def report_exhibitors(request, show_id):
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_exhibitors_xls(request, show_id):
     try:
-        show = Show.objects.get(id=show_id)
-        # make sure this retailer has the right to see the exhibitors for this show:
-        # that they registered for it
-        retailer = Retailer.objects.get(user=request.user)
-        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
-        # collect the data for the report: exhibitors at this show
-        # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+        retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
         exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
-
     rooms = _get_rooms(show)
 
     fields = ['company',
@@ -569,7 +616,8 @@ def report_exhibitors_xls(request, show_id):
               'zip',
               'phone',
               'fax',
-              'lines', ]
+              'lines',
+              ]
 
     exhibitors_list = []
     for exhibitor in exhibitors:
@@ -590,40 +638,37 @@ def report_exhibitors_xls(request, show_id):
     exhibitor_xls(exhibitors_list, http_response)
     return http_response
 
-
-@login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
-def report_lines(request, show_id):
-    try:
-        show = Show.objects.get(id=show_id)
-        # make sure this retailer has the right to see the exhibitors for this show:
-        # that they registered for it
-        retailer = Retailer.objects.get(user=request.user)
-        registration = RetailerRegistration.objects.get(show=show, retailer=retailer)
-    except ObjectDoesNotExist:
-        return redirect('/advising/noregistration/')
-    # collect the data for the report: all the lines at the show with exhibitor name (first,last)
-    # TODO: shouldn't I use RetailerRegistrations for this show to get the Retailers?
+# return a sorted list of tuples [(line, name, id, room#), ... ]
+def _build_lines_data(show):
+    rooms = _get_rooms(show)
     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test')
-    lines_dict = {}
+
+    lines_list2 = []
     for exhibitor in exhibitors:
         exhibitor_name = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
-        exhibitor_id = exhibitor.id
         lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
         # pprint(lines_str)
         lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
         # pprint(lines_list)
         for line in lines_list:
-            if line in lines_dict.iterkeys():
-                print 'ERROR: line "%s" duplicate detected!' % line
             stripped_line = line.strip()
             if stripped_line:
-                lines_dict[stripped_line] = (exhibitor_name, exhibitor_id)
-    # pprint(lines_dict)
-    # lines_dict.items() makes a list of tuples [('aline','name'),...]
+                lines_list2 += [(stripped_line, exhibitor_name, exhibitor.id, rooms[exhibitor.id]),]
+    # pprint(lines_list2)
     # case insensitive sort by the line name
-    lines_list = sorted(lines_dict.items(), key=lambda t: tuple(t[0].lower()))
+    lines_list = sorted(lines_list2, key=lambda t: tuple(t[0].lower()))
     # pprint(lines_list)
+    return lines_list
+
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def report_lines(request, show_id):
+    try:
+        retailer, show, registration = _fetch_retailer(request.user, show_id)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+    lines_list = _build_lines_data(show)
     return render_to_response('report_lines.html',
                               {
                                   'show': show,
@@ -633,14 +678,28 @@ def report_lines(request, show_id):
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
-def exhibitor(request, exhibitor_id, show_id):
-    # make sure this retailer and exhibitor (they want to see) have both registered for this show!
+def report_lines_xls(request, show_id):
     try:
-        show         = Show.objects.get(id=show_id)
-        retailer     = Retailer.objects.get(user=request.user)
-        RetailerRegistration.objects.get(show=show, retailer=retailer)
-        exhibitor    = Exhibitor.objects.get(id=exhibitor_id)
-        registration = Registration.objects.get(show=show, exhibitor=exhibitor)
+        retailer, show, registration = _fetch_retailer(request.user, show_id)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noregistration/')
+    lines_list = _build_lines_data(show)
+    lines_list = [(a,b,c) for a,b,x,c in lines_list]  # don't need the id
+
+    http_response = HttpResponse(mimetype='application/vnd.ms-excel')
+    http_response['Content-Transfer-Encoding'] = 'Binary'
+    http_response['Content-disposition'] = 'attachment; filename="nwkidsshow_exhibitors_lines.xls"'
+
+    exhibitor_lines_xls(lines_list, http_response)
+    return http_response
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+def exhibitor(request, exhibitor_id, show_id):
+    # make sure this retailer and exhibitor (they want to see) have BOTH registered for this show!
+    try:
+        retailer,  show, registration = _fetch_retailer(request.user, show_id=show_id)
+        exhibitor, show, registration = _fetch_exhibitor_id(exhibitor_id, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/not_allowed_exhibitor/')
     return render_to_response('exhibitor_info.html',
