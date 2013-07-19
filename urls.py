@@ -34,7 +34,7 @@ urlpatterns = patterns('',
     url(r'^register/$', 'nwkidsshow.views.register', name='register'),
 
     url(r'^invoices/$', 'nwkidsshow.views.invoices', name='invoices'),
-    url(r'^invoice/(?P<showid>\w+)/$', 'nwkidsshow.views.invoice', name='invoice'),
+    url(r'^invoice/(?P<show_id>\w+)/$', 'nwkidsshow.views.invoice', name='invoice'),
 
     url(r'^registrations/$', 'nwkidsshow.views.registrations', name='registrations'),
     url(r'^registered/(?P<show_id>\w+)/$', 'nwkidsshow.views.registered', name='registered'),
