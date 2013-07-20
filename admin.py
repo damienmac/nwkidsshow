@@ -55,14 +55,21 @@ class RegistrationAdmin(admin.ModelAdmin):
     list_display = (
         'exhibitor',
         'show',
+        'date_registered',
         'is_late',
+        'has_paid',
+        'total',
+        'num_racks',
+        'num_tables',
+        'booked_room',
+        'room',
     )
     list_display_links = (
         'exhibitor',
         'show',
     )
     search_fields = ['show', 'exhibitor', 'is_late', 'has_paid']
-    list_filter = ('show', 'exhibitor', 'is_late', 'has_paid')
+    list_filter = ('show', 'is_late', 'has_paid', 'booked_room')
 
 
 class RetailerRegistrationAdmin(admin.ModelAdmin):

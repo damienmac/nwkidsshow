@@ -103,7 +103,8 @@ class Registration(models.Model):
     total              = models.FloatField()
 
     has_paid = models.BooleanField()
-    room  = models.IntegerField(blank=True, null=True)
+    booked_room = models.BooleanField()
+    room = models.IntegerField(blank=True, null=True)
 
     def room_display(self):
         return '#'+str(self.room)
