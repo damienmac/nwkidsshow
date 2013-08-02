@@ -475,8 +475,10 @@ def report_retailers_form(request):
     exhibitor = Exhibitor.objects.get(user=request.user)
     shows = Show.objects.filter(exhibitors=exhibitor)
     show_count = shows.count()
-    show_latest = shows.latest('end_date')
-    show_latest_id = show_latest.id
+    show_latest_id = None
+    if show_count:
+        show_latest = shows.latest('end_date')
+        show_latest_id = show_latest.id
     if request.method != 'POST': # a GET
         form = RetailerReportForm(exhibitor=exhibitor, initial={'show': show_latest_id})
     else: # a POST
