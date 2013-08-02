@@ -553,8 +553,10 @@ def report_exhibitors_form(request):
     retailer = Retailer.objects.get(user=request.user)
     shows = Show.objects.filter(retailers=retailer)
     show_count = shows.count()
-    show_latest = shows.latest('end_date')
-    show_latest_id = show_latest.id
+    show_latest_id = None
+    if show_count:
+        show_latest = shows.latest('end_date')
+        show_latest_id = show_latest.id
     if request.path == u'/report/exhibitors/':
         title = u'List Exhibitors Registered for a Show'
     else:
