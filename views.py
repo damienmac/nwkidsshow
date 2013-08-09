@@ -234,13 +234,16 @@ def register(request):
     # shows = Show.objects.filter(closed_date__gte=datetime.date.today())
     # shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # show_count = shows.count()
+    if user_is_exhibitor(request.user):
+        shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+    else: # retailer
+        shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+    show_count = shows.count()
     form = None
 
     if request.method != 'POST': # a GET
 
         if user_is_retailer(request.user):
-            shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
-            show_count = shows.count()
             retailer = Retailer.objects.get(user=request.user)
             form = RetailerRegistrationForm(
                 initial=get_initial_retailer_registration(retailer, shows, show_count),
@@ -248,8 +251,6 @@ def register(request):
             )
 
         if user_is_exhibitor(request.user):
-            shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
-            show_count = shows.count()
             exhibitor = Exhibitor.objects.get(user=request.user)
             form = ExhibitorRegistrationForm(
                 initial=get_initial_exhibitor_registration(exhibitor, shows, show_count)
@@ -321,8 +322,6 @@ def register(request):
                 # display the show info, fees, disclaimers, etc. on a nice page
                 return redirect('/invoice/%s/' % show.id)
         else:
-            shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
-            show_count = shows.count()
             #TODO: do I need to test this found one thing? try/catch.
             retailer = Retailer.objects.get(user=request.user)
             # print "### found retailer %s" % retailer.user
