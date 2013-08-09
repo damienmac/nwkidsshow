@@ -29,7 +29,7 @@
 
     <fieldset>
         <legend>Edit Your Profile</legend>
-        <form action="" method="post">
+        <form action="" method="post" id="center_inner">
             {% csrf_token %}
 
             <p class="field">
@@ -164,7 +164,7 @@
                 {% endif %}
             </p>
 
-        <p class="block">&ldquo;<span class="required"></span>&rdquo; indicates a required field</p>
+        <p id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</p>
 
             <p class="submit">
                 <input type="submit" value="Submit">

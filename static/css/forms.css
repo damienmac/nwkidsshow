@@ -5,24 +5,48 @@ input, select {
     background: #ebe7d7; /* tan */
 }
 
-.submit input {
-    font-family: 'Sorts Mill Goudy', serif;
-    font-size: large;
-    font-weight: bold;
-    color: #70667d;
-    background: #ebe7d7;
-    border: 2px outset #ebe7d7;
-    margin-left: 0.3em;
+.field {
+    /* just a container? */
 }
 
-p label {
+.field label {
     color: #ebe7d7; /* tan */
-    width: 10em; /*8em;*/
+    width: 250px;
     float: left;
     text-align: right;
-    margin-right: 0.5em;
-    display: block;
-    padding-top: 4px; /*2px;*/
+    margin-right: 8px;
+    margin-bottom: 8px;
+    /*margin-top: 4px;*/ /* bad in FF */
+}
+
+.field input {
+    width: 160px;
+    margin-bottom: 8px;
+    /*float: left;*/
+}
+
+.field select {
+    width: 164px;
+    margin-bottom: 8px;
+}
+
+.field ul {
+    list-style-type: none;
+}
+
+.checkboxes {
+    width: 250px;
+    margin-left: auto;
+}
+
+.checkboxes ul {
+    margin-top: 6px;
+    margin-left: 8px;
+    padding: 0px;
+}
+
+#required {
+    text-align: center;
 }
 
 ul {
@@ -31,9 +55,27 @@ ul {
 
 li label {
     color: #ebe7d7; /* tan */
-    padding-top: 2px;
-    display: block;
-    padding-left: 10em;
-    text-indent: -1.5em;
+    /*padding-top: 2px;*/
+    /*display: block;*/
+    /*padding-left: 250px;*/
+    /*text-indent: -1.5em;*/
+}
+
+.submit {
+    /*width: 250px;*/
+    /*margin:auto 0;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    text-align: center;
+}
+
+.submit input {
+    font-family: 'Sorts Mill Goudy', serif;
+    font-size: large;
+    font-weight: bold;
+    color: #70667d;
+    background: #ebe7d7;
+    border: 2px outset #ebe7d7;
+    width: auto;
 }
 

@@ -21,6 +21,19 @@
 }
 
 @media screen,print {
+
+    #centerdiv {
+        width: 856px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #center_inner {
+        width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     body {
         font-family: 'Sorts Mill Goudy', serif;
         font-size: large;
@@ -30,7 +43,6 @@
     fieldset {
         border: 2px solid #70667d; /* purple */
         background: #70667d; /* purple */
-        /*width: 20em*/
     }
 
     legend {
@@ -47,26 +59,19 @@
     .block .myheader {
         font-weight:bold;
         font-size:x-large;
-        /*color: red;*/
         color: #FF3300;
-        /*text-shadow: black 0.1em 0.1em 0.2em;*/
         text-shadow: 1px 1px 2px black;
         filter: dropshadow(color=black, offx=1, offy=1);
-        width: 400px;
-        display: block;
         text-align: center;
-        margin-top: 1em;
-        margin-bottom: 1em;
-        margin-left: 12px;
     }
 
     .block .myparagraph {
         display: block;
         text-align: center;
-        width: 400px;
-        margin-top: 1em;
-        margin-bottom: 1em;
-        margin-left: 12px;
+        /*width: 400px;*/
+        /*margin-top: 1em;*/
+        /*margin-bottom: 1em;*/
+        /*margin-left: 12px;*/
     }
 
     .block .myaddress {
@@ -128,10 +133,10 @@
     .block .address {
         display: block;
         text-align: center;
-        width: 16em;
-        margin-top: 1em;
-        margin-bottom: 1em;
-        margin-left: 4em;
+        /*width: 16em;*/
+        /*margin-top: 1em;*/
+        /*margin-bottom: 1em;*/
+        /*margin-left: 4em;*/
     }
 
     .block .number {
@@ -155,5 +160,6 @@
 
     .action {
         color: #ebe7d7; /* tan */
+        text-align: center;
     }
 }

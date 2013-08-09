@@ -18,6 +18,8 @@
 
 {% load user_type %}
 
+<div id="centerdiv">
+
 <div class="navblock">
     <div class="navimage">
     <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">
@@ -49,11 +51,12 @@
 {% block footer %}{% endblock %}
 <!-- footer for all pages -->
 <p></p>
-<fieldset class="footer_fieldset">
-    <div class="footerbar">
+{#<fieldset class="footer_fieldset">#}
+    <div class="footerbar" id="centerdiv">
         <p class="myparagraph">
             v&nbsp;{{ VERSION }}.0&nbsp;&copy;{% now "Y" %} Laurel Event Management LLC
         </p>
+        <div id="inner_footer_div">
         <ul>
             <li>
                 <a href="http://www.python.org/">
@@ -71,10 +74,12 @@
                 </a>
             </li>
         </ul>
+        </div>
     </div>
-</fieldset>
+{#</fieldset>#}
 
 {% block hidden %}{% endblock %}
+</div>
 
 </body>
 

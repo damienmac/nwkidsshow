@@ -29,7 +29,7 @@ CREATE A NEW USER
 
     <fieldset>
         <legend>New User Info</legend>
-        <form action="" method="post">
+        <form action="" method="post" id="center_inner">
             {% csrf_token %}
 
             <p class="field">
@@ -98,14 +98,16 @@ CREATE A NEW USER
                         <span class="required"></span>
                     {% endif %}
                 :</label>
-                {{ form.attendee_type }}
                 {% if form.attendee_type.errors %}
                     <span class="error">{{ form.attendee_type.errors|first }}</span>
                 {% endif %}
             </p>
+            <div class="checkboxes">
+                {{ form.attendee_type }}
+            </div>
 
 
-        <p class="block">&ldquo;<span class="required"></span>&rdquo; indicates a required field</p>
+        <p id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</p>
 
             <p class="submit">
                 <input type="submit" value="Submit">

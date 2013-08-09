@@ -33,59 +33,63 @@ REGISTER FOR A SHOW
 
         <fieldset>
         <legend>Register for a show</legend>
-        <form action="" method="post">
+        <form action="" method="post" id="center_inner">
             {% csrf_token %}
-            <p class="field">
+            <div class="field">
                 <label>{{ form.show.label }}:</label>
                 {{ form.show }}
                 {% if form.show.errors %}
                     <span class="error">{{ form.show.errors|first }}</span>
                 {% endif %}
-            </p>
+            </div>
             {% if is_exhibitor %}
-                <p class="field">
+                <div class="field">
                     <label>{{ form.num_associates.label }}:</label>
                     {{ form.num_associates }}
                     {% if form.num_associates.errors %}
                         <span class="error">{{ form.num_associates.errors|first }}</span>
                     {% endif %}
-                </p>
-                <p class="field">
+                </div>
+                <div class="field">
                     <label>{{ form.num_assistants.label }}:</label>
                     {{ form.num_assistants }}
                     {% if form.num_assistants.errors %}
                         <span class="error">{{ form.num_assistants.errors|first }}</span>
                     {% endif %}
-                </p>
-                <p class="field">
+                </div>
+                <div class="field">
                     <label>{{ form.num_racks.label }}:</label>
                     {{ form.num_racks }}
                     {% if form.num_racks.errors %}
                         <span class="error">{{ form.num_racks.errors|first }}</span>
                     {% endif %}
-                </p>
-                <p class="field">
+                </div>
+                <div class="field">
                     <label>{{ form.num_tables.label }}:</label>
                     {{ form.num_tables }}
                     {% if form.num_tables.errors %}
                         <span class="error">{{ form.num_tables.errors|first }}</span>
                     {% endif %}
-                </p>
+                </div>
             {% else %}
-                <p class="field">
+                <div class="field">
                     <label>{{ form.num_attendees.label }}:</label>
                     {{ form.num_attendees }}
                     {% if form.num_attendees.errors %}
                         <span class="error">{{ form.num_attendees.errors|first }}</span>
                     {% endif %}
-                </p>
-                <p class="field">
+                </div>
+
+                <div class="field">
                     <label>{{ form.days_attending.label }}:</label>
-                    {% if form.days_attending.errors %}
-                        <span class="error">{{ form.days_attending.errors|first }}</span>
-                    {% endif %}
+                </div>
+                <div class="checkboxes">
                     {{ form.days_attending }}
-                </p>
+                </div>
+                {% if form.days_attending.errors %}
+                    <span class="error">{{ form.days_attending.errors|first }}</span>
+                {% endif %}
+
             {% endif %}
             <p class="submit">
                 <input type="submit" value="Submit">

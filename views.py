@@ -7,6 +7,7 @@ from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
+from django.utils import timezone
 # django exceptions
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -39,6 +40,7 @@ from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
 
 # python stuff
 import datetime
+from Pacific_tzinfo import *
 from pprint import pprint
 
 ### notes ###
@@ -198,7 +200,9 @@ def get_better_choices(shows, show_count):
     return choices
 
 
-def get_initial_retailer_registration(retailer, shows):
+def get_initial_retailer_registration(retailer, shows, show_count):
+    if not show_count:
+        return {}
     try:
         registration = RetailerRegistration.objects.get(show=shows[0], retailer=retailer)
     except ObjectDoesNotExist:
@@ -206,7 +210,9 @@ def get_initial_retailer_registration(retailer, shows):
     # pprint(model_to_dict(registration))
     return model_to_dict(registration)
 
-def get_initial_exhibitor_registration(exhibitor, shows):
+def get_initial_exhibitor_registration(exhibitor, shows, show_count):
+    if not show_count:
+        return {}
     try:
         registration = Registration.objects.get(show=shows[0], exhibitor=exhibitor)
     except ObjectDoesNotExist:
@@ -217,23 +223,36 @@ def get_initial_exhibitor_registration(exhibitor, shows):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
-    shows = Show.objects.filter(closed_date__gt=datetime.date.today())
-    show_count = shows.count()
+    # pprint(datetime.date.today())
+    # print(datetime.date.today())
+    # pprint(datetime.datetime.now())
+    # print(datetime.datetime.now())
+    # print(timezone.now())
+    # pprint(timezone.now())
+    # print(timezone.localtime(timezone.now(),Pacific_tzinfo()))
+    # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()))
+    # shows = Show.objects.filter(closed_date__gte=datetime.date.today())
+    # shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+    # show_count = shows.count()
     form = None
 
     if request.method != 'POST': # a GET
 
         if user_is_retailer(request.user):
+            shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+            show_count = shows.count()
             retailer = Retailer.objects.get(user=request.user)
             form = RetailerRegistrationForm(
-                initial=get_initial_retailer_registration(retailer, shows),
+                initial=get_initial_retailer_registration(retailer, shows, show_count),
                 better_choices=get_better_choices(shows, show_count)
             )
 
         if user_is_exhibitor(request.user):
+            shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+            show_count = shows.count()
             exhibitor = Exhibitor.objects.get(user=request.user)
             form = ExhibitorRegistrationForm(
-                initial=get_initial_exhibitor_registration(exhibitor, shows)
+                initial=get_initial_exhibitor_registration(exhibitor, shows, show_count)
             )
 
     else: # a POST
@@ -302,6 +321,8 @@ def register(request):
                 # display the show info, fees, disclaimers, etc. on a nice page
                 return redirect('/invoice/%s/' % show.id)
         else:
+            shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+            show_count = shows.count()
             #TODO: do I need to test this found one thing? try/catch.
             retailer = Retailer.objects.get(user=request.user)
             # print "### found retailer %s" % retailer.user
