@@ -10,7 +10,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $("#id_show").focus();
+            $("#id_line_1").focus();
         });
     </script>
 {% endblock %}
@@ -33,19 +33,19 @@ EDIT YOUR LINES
         {% csrf_token %}
 
         {% for f in form %}
-            <p class="field">
+            <div class="field">
+                {% if f.errors %}
+                    <div class="error">{{ f.errors|first }}</div>
+                {% endif %}
                 <label>{{ f.label }}:</label>
                 {{ f }}
-                {% if f.errors %}
-                    <span class="error">{{ f.errors|first }}</span>
-                {% endif %}
-            </p>
+            </div>
         {% endfor %}
 
-        <p class="submit">
+        <div class="submit">
             <input type="submit" name="save" value="Save & Continue">
             <input type="submit" name="done" value="Save & Done">
-        </p>
+        </div>
         </form>
     </fieldset>
 {% endblock %}

@@ -40,7 +40,7 @@ CREATE A NEW USER
                 :</label>
                 {{ form.username }}
                 {% if form.username.errors %}
-                    <span class="error">{{ form.username.errors|first }}</span>
+                    <div class="error">{{ form.username.errors|first }}</div>
                 {% endif %}
             </p>
 
@@ -52,7 +52,7 @@ CREATE A NEW USER
                 :</label>
                 {{ form.password }}
                 {% if form.password.errors %}
-                    <span class="error">{{ form.password.errors|first }}</span>
+                    <div class="error">{{ form.password.errors|first }}</div>
                 {% endif %}
             </p>
 
@@ -64,7 +64,7 @@ CREATE A NEW USER
                 :</label>
                 {{ form.first_name }}
                 {% if form.first_name.errors %}
-                    <span class="error">{{ form.first_name.errors|first }}</span>
+                    <div class="error">{{ form.first_name.errors|first }}</div>
                 {% endif %}
             </p>
 
@@ -76,7 +76,7 @@ CREATE A NEW USER
                 :</label>
                 {{ form.last_name }}
                 {% if form.last_name.errors %}
-                    <span class="error">{{ form.last_name.errors|first }}</span>
+                    <div class="error">{{ form.last_name.errors|first }}</div>
                 {% endif %}
             </p>
 
@@ -88,7 +88,7 @@ CREATE A NEW USER
                 :</label>
                 {{ form.email }}
                 {% if form.email.errors %}
-                    <span class="error">{{ form.email.errors|first }}</span>
+                    <div class="error">{{ form.email.errors|first }}</div>
                 {% endif %}
             </p>
 
@@ -99,7 +99,7 @@ CREATE A NEW USER
                     {% endif %}
                 :</label>
                 {% if form.attendee_type.errors %}
-                    <span class="error">{{ form.attendee_type.errors|first }}</span>
+                    <div class="error">{{ form.attendee_type.errors|first }}</div>
                 {% endif %}
             </p>
             <div class="checkboxes">

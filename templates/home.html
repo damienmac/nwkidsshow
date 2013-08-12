@@ -40,6 +40,7 @@ Northwest Kids Show
         Exhibitors
     </legend>
     <div class="block">
+        {% if false %}
         <p class="myheader">
             Important Dates
         </p>
@@ -58,6 +59,10 @@ Northwest Kids Show
             ... or request one by sending email to<br>
             <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
         </p>
+        {% else %}
+            <p class="myheader">Exhibitor registration is now closed.</p>
+            <p class="myparagraph">Please make sure your <a href="/edit/">profile</a> and <a href="/lines/">lines</a> are up-to-date!</p>
+        {% endif %}
     </div>
     </fieldset>
 

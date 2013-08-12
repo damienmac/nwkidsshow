@@ -36,64 +36,100 @@ REGISTER FOR A SHOW
         <form action="" method="post" id="center_inner">
             {% csrf_token %}
             <div class="field">
-                <label>{{ form.show.label }}:</label>
-                {{ form.show }}
                 {% if form.show.errors %}
-                    <span class="error">{{ form.show.errors|first }}</span>
+                    <div class="error">{{ form.show.errors|first }}</div>
                 {% endif %}
+                <label>
+                    {{ form.show.label }}:
+                    {% if form.show.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.show }}
             </div>
             {% if is_exhibitor %}
                 <div class="field">
-                    <label>{{ form.num_associates.label }}:</label>
-                    {{ form.num_associates }}
                     {% if form.num_associates.errors %}
-                        <span class="error">{{ form.num_associates.errors|first }}</span>
+                        <div class="error">{{ form.num_associates.errors|first }}</div>
                     {% endif %}
+                    <label>
+                        {{ form.num_associates.label }}:
+                        {% if form.num_associates.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.num_associates }}
                 </div>
                 <div class="field">
-                    <label>{{ form.num_assistants.label }}:</label>
-                    {{ form.num_assistants }}
                     {% if form.num_assistants.errors %}
-                        <span class="error">{{ form.num_assistants.errors|first }}</span>
+                        <div class="error">{{ form.num_assistants.errors|first }}</div>
                     {% endif %}
+                    <label>
+                        {{ form.num_assistants.label }}:
+                        {% if form.num_assistants.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.num_assistants }}
                 </div>
                 <div class="field">
-                    <label>{{ form.num_racks.label }}:</label>
-                    {{ form.num_racks }}
                     {% if form.num_racks.errors %}
-                        <span class="error">{{ form.num_racks.errors|first }}</span>
+                        <div class="error">{{ form.num_racks.errors|first }}</div>
                     {% endif %}
+                    <label>
+                        {{ form.num_racks.label }}:
+                        {% if form.num_racks.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.num_racks }}
                 </div>
                 <div class="field">
-                    <label>{{ form.num_tables.label }}:</label>
-                    {{ form.num_tables }}
                     {% if form.num_tables.errors %}
-                        <span class="error">{{ form.num_tables.errors|first }}</span>
+                        <div class="error">{{ form.num_tables.errors|first }}</div>
                     {% endif %}
+                    <label>
+                        {{ form.num_tables.label }}:
+                        {% if form.num_tables.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.num_tables }}
                 </div>
             {% else %}
                 <div class="field">
-                    <label>{{ form.num_attendees.label }}:</label>
-                    {{ form.num_attendees }}
                     {% if form.num_attendees.errors %}
-                        <span class="error">{{ form.num_attendees.errors|first }}</span>
+                        <div class="error">{{ form.num_attendees.errors|first }}</div>
                     {% endif %}
+                    <label>
+                        {{ form.num_attendees.label }}:
+                        {% if form.num_attendees.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.num_attendees }}
                 </div>
 
                 <div class="field">
-                    <label>{{ form.days_attending.label }}:</label>
+                    {% if form.days_attending.errors %}
+                        <div class="error">{{ form.days_attending.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.days_attending.label }}:
+                        {% if form.days_attending.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
                 </div>
                 <div class="checkboxes">
                     {{ form.days_attending }}
                 </div>
-                {% if form.days_attending.errors %}
-                    <span class="error">{{ form.days_attending.errors|first }}</span>
-                {% endif %}
 
             {% endif %}
-            <p class="submit">
+            <div id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</div>
+            <div class="submit">
                 <input type="submit" value="Submit">
-            </p>
+            </div>
         </form>
 
     {% endif %}

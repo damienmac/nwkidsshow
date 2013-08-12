@@ -39,7 +39,7 @@ LIST EXHIBITORS AT A SHOW
                 <label>{{ form.show.label }}:</label>
                 {{ form.show }}
                 {% if form.show.errors %}
-                    <span class="error">{{ form.show.errors|first }}</span>
+                    <div class="error">{{ form.show.errors|first }}</div>
                 {% endif %}
             </p>
             <p class="submit">

@@ -33,26 +33,38 @@ LOGIN
         <form action="" method="post" id="center_inner">
             {% csrf_token %}
 
-            <p class="field">
-                <label>{{ form.username.label }}</label>
-                {{ form.username }}
+            <div class="field">
                 {% if form.errors.username %}
-                    <span class="error">{{ form.errors.username|first }}</span>
+                    <div class="error">{{ form.errors.username|first }}</div>
                 {% endif %}
-            </p>
+                <label>
+                    {{ form.username.label }}:
+                    {% if form.username.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.username }}
+            </div>
 
-            <p class="field">
-                <label>{{ form.password.label }}</label>
-                {{ form.password }}
+            <div class="field">
                 {% if form.errors.password %}
-                    <span class="error">{{ form.errors.password|first }}</span>
+                    <div class="error">{{ form.errors.password|first }}</div>
                 {% endif %}
-            </p>
+                <label>
+                    {{ form.password.label }}:
+                    {% if form.password.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.password }}
+            </div>
 
-            <p class="submit">
+            <div id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</div>
+
+            <div class="submit">
                 <input type="submit" value="Submit"/>
                 <input type="hidden" name="next" value="{{ next|escape }}"/>
-            </p>
+            </div>
         </form>
     </fieldset>
 {% endblock %}
