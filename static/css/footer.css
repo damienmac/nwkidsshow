@@ -11,6 +11,9 @@
     background: #70667d; /* purple */
     padding-top: 2px;
     padding-bottom: 4px;
+    width: 856px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .footerbar .myparagraph {
@@ -43,7 +46,7 @@
     vertical-align: middle;
 }
 
-#badges {
+.badges {
     height: 20px;
     width: auto;
 }

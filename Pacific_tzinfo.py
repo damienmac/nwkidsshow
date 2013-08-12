@@ -26,3 +26,4 @@ class Pacific_tzinfo(datetime.tzinfo):
         else:
             return "PDT"
 
+pacific_tzinfo = Pacific_tzinfo()

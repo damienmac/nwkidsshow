@@ -8,7 +8,7 @@ from django.utils import timezone
 from nwkidsshow.models import Show, Exhibitor, Retailer
 
 import datetime
-from Pacific_tzinfo import *
+from Pacific_tzinfo import pacific_tzinfo
 
 class ExhibitorRegistrationForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
@@ -23,7 +23,7 @@ class ExhibitorRegistrationForm(forms.Form):
         else:
             super(ExhibitorRegistrationForm, self).__init__(initial=initial)
         # self.fields['show'].queryset = Show.objects.filter(closed_date__gte=datetime.date.today())
-        self.fields['show'].queryset = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+        self.fields['show'].queryset = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
 
 
 class RetailerRegistrationForm(forms.Form):
@@ -44,7 +44,7 @@ class RetailerRegistrationForm(forms.Form):
         else:
             super(RetailerRegistrationForm, self).__init__(initial=initial)
         # self.fields['show'].queryset = Show.objects.filter(closed_date__gt=datetime.date.today())
-        self.fields['show'].queryset = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
+        self.fields['show'].queryset = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
         if better_choices:
             self.choices = better_choices
             self.fields['days_attending'].choices = self.choices

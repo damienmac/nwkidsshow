@@ -40,7 +40,7 @@ from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
 
 # python stuff
 import datetime
-from Pacific_tzinfo import *
+from Pacific_tzinfo import pacific_tzinfo
 from pprint import pprint
 
 ### notes ###
@@ -115,7 +115,7 @@ def home(request):
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()).date())
     # show = Show.objects.filter(end_date__gt=datetime.date.today()).latest('end_date')
-    show = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()).date()).latest('end_date')
+    show = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date()).latest('end_date')
     # TODO this still assumes only one active show at a time ever.
     return render_to_response('home.html',
                               {'show': show, },
@@ -238,9 +238,9 @@ def register(request):
     # shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # show_count = shows.count()
     if user_is_exhibitor(request.user):
-        shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()).date())
+        shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
     else: # retailer
-        shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()).date())
+        shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
     show_count = shows.count()
     form = None
 
@@ -279,8 +279,8 @@ def register(request):
                 # is_late        = cd['show'].late_date < datetime.date.today()
                 late_date = cd['show'].late_date
                 late_datetime_aware = datetime.datetime(late_date.year, late_date.month, late_date.day,
-                                                        hour=23, minute=59, second=59, tzinfo=Pacific_tzinfo())
-                now_datetime_aware = timezone.localtime(timezone.now(), Pacific_tzinfo())
+                                                        hour=23, minute=59, second=59, tzinfo=pacific_tzinfo)
+                now_datetime_aware = timezone.localtime(timezone.now(), pacific_tzinfo)
                 # print(late_datetime_aware)
                 # pprint(late_datetime_aware)
                 # print(now_datetime_aware)
@@ -325,7 +325,7 @@ def register(request):
                 r.num_tables         = num_tables
                 r.is_late            = is_late
                 # r.date_registered    = datetime.date.today()
-                r.date_registered    = timezone.localtime(timezone.now(), Pacific_tzinfo()).date()
+                r.date_registered    = timezone.localtime(timezone.now(), pacific_tzinfo).date()
                 r.registration_total = registration_total
                 r.assistant_total    = assistant_total
                 r.rack_total         = rack_total
@@ -916,7 +916,7 @@ def register_exhibitor(e,s):
         reg.num_tables = 0
         reg.is_late = False
         # reg.date_registered = datetime.date.today()
-        reg.date_registered = timezone.localtime(timezone.now(), Pacific_tzinfo()).date()
+        reg.date_registered = timezone.localtime(timezone.now(), pacific_tzinfo).date()
         reg.registration_total = 0
         reg.assistant_total = 0
         reg.rack_total = 0
