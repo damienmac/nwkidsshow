@@ -49,6 +49,7 @@
 .badges {
     height: 20px;
     width: auto;
+    border: 0;
 }
 
 #inner_footer_div {
