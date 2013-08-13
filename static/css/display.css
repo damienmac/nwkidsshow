@@ -43,13 +43,15 @@
     fieldset {
         border: 2px solid #70667d; /* purple */
         background: #70667d; /* purple */
+        width: 825px;
+        margin: 0;
     }
 
     legend {
         font-weight: bold;
         text-shadow: #ebe7d7 0.1em 0.1em 0.2em;
         background: #c1d2cf; /* teal */
-        padding: 2px 6px
+        padding: 2px 6px;
     }
 
     .block {
