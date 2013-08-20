@@ -24,11 +24,17 @@ Northwest Kids Show
             What is Northwest Kids Show?
         </p>
         <p class="myparagraph" id="center_inner">
+            {% if venue == 'cakidsshow' %}
+            California Kids Show is an exclusive children's wholesale market. Located in San Francisco, this wholesale market provides retailers who sell children's products an opportunity to see the very best in fashion apparel, accessories, shoes, toys, and gift lines displayed in one convenient location.<br>
+            <br>
+            As a wholesale exhibitor it's a wonderful venue for reach the trend-savvy California retailer.<br>
+            {% else %}
             Including both Pacific Northwest and California children's wholesalers, Northwest Kids Show has become one of the biggest, exclusively children's wholesale markets on the West Coast.<br>
             <br>
             This Seattle-based wholesale market provides retailers who sell children's products an opportunity to see the very best in fashion apparel, accessories, shoes, toys, and gift lines displayed in one convenient location.<br>
             <br>
             As an exhibitor, it's a wonderful venue for manufacturers and entrepreneurs alike to reach the trend-savvy Northwest retailers.<br>
+            {% endif %}
         </p>
     </div>
     </fieldset>

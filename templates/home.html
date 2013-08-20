@@ -14,7 +14,11 @@ Northwest Kids Show
     <p></p>
     <fieldset>
     <legend>
-        Next Show
+        {% if venue == 'cakidsshow' %}
+        Next California Kids Show
+        {% else %}
+        Next Northwest Kids Show
+        {% endif %}
     </legend>
     <div class="block">
         <p class="myheader">
@@ -24,9 +28,15 @@ Northwest Kids Show
             {{ show.end_date|date:"Y" }}
         </p>
         <p class="address">
+            {% if venue == 'cakidsshow' %}
+            Embassy Suites San Francisco Airport - South San Francisco<br>
+            250 Gateway Boulevard<br>
+            South San Francisco, California, 94080
+            {% else %}
             DoubleTree by Hilton - Southcenter<br>
             16500 Southcenter Parkway<br>
             Seattle, WA 98188
+            {% endif %}
         </p>
     </div>
     </fieldset>
@@ -37,28 +47,32 @@ Northwest Kids Show
         Exhibitors
     </legend>
     <div class="block">
-        {% if false %}
-        <p class="myheader">
-            Important Dates
-        </p>
-        <p class="myparagraph">
-            Registration is <em>LATE</em> after<br>
-            <span class="myaddress">{{ show.late_date }}</span><br>
-            Registration is <em>CLOSED</em> after<br>
-            <span class="myaddress">{{ show.closed_date }}</span>
-        </p>
-        <p class="myheader">
-            Register Online!
-        </p>
-        <p class="myparagraph">
-            Already have an account?<br>
-            <a href="/accounts/login/">LOGIN HERE</a><br>
-            ... or request one by sending email to<br>
-            <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
-        </p>
-        {% else %}
+        {% if show.is_closed %}
             <p class="myheader">Exhibitor registration is now closed.</p>
             <p class="myparagraph">Please make sure your <a href="/edit/">profile</a> and <a href="/lines/">lines</a> are up-to-date!</p>
+        {% else %}
+            <p class="myheader">
+                Important Dates
+            </p>
+            <p class="myparagraph">
+                Registration is <em>LATE</em> after<br>
+                <span class="myaddress">{{ show.late_date }}</span><br>
+                Registration is <em>CLOSED</em> after<br>
+                <span class="myaddress">{{ show.closed_date }}</span>
+            </p>
+            <p class="myheader">
+                Register Online!
+            </p>
+            <p class="myparagraph">
+                Already have an account?<br>
+                <a href="/accounts/login/">LOGIN HERE</a><br>
+                ... or request one by sending email to<br>
+                {% if venue == 'cakidsshow' %}
+                <a href="mailto:info@cakidsshow.com">info@cakidsshow.com</a>
+                {% else %}
+                <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
+                {% endif %}
+            </p>
         {% endif %}
     </div>
     </fieldset>
@@ -76,7 +90,11 @@ Northwest Kids Show
             Already have an account?<br>
             <a href="/accounts/login/">LOGIN HERE</a><br>
             ... or request one by sending email to<br>
+            {% if venue == 'cakidsshow' %}
+            <a href="mailto:info@cakidsshow.com">info@cakidsshow.com</a>
+            {% else %}
             <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
+            {% endif %}
         </p>
     </div>
     </fieldset>
@@ -91,14 +109,20 @@ Northwest Kids Show
             Need to make a hotel reservation?
         </p>
         <p class="myparagraph">
-           {#<a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-KID-20130223/index.jhtml?WT.mc_id=POG">#}
+           {% if venue == 'cakidsshow' %}
+            <a href="">
+                Click here
+            </a> to make your Embassy Suites reservation online.
+           {% else %}
             <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-NWK-20130927/index.jhtml?WT.mc_id=POG">
                 Click here
             </a> to make your DoubleTree reservation online.
+            {% endif %}
         </p>
     </div>
     </fieldset>
 
+   {% if venue == 'nwkidsshow' %}
     <p></p>
     <fieldset>
     <legend>
@@ -114,7 +138,9 @@ Northwest Kids Show
         </p>
     </div>
     </fieldset>
+    {% endif %}
 
+   {% if venue != 'cakidsshow' %}
     <p></p>
     <fieldset>
     <legend>
@@ -133,6 +159,7 @@ Northwest Kids Show
         </p>
     </div>
     </fieldset>
+    {% endif %}
 
 {% endblock %}
 

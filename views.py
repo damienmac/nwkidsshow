@@ -39,6 +39,8 @@ from django.db.models import Q
 from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
 
 # python stuff
+import logging
+logger = logging.getLogger(__name__)
 import datetime
 from Pacific_tzinfo import pacific_tzinfo
 from pprint import pprint
@@ -78,6 +80,43 @@ def get_user(request):
             user = None
     return user
 
+DEFAULT_VENUE = 'nw'
+
+venue_map = {
+    'localhost:8080'        : 'nwkidsshow',
+    'localhost:8181'        : 'cakidsshow',
+
+    'nwkidsshow'            : 'nwkidsshow',
+    'nwkidsshow.com'        : 'nwkidsshow',
+    'nwkidsshow:80'         : 'nwkidsshow',
+    'nwkidsshow.com:80'     : 'nwkidsshow',
+    'www.nwkidsshow'        : 'nwkidsshow',
+    'www.nwkidsshow.com'    : 'nwkidsshow',
+    'www.nwkidsshow:80'     : 'nwkidsshow',
+    'www.nwkidsshow.com:80' : 'nwkidsshow',
+
+    'cakidsshow'            : 'cakidsshow',
+    'cakidsshow.com'        : 'cakidsshow',
+    'cakidsshow:80'         : 'cakidsshow',
+    'cakidsshow.com:80'     : 'cakidsshow',
+    'www.cakidsshow'        : 'cakidsshow',
+    'www.cakidsshow.com'    : 'cakidsshow',
+    'www.cakidsshow:80'     : 'cakidsshow',
+    'www.cakidsshow.com:80' : 'cakidsshow',
+}
+
+def get_venue(request):
+    host = request.META['HTTP_HOST'] or ''
+    # return venue_map.get(host, DEFAULT_VENUE)
+    try:
+        return venue_map[host]
+    except KeyError:
+        logger.error('Could not find a venue mapping for domain "%s"' % host)
+    return DEFAULT_VENUE
+
+def venue_context(request):
+    return { 'venue': get_venue(request), }
+
 # make sure this exhibitor has the right to see the retailers for this show:
 # that they registered for it
 # is meant to throw ObjectDoesNotExist when fails
@@ -112,10 +151,11 @@ def _get_rooms(show):
 ### views ###
 
 def home(request):
+    venue = get_venue(request)
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()).date())
     # show = Show.objects.filter(end_date__gt=datetime.date.today()).latest('end_date')
-    show = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date()).latest('end_date')
+    show = Show.objects.filter(venue=venue, end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date()).latest('end_date')
     # TODO this still assumes only one active show at a time ever.
     return render_to_response('home.html',
                               {'show': show, },
@@ -126,6 +166,9 @@ def contact(request):
 
 def about(request):
     return render_to_response('about.html', {}, context_instance=RequestContext(request))
+
+def make_500(request):
+    raise ObjectDoesNotExist()
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
@@ -226,6 +269,7 @@ def get_initial_exhibitor_registration(exhibitor, shows, show_count):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
+    venue = get_venue(request)
     # pprint(datetime.date.today())
     # print(datetime.date.today())
     # pprint(datetime.datetime.now())
@@ -238,9 +282,11 @@ def register(request):
     # shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # show_count = shows.count()
     if user_is_exhibitor(request.user):
-        shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
+        shows = Show.objects.filter(venue=venue,
+                                    closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
     else: # retailer
-        shows = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
+        shows = Show.objects.filter(venue=venue,
+                                    end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
     show_count = shows.count()
     form = None
 
@@ -249,6 +295,7 @@ def register(request):
         if user_is_retailer(request.user):
             retailer = Retailer.objects.get(user=request.user)
             form = RetailerRegistrationForm(
+                show=shows,
                 initial=get_initial_retailer_registration(retailer, shows, show_count),
                 better_choices=get_better_choices(shows, show_count)
             )
@@ -256,6 +303,7 @@ def register(request):
         if user_is_exhibitor(request.user):
             exhibitor = Exhibitor.objects.get(user=request.user)
             form = ExhibitorRegistrationForm(
+                show=shows,
                 initial=get_initial_exhibitor_registration(exhibitor, shows, show_count)
             )
 
@@ -265,7 +313,7 @@ def register(request):
             #TODO: do I need to test this found one thing? try/catch.
             exhibitor = Exhibitor.objects.get(user=request.user)
             # print "### found exhibitor %s" % exhibitor.user
-            form = ExhibitorRegistrationForm(request.POST)
+            form = ExhibitorRegistrationForm(request.POST, show=shows)
             if form.is_valid():
                 cd = form.cleaned_data
 
@@ -339,7 +387,7 @@ def register(request):
             #TODO: do I need to test this found one thing? try/catch.
             retailer = Retailer.objects.get(user=request.user)
             # print "### found retailer %s" % retailer.user
-            form = RetailerRegistrationForm(request.POST, better_choices=get_better_choices(shows, show_count))
+            form = RetailerRegistrationForm(request.POST, show=shows, better_choices=get_better_choices(shows, show_count))
             if form.is_valid():
                 cd = form.cleaned_data
                 # pprint(cd)
@@ -379,8 +427,9 @@ def register(request):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def registrations(request):
+    venue = get_venue(request)
     retailer = Retailer.objects.get(user=request.user)
-    regs = RetailerRegistration.objects.filter(retailer=retailer)
+    regs = RetailerRegistration.objects.filter(show__venue=venue, retailer=retailer)
     return render_to_response('registrations.html', {'registrations': regs},
                               context_instance=RequestContext(request))
 
@@ -401,9 +450,10 @@ def registered(request, show_id):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def invoices(request):
+    venue = get_venue(request)
     exhibitor = Exhibitor.objects.get(user=request.user)
     # print "### found exhibitor %s" % exhibitor.user
-    invoices = Registration.objects.filter(exhibitor=exhibitor)
+    invoices = Registration.objects.filter(show__venue=venue, exhibitor=exhibitor)
     return render_to_response('invoices.html', {'invoices': invoices},
                               context_instance=RequestContext(request))
 
@@ -504,19 +554,20 @@ def edit(request):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def report_retailers_form(request):
+    venue = get_venue(request)
     # Have the exhibitor choose which show to report on.
     # Only let them choose from shows they have registered for.
     exhibitor = Exhibitor.objects.get(user=request.user)
-    shows = Show.objects.filter(exhibitors=exhibitor)
+    shows = Show.objects.filter(venue=venue, exhibitors=exhibitor)
     show_count = shows.count()
     show_latest_id = None
     if show_count:
         show_latest = shows.latest('end_date')
         show_latest_id = show_latest.id
     if request.method != 'POST': # a GET
-        form = RetailerReportForm(exhibitor=exhibitor, initial={'show': show_latest_id})
+        form = RetailerReportForm(shows=shows, exhibitor=exhibitor, initial={'show': show_latest_id})
     else: # a POST
-        form = RetailerReportForm(request.POST, exhibitor=exhibitor,  initial={'show': show_latest_id})
+        form = RetailerReportForm(request.POST, shows=shows, exhibitor=exhibitor,  initial={'show': show_latest_id})
         if form.is_valid():
             cd = form.cleaned_data
             # pprint(cd)
@@ -584,10 +635,11 @@ def report_retailers_xls(request, show_id):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_exhibitors_form(request):
+    venue = get_venue(request)
     # Have the retailer choose which show to report on.
     # Only let them choose from shows they have registered for.
     retailer = Retailer.objects.get(user=request.user)
-    shows = Show.objects.filter(retailers=retailer)
+    shows = Show.objects.filter(venue=venue, retailers=retailer)
     show_count = shows.count()
     show_latest_id = None
     if show_count:
@@ -598,9 +650,9 @@ def report_exhibitors_form(request):
     else:
         title = u"List Exhibitors' Lines at a Show"
     if request.method != 'POST': # a GET
-        form = ExhibitorReportForm(retailer=retailer, initial={'show': show_latest_id})
+        form = ExhibitorReportForm(shows=shows, retailer=retailer, initial={'show': show_latest_id})
     else: # a POST
-        form = ExhibitorReportForm(request.POST, retailer=retailer,  initial={'show': show_latest_id})
+        form = ExhibitorReportForm(request.POST, shows=shows, retailer=retailer,  initial={'show': show_latest_id})
         if form.is_valid():
             cd = form.cleaned_data
             show = cd['show']
@@ -866,42 +918,6 @@ def populate_retailers(retailers):
         r.save()
     return
 
-shows = [
-    {
-        'name'       : 'February 2013',
-        'late_date'  : datetime.date(2012, 12, 24),
-        'closed_date': datetime.date(2013,  1, 24),
-        'start_date' : datetime.date(2013,  2, 24),
-        'end_date'   : datetime.date(2013,  2, 26),
-        'registration_fee' : 150.00,
-        'assistant_fee'    : 25.00,
-        'late_fee'         : 75.00,
-        'rack_fee'         : 20.00,
-    },
-    {
-        'name'       : 'September 2013',
-        'late_date'  : datetime.date(2013,  7, 26),
-        'closed_date': datetime.date(2013,  8,  9),
-        'start_date' : datetime.date(2013,  9, 28),
-        'end_date'   : datetime.date(2013,  9, 30),
-        'registration_fee' : 150.00,
-        'assistant_fee'    : 25.00,
-        'late_fee'         : 75.00,
-        'rack_fee'         : 20.00,
-    },
-    # {
-    #     'name'       : 'February 2014',
-    #     'late_date'  : datetime.date(2013, 12, 24),
-    #     'closed_date': datetime.date(2014,  1, 24),
-    #     'start_date' : datetime.date(2014,  2, 22),
-    #     'end_date'   : datetime.date(2014,  2, 24),
-    #     'registration_fee' : 150.00,
-    #     'assistant_fee'    : 25.00,
-    #     'late_fee'         : 75.00,
-    #     'rack_fee'         : 20.00,
-    # },
-]
-
 
 def register_exhibitor(e,s):
     try:
@@ -941,14 +957,14 @@ def populate_shows(shows):
     #Show.objects.all().delete()
     for show in shows:
         try:
-            s = Show.objects.get(name=show['name'])
+            s = Show.objects.get(name=show['name'], venue=show['venue'])
             # print "updating show %s" % s
         except ObjectDoesNotExist:
-            s = Show(name=show['name'])
+            s = Show(name=show['name'], venue=show['venue'])
             # print "creating show %s" % s
         s.late_date   = show['late_date']   if not s.late_date   else s.late_date
         s.closed_date = show['closed_date'] if not s.closed_date else s.closed_date
-        s. start_date = show['start_date']  if not s.start_date  else s.start_date
+        s.start_date  = show['start_date']  if not s.start_date  else s.start_date
         s.end_date    = show['end_date']    if not s.end_date    else s.end_date
         s.registration_fee = show['registration_fee']
         s.assistant_fee    = show['assistant_fee']
@@ -967,9 +983,29 @@ def populate_shows(shows):
 
 import retailer_data
 import exhibitor_data
+import show_data
+
+def all_users_to_groups():
+    # add all retailers and exhibitors ot the new nwkidsshow group
+    group,created = Group.objects.get_or_create(name='nwkidsshow_group')
+    users = User.objects.all()
+    for user in users:
+        user.groups.add(group)
+
+    # add all Exhibitors to the new cakidsshow group (not retailers!)
+    group,created = Group.objects.get_or_create(name='cakidsshow_group')
+    exhibitors = User.objects.all()
+    for user in users:
+        if user.groups.filter(name='exhibitor_group').exists():
+            user.groups.add(group)
+
 
 @staff_member_required
 def seed(request):
+
+    # all_users_to_groups()
+
+    populate_shows(show_data.shows)
 
     # TURNING THIS OFF NOW
     return HttpResponseRedirect('/dump/')
@@ -989,6 +1025,6 @@ def seed(request):
     populate_users(retailer_data.retailers, retailer_group)
     populate_exhibitors(exhibitor_data.exhibitors)
     populate_retailers(retailer_data.retailers)
-    populate_shows(shows)
+    populate_shows(show_data.shows)
 
     return HttpResponseRedirect('/dump/')

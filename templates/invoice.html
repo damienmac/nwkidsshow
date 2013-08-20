@@ -48,9 +48,15 @@ YOUR INVOICE AND DETAILS
     </div>
     <div class="block">
         <p class="address">
+            {% if venue == 'cakidsshow' %}
+            Embassy Suites San Francisco Airport - South San Francisco<br>
+            250 Gateway Boulevard<br>
+            South San Francisco, California, 94080
+            {% else %}
             DoubleTree by Hilton - Southcenter<br>
             16500 Southcenter Parkway<br>
             Seattle, WA 98188
+            {% endif %}
         </p>
     </div>
     </fieldset>
@@ -96,7 +102,11 @@ YOUR INVOICE AND DETAILS
     <fieldset class="printme">
         <legend>Disclaimers</legend>
         <div class="block">
+            {% if venue == 'cakidsshow' %}
+            <p>By registering for this show, you agree to all terms and conditions of California Kids Show.</p>
+            {% else %}
             <p>By registering for this show, you agree to all terms and conditions of Northwest Kids Show.</p>
+            {% endif %}
             <p>By registering and paying for this show, you agree that all fees are non-refundable.</p>
         </div>
     </fieldset>

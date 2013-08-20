@@ -28,7 +28,11 @@ Northwest Kids Show
             PO Box 2791<br>
             Tualatin, OR 97062<br>
             <br>
+            {% if venue == 'cakidsshow' %}
+            <a href="mailto:info@cakidsshow.com">info@cakidsshow.com</a>
+            {% else %}
             <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
+            {% endif %}
         </p>
     </div>
     </fieldset>

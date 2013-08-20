@@ -6,6 +6,9 @@ from django_localflavor_us.us_states    import US_STATES
 from django_localflavor_ca.ca_provinces import PROVINCE_CHOICES
 US_CA_STATES = tuple(sorted(US_STATES + PROVINCE_CHOICES, key=lambda obj: obj[1]))
 
+from django.utils import timezone
+from Pacific_tzinfo import pacific_tzinfo
+
 from pprint import pprint
 
 class Attendee(models.Model):
@@ -65,6 +68,9 @@ class Show(models.Model):
 
     name = models.CharField(max_length=50)
 
+    # added later with the advent of a cakidsshow
+    venue = models.CharField(max_length=50)
+
     late_date   = models.DateField()  # last day to register without a late fee
     closed_date = models.DateField()  # last day to register
     start_date  = models.DateField()  # start date of the actual show
@@ -83,6 +89,13 @@ class Show(models.Model):
 
     class Meta:
         ordering = ['closed_date']
+
+    @property
+    def is_closed(self):
+        today = timezone.localtime(timezone.now(), pacific_tzinfo).date()
+        if today > self.closed_date:
+            return True
+        return False
 
 
 class Registration(models.Model):

@@ -25,7 +25,11 @@
 
 <div class="navblock">
     <div class="navimage">
-    <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">
+        {% if venue == 'cakidsshow' %}
+            <img height="110" width="200" src="{{ STATIC_URL }}images/caks.jpg" alt="california kids show logo">
+        {% else %}
+            <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">
+        {% endif %}
     </div>
     <div class="navbar">
         <ul>
@@ -64,8 +68,8 @@
                 </a>
             </li>
             <li>
-                <a href="http://www.djangoproject.com/">
-                    <img class="badges" src="https://www.djangoproject.com/m/img/badges/djangomade124x25.gif" alt="Made with Django." title="Made with Django.">
+                <a href="https://www.djangoproject.com/">
+                    <img class="badges" src="https://www.djangoproject.com/s/img/badges/djangomade124x25.gif" alt="Made with Django." title="Made with Django.">
                 </a>
             </li>
             <li>

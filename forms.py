@@ -17,13 +17,13 @@ class ExhibitorRegistrationForm(forms.Form):
     num_racks      = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Racks')
     num_tables     = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Tables')
     
-    def __init__(self, request=None, initial=None):
+    def __init__(self, request=None, show=None, initial=None):
         if request:
             super(ExhibitorRegistrationForm, self).__init__(request, initial=initial)
         else:
             super(ExhibitorRegistrationForm, self).__init__(initial=initial)
-        # self.fields['show'].queryset = Show.objects.filter(closed_date__gte=datetime.date.today())
-        self.fields['show'].queryset = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
+        # self.fields['show'].queryset = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
+        self.fields['show'].queryset = show
 
 
 class RetailerRegistrationForm(forms.Form):
@@ -38,13 +38,13 @@ class RetailerRegistrationForm(forms.Form):
                                                initial=choices[0],
                                                label='Choose days')
 
-    def __init__(self, request=None, initial=None, better_choices=None):
+    def __init__(self, request=None, show=None, initial=None, better_choices=None):
         if request:
             super(RetailerRegistrationForm, self).__init__(request, initial=initial)
         else:
             super(RetailerRegistrationForm, self).__init__(initial=initial)
-        # self.fields['show'].queryset = Show.objects.filter(closed_date__gt=datetime.date.today())
-        self.fields['show'].queryset = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
+        # self.fields['show'].queryset = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
+        self.fields['show'].queryset = show
         if better_choices:
             self.choices = better_choices
             self.fields['days_attending'].choices = self.choices
@@ -102,19 +102,21 @@ class ExhibitorLinesForm(forms.Form):
 
 class RetailerReportForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
-    def __init__(self, request=None, initial=None, exhibitor=None):
+    def __init__(self, request=None, shows=None, initial=None, exhibitor=None):
         if request:
             super(RetailerReportForm, self).__init__(request, initial=initial)
         else:
             super(RetailerReportForm, self).__init__(initial=initial)
-        self.fields['show'].queryset = Show.objects.filter(exhibitors=exhibitor)
+        # self.fields['show'].queryset = Show.objects.filter(exhibitors=exhibitor)
+        self.fields['show'].queryset = shows
 
 class ExhibitorReportForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
-    def __init__(self, request=None, initial=None, retailer=None):
+    def __init__(self, request=None, shows=None, initial=None, retailer=None):
         if request:
             super(ExhibitorReportForm, self).__init__(request, initial=initial)
         else:
             super(ExhibitorReportForm, self).__init__(initial=initial)
-        self.fields['show'].queryset = Show.objects.filter(retailers=retailer)
+        # self.fields['show'].queryset = Show.objects.filter(retailers=retailer)
+        self.fields['show'].queryset = shows
 

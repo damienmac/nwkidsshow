@@ -22,6 +22,7 @@ ADMINS = (
 
 ALLOWED_HOSTS = [
     'www.nwkidsshow.com',
+    'www.cakidsshow.com',
 ]
 
 MANAGERS = ADMINS
@@ -233,12 +234,13 @@ _context = {
     'VERSION': str(VERSION),
 }
 
-def settings_context(context):
+def settings_context(request):
     return _context
 
 #CAREFUL: adding my own, but don't squash the defaults!
 from django.conf import global_settings
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     'nwkidsshow.settings.settings_context', # this comma is important
+    'nwkidsshow.views.venue_context', # this comma is important
 )
 ###########################################################

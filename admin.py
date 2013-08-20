@@ -35,6 +35,7 @@ class ExhibitorAndRetailerAdmin(admin.ModelAdmin):
 
 class ShowAdmin(admin.ModelAdmin):
     list_display = ('name',
+                    'venue',
                     'late_date',
                     'closed_date',
                     'start_date',
@@ -45,9 +46,10 @@ class ShowAdmin(admin.ModelAdmin):
                     'rack_fee',
                     )
     search_fields = ['name']
-    date_hierarchy = 'start_date'
+    # date_hierarchy = 'start_date' CRASHES ADMIN for some reason now...
     ordering = ('start_date',)
-    list_filter = ('start_date',)
+    # list_filter = ('start_date', 'venue')
+    list_filter = ('venue',)
     filter_horizontal = ('exhibitors','retailers',)
 
 
@@ -69,7 +71,7 @@ class RegistrationAdmin(admin.ModelAdmin):
         'show',
     )
     search_fields = ['show', 'exhibitor', 'is_late', 'has_paid']
-    list_filter = ('show', 'is_late', 'has_paid', 'booked_room')
+    list_filter = ('show', 'is_late', 'has_paid', 'booked_room',)
 
 
 class RetailerRegistrationAdmin(admin.ModelAdmin):
@@ -82,7 +84,7 @@ class RetailerRegistrationAdmin(admin.ModelAdmin):
         'show',
     )
     search_fields = ['show', 'retailer',]
-    list_filter = ('show', 'retailer',)
+    list_filter = ('show',)
 
 admin.site.register(Exhibitor, ExhibitorAndRetailerAdmin)
 admin.site.register(Retailer,  ExhibitorAndRetailerAdmin)
