@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block head %}
-Northwest Kids Show
+    {% if venue == 'cakidsshow' %}
+        California Kids Show
+    {% else %}
+        Northwest Kids Show
+    {% endif %}
 {% endblock %}
 
 {% block title %}
@@ -21,7 +25,11 @@ Northwest Kids Show
     </legend>
     <div class="block">
         <p class="myheader">
+            {% if venue == 'cakidsshow' %}
+            What is California Kids Show?
+            {% else %}
             What is Northwest Kids Show?
+            {% endif %}
         </p>
         <p class="myparagraph" id="center_inner">
             {% if venue == 'cakidsshow' %}

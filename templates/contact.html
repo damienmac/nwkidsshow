@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block head %}
-Northwest Kids Show
+    {% if venue == 'cakidsshow' %}
+        California Kids Show
+    {% else %}
+        Northwest Kids Show
+    {% endif %}
 {% endblock %}
 
 {% block content %}

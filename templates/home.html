@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block head %}
-Northwest Kids Show
+    {% if venue == 'cakidsshow' %}
+        California Kids Show
+    {% else %}
+        Northwest Kids Show
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -122,7 +126,7 @@ Northwest Kids Show
     </div>
     </fieldset>
 
-   {% if venue == 'nwkidsshow' %}
+   {% if venue != 'cakidsshow' %}
     <p></p>
     <fieldset>
     <legend>
