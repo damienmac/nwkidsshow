@@ -39,6 +39,9 @@ from django.db.models import Q
 # my excel exporting methods
 from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
 
+# info from settings.py I might need here...
+from settings import running_in_prod
+
 # credit crad processing stuff
 import braintree
 
@@ -441,6 +444,7 @@ def checkout(request, show_id):
         if form.is_valid():
             cd = form.cleaned_data
 
+            # pprint(cd)
             name   = cd['cardholder_name']
             number = cd['number']
             month  = cd['month']
@@ -479,12 +483,20 @@ def checkout(request, show_id):
                 }
             }
 
-            if venue == 'cakidsshow':
-                transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
+            if running_in_prod:
+                if venue == 'cakidsshow':
+                    transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
+                # else nothing - defaults to NW Kids Show.
+            else:
+                transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
 
-            pprint(transaction)
+            if not running_in_prod:
+                pprint(transaction)
+
             result = braintree.Transaction.sale(transaction)
-            pprint(result)
+
+            if not running_in_prod:
+                pprint(result)
 
             if result.is_success:
                 logger.error('%s %s (cardholder %s) successfully charged %s on %s' %

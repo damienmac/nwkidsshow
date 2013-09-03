@@ -106,11 +106,8 @@
     <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree.js"></script>
     <script type="text/javascript">
         {% if PROD %}
-            {% if venue == 'cakidsshow' %}
-                var braintree = Braintree.create("");
-            {% else %}
-                var braintree = Braintree.create("MIIBCgKCAQEAtfAZ1MJ4zSqtnPufPj2/M0ctK9KrJHCCmF/sfqZ8VbtYyYptfhEJ6nGEm7SqNa9MssiS21S9+9FdwVKJRU0aGvHkjlxSAposuc0lmJdauJzz2CTAMMmyCUkEZkDmyaqBJM9WrGkM47FYz2n8cNn92ThjGc+XpxGfAfTrA4W2qZwJNwetuiddD+xJeTlCQKobsmy7hyq2xzT3Sk4qqTcSY0GUkR1Otlg5Od6EgY5Mzqf8YLS34rSIBSggXu3kdsqJtdSlqvzci++DxSksV61i4Kl0eQ5oEgxfuHtWb5rbdNsJHJN7h76nne+31gXFdG92hmizb9lmT5cIe217mgfivwIDAQAB");
-            {% endif %}
+            {# for both nwkidsshow and cakidsshow #}
+            var braintree = Braintree.create("MIIBCgKCAQEAtfAZ1MJ4zSqtnPufPj2/M0ctK9KrJHCCmF/sfqZ8VbtYyYptfhEJ6nGEm7SqNa9MssiS21S9+9FdwVKJRU0aGvHkjlxSAposuc0lmJdauJzz2CTAMMmyCUkEZkDmyaqBJM9WrGkM47FYz2n8cNn92ThjGc+XpxGfAfTrA4W2qZwJNwetuiddD+xJeTlCQKobsmy7hyq2xzT3Sk4qqTcSY0GUkR1Otlg5Od6EgY5Mzqf8YLS34rSIBSggXu3kdsqJtdSlqvzci++DxSksV61i4Kl0eQ5oEgxfuHtWb5rbdNsJHJN7h76nne+31gXFdG92hmizb9lmT5cIe217mgfivwIDAQAB");
         {% else %}
             {# SANDBOX #}
             var braintree = Braintree.create("MIIBCgKCAQEAqgULrOr7Sdox/umGCtIveF0Mao/Q/6HA65QKG9aymBC3tPVW8aqO6VcMRMjaB9QY1aQyGUJ/3AzhNEmkbjXIequ5QewXiY7V1ADDCV3k8dIPxwJMPyBvJKMCYRrh5VTuTnxSGV6BXDCoR8TX8mvPxR6ffG1wfsYHSSzpsEah7UKWu+ceka16rKM6heO8dZrYACltDehsYOfWCRzPOZeNqZPdAeV0RbBhXR2j0XILh7JUzwT2+u9LNXjwnqgkCedDiYBkTtlngEu2bmLiIeaV5VjIjR0M8gzp8V8lRYCFt9D7FSddVTwS8NHgaSo8J91jVTsEDfF23EU49eomeRWBfQIDAQAB");
