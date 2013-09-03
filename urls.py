@@ -26,6 +26,7 @@ urlpatterns = patterns('',
 
     url(r'^contact/$', 'nwkidsshow.views.contact', name='contact'),
     url(r'^about/$', 'nwkidsshow.views.about', name='about'),
+    url(r'^privacy-policy/$', 'nwkidsshow.views.privacy_policy', name='privacy_policy'),
 
     url(r'^advising/(?P<advice>\w+)/$', TemplateView.as_view(template_name="advising.html")),
 
@@ -36,6 +37,7 @@ urlpatterns = patterns('',
 
     url(r'^invoices/$', 'nwkidsshow.views.invoices', name='invoices'),
     url(r'^invoice/(?P<show_id>\w+)/$', 'nwkidsshow.views.invoice', name='invoice'),
+    url(r'^checkout/(?P<show_id>\w+)/$', 'nwkidsshow.views.checkout', name='checkout'),
 
     url(r'^registrations/$', 'nwkidsshow.views.registrations', name='registrations'),
     url(r'^registered/(?P<show_id>\w+)/$', 'nwkidsshow.views.registered', name='registered'),

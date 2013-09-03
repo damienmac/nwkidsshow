@@ -31,12 +31,16 @@ from nwkidsshow.forms import ExhibitorLinesForm
 from nwkidsshow.forms import RetailerReportForm
 from nwkidsshow.forms import ExhibitorReportForm
 from nwkidsshow.forms import AddUserForm
+from nwkidsshow.forms import CheckoutForm
 
 # django query stuff
 from django.db.models import Q
 
 # my excel exporting methods
 from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
+
+# credit crad processing stuff
+import braintree
 
 # python stuff
 import logging
@@ -167,6 +171,9 @@ def contact(request):
 def about(request):
     return render_to_response('about.html', {}, context_instance=RequestContext(request))
 
+def privacy_policy(request):
+    return render_to_response('privacy_policy.html', {}, context_instance=RequestContext(request))
+
 def make_500(request):
     raise ObjectDoesNotExist()
 
@@ -270,30 +277,23 @@ def get_initial_exhibitor_registration(exhibitor, shows, show_count):
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
     venue = get_venue(request)
-    # pprint(datetime.date.today())
-    # print(datetime.date.today())
-    # pprint(datetime.datetime.now())
-    # print(datetime.datetime.now())
-    # print(timezone.now())
-    # pprint(timezone.now())
-    # print(timezone.localtime(timezone.now(),Pacific_tzinfo()))
-    # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()))
-    # shows = Show.objects.filter(closed_date__gte=datetime.date.today())
-    # shows = Show.objects.filter(closed_date__gte=timezone.localtime(timezone.now(), Pacific_tzinfo()))
-    # show_count = shows.count()
-    if user_is_exhibitor(request.user):
-        shows = Show.objects.filter(venue=venue,
-                                    closed_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
-    else: # retailer
-        shows = Show.objects.filter(venue=venue,
-                                    end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date())
-    show_count = shows.count()
+    today = timezone.localtime(timezone.now(), pacific_tzinfo).date()
+    retailer = None
+    exhibitor = None
     form = None
+
+    if user_is_exhibitor(request.user):
+        exhibitor = Exhibitor.objects.get(user=request.user)
+        shows = Show.objects.filter(Q(venue=venue) & Q(closed_date__gte=today) & ~Q(exhibitors=exhibitor))
+    else: # retailer
+        retailer = Retailer.objects.get(user=request.user)
+        shows = Show.objects.filter(venue=venue,
+                                    end_date__gte=today)
+    show_count = shows.count()
 
     if request.method != 'POST': # a GET
 
         if user_is_retailer(request.user):
-            retailer = Retailer.objects.get(user=request.user)
             form = RetailerRegistrationForm(
                 show=shows,
                 initial=get_initial_retailer_registration(retailer, shows, show_count),
@@ -301,7 +301,6 @@ def register(request):
             )
 
         if user_is_exhibitor(request.user):
-            exhibitor = Exhibitor.objects.get(user=request.user)
             form = ExhibitorRegistrationForm(
                 show=shows,
                 initial=get_initial_exhibitor_registration(exhibitor, shows, show_count)
@@ -310,9 +309,6 @@ def register(request):
     else: # a POST
 
         if user_is_exhibitor(request.user):
-            #TODO: do I need to test this found one thing? try/catch.
-            exhibitor = Exhibitor.objects.get(user=request.user)
-            # print "### found exhibitor %s" % exhibitor.user
             form = ExhibitorRegistrationForm(request.POST, show=shows)
             if form.is_valid():
                 cd = form.cleaned_data
@@ -373,7 +369,7 @@ def register(request):
                 r.num_tables         = num_tables
                 r.is_late            = is_late
                 # r.date_registered    = datetime.date.today()
-                r.date_registered    = timezone.localtime(timezone.now(), pacific_tzinfo).date()
+                r.date_registered    = today
                 r.registration_total = registration_total
                 r.assistant_total    = assistant_total
                 r.rack_total         = rack_total
@@ -384,8 +380,6 @@ def register(request):
                 # display the show info, fees, disclaimers, etc. on a nice page
                 return redirect('/invoice/%s/' % show.id)
         else:
-            #TODO: do I need to test this found one thing? try/catch.
-            retailer = Retailer.objects.get(user=request.user)
             # print "### found retailer %s" % retailer.user
             form = RetailerRegistrationForm(request.POST, show=shows, better_choices=get_better_choices(shows, show_count))
             if form.is_valid():
@@ -422,6 +416,123 @@ def register(request):
                               {'form': form,
                                'show_count': show_count,
                                'is_exhibitor': user_is_exhibitor(request.user)},
+                              context_instance=RequestContext(request))
+
+@login_required(login_url='/advising/login/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
+def checkout(request, show_id):
+    venue = get_venue(request)
+
+    try:
+        exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+    except ObjectDoesNotExist:
+        return redirect('/advising/noinvoice/')
+
+    if registration.has_paid:
+        logger.error('Exhibitor %s %s is checking out when has already paid for show %s %s' %
+                     (exhibitor.first_name_display(), exhibitor.last_name_display(), venue, show.name))
+
+    amount = '%.2f' % registration.total
+
+    if request.method != 'POST': # a GET
+        form = CheckoutForm()
+    else:
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+
+            name   = cd['cardholder_name']
+            number = cd['number']
+            month  = cd['month']
+            year   = cd['year']
+
+            # do some validation on the fields? integers, lengths, etc....?
+            # No, braintree does all of that - I just need to convey the error message.
+
+            dynamic_descriptor = 'Laurel Event*nwkidshow'
+            if venue == 'cakidsshow':
+                dynamic_descriptor = 'Laurel Event*cakidshow'
+
+            transaction = {
+                "amount": amount,
+                "credit_card": {
+                    "cardholder_name": name,
+                    "number": number,
+                    "expiration_month": month,
+                    "expiration_year": year,
+                },
+                "options": {
+                    "submit_for_settlement": True,
+                },
+                "customer": {
+                    "first_name": exhibitor.first_name_display(),
+                    "last_name": exhibitor.last_name_display(),
+                    "company": exhibitor.company,
+                    "phone": exhibitor.phone,
+                    "fax": exhibitor.fax,
+                    "website": exhibitor.website,
+                    "email": exhibitor.email_display(),
+                },
+                "descriptor": {
+                    "name": dynamic_descriptor,
+                    "phone": "503-330-7167",
+                }
+            }
+
+            if venue == 'cakidsshow':
+                transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
+
+            pprint(transaction)
+            result = braintree.Transaction.sale(transaction)
+            pprint(result)
+
+            if result.is_success:
+                logger.error('%s %s (cardholder %s) successfully charged %s on %s' %
+                             (exhibitor.first_name_display(), exhibitor.last_name_display(),
+                              name, amount, result.transaction.credit_card['last_4']))
+
+                # update the database has_paid and details of the transaction for the receipt
+                registration.has_paid = True
+                registration.save()
+
+                # show them the receipt with relevant details (which they can print)
+                return render_to_response('receipt.html',
+                                          {
+                                              'transaction': result.transaction,
+                                          },
+                                          context_instance=RequestContext(request))
+            else:
+                status = result.transaction
+                status = status and result.transaction.status
+                if status == 'processor_declined':
+                    code = result.transaction.processor_response_code
+                    message1 = 'The payment processor declined the credit card transaction.'
+                    message2 = result.transaction.processor_response_text
+                elif status == 'gateway_rejected':
+                    code = 'n/a'
+                    message1 = 'The payment gateway rejected the credit card transaction.'
+                    message2 = result.transaction.gateway_rejection_reason
+                else:
+                    code = 'n/a'
+                    #code = ???? result.errors.deep_errors[0].code
+                    message1 = 'There was a problem processing this credit card transaction'
+                    message2 = result.message
+                logger.error('%s %s (cardholder %s) failed to charge %s: %s: %s' %
+                             (exhibitor.first_name_display(), exhibitor.last_name_display(),
+                              name, amount, status, message2))
+                return render_to_response('checkout_error.html',
+                              {
+                                  'message1': message1,
+                                  'message2': message2,
+                                  'show': show,
+                              },
+                              context_instance=RequestContext(request))
+                # result.message
+    return render_to_response('checkout.html',
+                              {
+                                  'form': form,
+                                  'amount': amount,
+                              },
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')

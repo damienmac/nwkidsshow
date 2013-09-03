@@ -3,12 +3,9 @@ from django.forms import ModelForm
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils import timezone
+from django.forms.widgets import TextInput
 
 from nwkidsshow.models import Show, Exhibitor, Retailer
-
-import datetime
-from Pacific_tzinfo import pacific_tzinfo
 
 class ExhibitorRegistrationForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
@@ -120,3 +117,28 @@ class ExhibitorReportForm(forms.Form):
         # self.fields['show'].queryset = Show.objects.filter(retailers=retailer)
         self.fields['show'].queryset = shows
 
+class SensitiveTextInput(TextInput):
+    def build_attrs(self, extra_attrs=None, **kwargs):
+        attrs = super(SensitiveTextInput, self).build_attrs(extra_attrs, **kwargs)
+        if 'name' in attrs:
+            attrs['data-encrypted-name'] = attrs['name']
+            del attrs['name']
+        return attrs
+
+class CheckoutForm(forms.Form):
+
+    cardholder_name = forms.CharField(required=True, max_length=100, label='Cardholder name')
+    number = forms.CharField(required=True,
+                             label='Credit card number',
+                             widget=SensitiveTextInput(attrs={
+                                 'autocomplete': 'off',
+                                 'size': 20, # oops, overridden in css
+                             }))
+    month  = forms.CharField(required=True, max_length=2,  label='expiration month (MM)',
+                             widget=TextInput(attrs={
+                                 'size': 2, # oops, overridden in css
+                             }))
+    year   = forms.CharField(required=True, max_length=4,  label='expiration year (YYYY)',
+                             widget=TextInput(attrs={
+                                 'size': 4, # oops, overridden in css
+                             }))

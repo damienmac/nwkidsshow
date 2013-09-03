@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block jquery %}
+    {% include "printer_script.html" %}
+{% endblock %}
+
+{% block head %}
+    CHECKOUT ERROR
+{% endblock %}
+
+{% block content %}
+
+    <p></p>
+    <fieldset>
+        <legend>Error During Checkout</legend>
+        <div class="block">
+            <p class="myheader">{{ message1 }}</p>
+
+            <p class="error">{{ message2 }}</p>
+        </div>
+        <div class="block">
+            <p>Go BACK or click her to <a href="/checkout/{{ show.id }}/">TRY AGAIN</a></p>
+        </div>
+    </fieldset>
+
+{% endblock %}

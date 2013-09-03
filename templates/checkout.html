@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{% block jquery %}{# Set focus on the first input field #}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#id_cardholder_name").focus();
+        });
+    </script>
+{% endblock %}
+
+{% block head %}
+    CHECKOUT
+{% endblock %}
+
+{% block content %}
+    {% if form.errors %}
+        <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
+    {% endif %}
+
+    <fieldset>
+        <legend>Provide Payment Details</legend>
+        <div>
+            <p>Your credit/debit card will be charged {{ "$"|iriencode }}{{ amount }}.</p>
+        </div>
+        <form action="" method="post" id="checkout-form" class="center_inner">
+            {% csrf_token %}
+
+            <div class="field">
+                {% if form.cardholder_name.errors %}
+                    <div class="error">{{ form.cardholder_name.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.cardholder_name.label }}:
+                    {% if form.cardholder_name.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.cardholder_name }}
+            </div>
+
+            <div class="field">
+                {% if form.number.errors %}
+                    <div class="error">{{ form.number.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.number.label }}:
+                    {% if form.number.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.number }}
+            </div>
+
+            <div class="field">
+                {% if form.month.errors %}
+                    <div class="error">{{ form.month.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.month.label }}:
+                    {% if form.month.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.month }}
+            </div>
+
+            <div class="field">
+                {% if form.year.errors %}
+                    <div class="error">{{ form.year.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.year.label }}:
+                    {% if form.year.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.year }}
+            </div>
+
+            <p></p>
+
+            <div id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</div>
+            <div class="submit">
+                <input type="submit" value="Purchase" id="purchase">
+            </div>
+        </form>
+        <p></p>
+
+        <div class="block">
+            <div class="center">
+                We accept any of these credit or debit cards:
+                <br>
+                <img width="320" height="35" src="{{ STATIC_URL }}images/accepted-credit-cards.png" border="0"
+                     alt="We accept Visa, MasterCard, American Express, Discover, JCB, and Diner’s Club">
+            </div>
+        </div>
+    </fieldset>
+
+    <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree.js"></script>
+    <script type="text/javascript">
+        {% if PROD %}
+            {% if venue == 'cakidsshow' %}
+                var braintree = Braintree.create("");
+            {% else %}
+                var braintree = Braintree.create("MIIBCgKCAQEAtfAZ1MJ4zSqtnPufPj2/M0ctK9KrJHCCmF/sfqZ8VbtYyYptfhEJ6nGEm7SqNa9MssiS21S9+9FdwVKJRU0aGvHkjlxSAposuc0lmJdauJzz2CTAMMmyCUkEZkDmyaqBJM9WrGkM47FYz2n8cNn92ThjGc+XpxGfAfTrA4W2qZwJNwetuiddD+xJeTlCQKobsmy7hyq2xzT3Sk4qqTcSY0GUkR1Otlg5Od6EgY5Mzqf8YLS34rSIBSggXu3kdsqJtdSlqvzci++DxSksV61i4Kl0eQ5oEgxfuHtWb5rbdNsJHJN7h76nne+31gXFdG92hmizb9lmT5cIe217mgfivwIDAQAB");
+            {% endif %}
+        {% else %}
+            {# SANDBOX #}
+            var braintree = Braintree.create("MIIBCgKCAQEAqgULrOr7Sdox/umGCtIveF0Mao/Q/6HA65QKG9aymBC3tPVW8aqO6VcMRMjaB9QY1aQyGUJ/3AzhNEmkbjXIequ5QewXiY7V1ADDCV3k8dIPxwJMPyBvJKMCYRrh5VTuTnxSGV6BXDCoR8TX8mvPxR6ffG1wfsYHSSzpsEah7UKWu+ceka16rKM6heO8dZrYACltDehsYOfWCRzPOZeNqZPdAeV0RbBhXR2j0XILh7JUzwT2+u9LNXjwnqgkCedDiYBkTtlngEu2bmLiIeaV5VjIjR0M8gzp8V8lRYCFt9D7FSddVTwS8NHgaSo8J91jVTsEDfF23EU49eomeRWBfQIDAQAB");
+        {% endif %}
+        braintree.onSubmitEncryptForm('checkout-form');
+    </script>
+
+{% endblock %}

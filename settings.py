@@ -1,6 +1,9 @@
 # Django settings for nwkidsshow project.
 import os
 
+from google.appengine.api import app_identity
+app_id = app_identity.get_application_id()
+
 BASE_DIR = (os.path.abspath(os.path.dirname(__file__)) + os.sep).replace('\\','/')
 
 running_in_prod = False
@@ -10,6 +13,8 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv
 DEBUG = True
 if running_in_prod:
     DEBUG = False
+
+# print('running_in_prod=%s; DEBUG=%s; BASE_DIR=%s; app_id=%s' % (str(running_in_prod), str(DEBUG), BASE_DIR, app_id))
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -189,10 +194,11 @@ LOGGING = {
 }
 
 ###########################################################
+### Get VERSION from app.yaml
+###########################################################
 # some line in the yaml file has:
 #   version: 6
 # in it, I want it in my template context
-###########################################################
 
 # here's a method to get that number out of the yaml
 # uses NO REGEX on purpose.
@@ -220,6 +226,12 @@ def get_app_yaml_version():
 
 # set it to a settings variable
 VERSION = get_app_yaml_version()
+###########################################################
+
+###########################################################
+### Add common values to TEMPLATE CONTEXT
+### # for all templates to use
+###########################################################
 
 # If you ever want to get ALL the capitalized settings vars into the context, try this (untested!)
 # import re
@@ -232,6 +244,7 @@ VERSION = get_app_yaml_version()
 # but for now I just want VERSION
 _context = {
     'VERSION': str(VERSION),
+    'PROD'   : running_in_prod,
 }
 
 def settings_context(request):
@@ -243,4 +256,28 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     'nwkidsshow.settings.settings_context', # this comma is important
     'nwkidsshow.views.venue_context', # this comma is important
 )
+###########################################################
+
+###########################################################
+### BRAINTREE CONFIG
+###########################################################
+import braintree
+
+if running_in_prod:
+    #### nwkidsshow AND cakidsshow keys####
+    braintree.Configuration.configure(
+        braintree.Environment.Production,
+        "6h9msjjb8m3zkrmv",
+        "3znz8qs5n2ts7tdn",
+        "a903ad319d8515e18e7650a31e1a5a14"
+    )
+else:
+    braintree.Configuration.configure(
+        braintree.Environment.Sandbox,
+        "x9qtcvgw2b26hjkr",
+        "pgsvh3ftc2j4tk2c",
+        "95abca2981f4face19dc2664c00d4773"
+    )
+
+braintree.Configuration.use_unsafe_ssl = True
 ###########################################################

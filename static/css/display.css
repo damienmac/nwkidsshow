@@ -34,6 +34,12 @@
         margin-right: auto;
     }
 
+    .center_inner {
+        width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     body {
         font-family: 'Sorts Mill Goudy', serif;
         font-size: large;
@@ -139,6 +145,11 @@
         /*margin-top: 1em;*/
         /*margin-bottom: 1em;*/
         /*margin-left: 4em;*/
+    }
+
+    .block .center {
+        display: block;
+        text-align: center;
     }
 
     .block .number {

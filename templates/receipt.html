@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block jquery %}
+    {% include "printer_script.html" %}
+{% endblock %}
+
+{% block head %}
+    YOUR RECEIPT
+{% endblock %}
+
+{% block content %}
+
+    {% include "printer_bar.html" with button_text="Print&nbsp;This&nbsp;Receipt" %}
+
+    <p></p>
+    <fieldset class="printme">
+        <legend>Charge Receipt</legend>
+        <div class="block">
+            <p class="mylabel">Amount:</p>
+
+            <p class="myvalue">{{ "$"|iriencode }}{{ transaction.amount }}</p>
+        </div>
+        <div class="block">
+            <p class="mylabel">Cardholder name:</p>
+
+            <p class="myvalue">{{ transaction.credit_card.cardholder_name }}</p>
+        </div>
+        <div class="block">
+            <p class="mylabel">Card type:</p>
+
+            <p class="myvalue">{{ transaction.credit_card.card_type }}</p>
+        </div>
+        <div class="block">
+            <p class="mylabel">Last 4 digits:</p>
+
+            <p class="myvalue">{{ transaction.credit_card.last_4 }}</p>
+        </div>
+        <div class="block">
+            <p class="mylabel">Exp. Month:</p>
+
+            <p class="myvalue">{{ transaction.credit_card.expiration_month }}</p>
+        </div>
+        <div class="block">
+            <p class="mylabel">Exp. Year:</p>
+
+            <p class="myvalue">{{ transaction.credit_card.expiration_year }}</p>
+        </div>
+    </fieldset>
+
+{% endblock %}

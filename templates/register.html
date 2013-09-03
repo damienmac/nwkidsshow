@@ -22,7 +22,7 @@ REGISTER FOR A SHOW
 {% block content %}
     {% if not show_count %}
         {# TODO: make this advice at top? Not in fieldset? #}
-        <p class="info">There appear to be no active shows right now. Please try again soon.</p>
+        <p class="info">You've already registered for all available shows (if any).</p>
     {% else %}
         {% if form.errors %}
             <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>

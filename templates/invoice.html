@@ -12,7 +12,7 @@ YOUR INVOICE AND DETAILS
     {% load humanize %}
     {% load datemath %}
 
-    {% include "printer_bar.html" %}
+    {% include "printer_bar.html" with button_text="Print&nbsp;This&nbsp;Invoice" %}
 
     <p></p>
     <fieldset>
@@ -88,13 +88,27 @@ YOUR INVOICE AND DETAILS
         <p class="myvalue number">{{ "$"|iriencode }}{{ registration.total|floatformat:2|intcomma }}</p>
     </div>
     <div class="block">
-        <p>Make checks payable to: <em>Laurel Event Management</em></p>
-        <p>Mail your check to:</p>
-        <p class="address">
-            Laurel Event Management<br>
-            PO Box 2791<br>
-            Tualatin, OR 97062
-        </p>
+        {% if False %}
+            <p>Make checks payable to: <em>Laurel Event Management</em></p>
+            <p>Mail your check to:</p>
+            <p class="address">
+                Laurel Event Management<br>
+                PO Box 2791<br>
+                Tualatin, OR 97062
+            </p>
+        {% else %}
+            <div class="center">
+            {% if registration.has_paid %}
+                You have paid-in-full for this registration!
+            {% else %}
+                Click <em><a href="/checkout/{{ show.id }}/">HERE</a></em> to proceed to payment
+                <br>
+                <a href="/checkout/{{ show.id }}/"><img width="320" height="35" border="0"
+                                                        src="{{ STATIC_URL }}images/accepted-credit-cards.png"
+                                                        alt="We accept Visa, MasterCard, American Express, Discover, JCB, and Diner’s Club"></a>
+            {% endif %}
+            </div>
+        {% endif %}
     </div>
     </fieldset>
 
