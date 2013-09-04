@@ -6,7 +6,8 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     {% block jquery %}{% endblock %}
-    <link href='http://fonts.googleapis.com/css?family=Sorts+Mill+Goudy:400,400italic' rel='stylesheet' type='text/css'>
+{#    <link href='http://fonts.googleapis.com/css?family=Sorts+Mill+Goudy:400,400italic' rel='stylesheet' type='text/css'>#}
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,800italic,400,700,800' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/links.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/messages.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/forms.css">
@@ -24,13 +25,16 @@
 <div id="centerdiv">
 
 <div class="navblock">
-    <div class="navimage">
-        {% if venue == 'cakidsshow' %}
-            <img height="110" width="200" src="{{ STATIC_URL }}images/caks.jpg" alt="california kids show logo">
-        {% else %}
-            <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">
-        {% endif %}
+    <div class="banner">
+        <img src="{{ STATIC_URL }}images/cks-banner.png" alt="California Kids Show">
     </div>
+{#    <div class="navimage">#}
+{#        {% if venue == 'cakidsshow' %}#}
+{#            <img height="110" width="200" src="{{ STATIC_URL }}images/caks.jpg" alt="california kids show logo">#}
+{#        {% else %}#}
+{#            <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">#}
+{#        {% endif %}#}
+{#    </div>#}
     <div class="navbar">
         <ul>
             <li><a href="/">Home</a></li>

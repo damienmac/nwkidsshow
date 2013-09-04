@@ -11,12 +11,15 @@
 
 @media screen {
     body {
-        color: #ebe7d7; /* tan */
+        /*color: #ebe7d7;  *//* tan *//* */
+        color: #ffffff;  /* white */
     }
 
     legend {
-        color: #70667d; /* purple */
-        border: 1px solid #c1d2cf; /* teal */
+        /*color: #70667d; *//* purple */
+        color: #ffffff; /* white */
+        /*border: 1px solid #c1d2cf; *//* teal */
+        border: 1px solid #00AAAD; /* new teal */
     }
 }
 
@@ -41,22 +44,29 @@
     }
 
     body {
-        font-family: 'Sorts Mill Goudy', serif;
+        /*font-family: 'Sorts Mill Goudy', serif;*/
+        /*font-family: 'Arial', sans-serif;*/
+        font-family: 'Open Sans', sans-serif;
         font-size: large;
-        background: #ebe7d7;
+        /*background: #ebe7d7;*/
+        background: #58595B; /* dark gray (80% gray) */
     }
 
     fieldset {
-        border: 2px solid #70667d; /* purple */
-        background: #70667d; /* purple */
+        /*border: 2px solid #70667d; *//* purple */
+        border: 2px solid #808285; /* lighter gray (60% gray) */
+        /*background: #70667d; *//* purple */
+        background: #808285; /* lighter gray (60% gray) */
         width: 825px;
         margin: 0;
     }
 
     legend {
         font-weight: bold;
-        text-shadow: #ebe7d7 0.1em 0.1em 0.2em;
-        background: #c1d2cf; /* teal */
+        /*text-shadow: #ebe7d7 0.1em 0.1em 0.2em;*/
+        text-shadow: #58595B 0.1em 0.1em 0.2em;
+        /*background: #c1d2cf; *//* teal */
+        background: #00AAAD; /* new teal */
         padding: 2px 6px;
     }
 
@@ -67,9 +77,11 @@
     .block .myheader {
         font-weight:bold;
         font-size:x-large;
-        color: #FF3300;
+        /*color: #FF3300;*/
+        color: #ffffff;
+        /*text-shadow: 1px 1px 2px black;*/
         text-shadow: 1px 1px 2px black;
-        filter: dropshadow(color='black', offx='1', offy='1');
+        filter: dropshadow(color='black', offx='2', offy='2');
         text-align: center;
     }
 
@@ -154,17 +166,17 @@
 
     .block .number {
         width: 5em;
-        font-family: 'courier', sans-serif;
+        /*font-family: 'courier', sans-serif;*/
         text-align: right;
     }
 
     .block .date {
-        font-family: 'courier', sans-serif;
+        /*font-family: 'courier', sans-serif;*/
         text-align: left;
     }
 
     .block .extra {
-        font-family: 'courier', sans-serif;
+        /*font-family: 'courier', sans-serif;*/
         margin-left: 2em;
         float: left;
         margin-top: 0;

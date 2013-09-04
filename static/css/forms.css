@@ -1,8 +1,10 @@
 input, select {
     /*font-family: 'Sorts Mill Goudy', serif;*/
     font-size: large;
-    color: #70667d; /* font color is purple */
-    background: #ebe7d7; /* tan */
+    /*color: #70667d; *//* font color is purple */
+    color: #ffffff; /* font color is purple */
+    /*background: #ebe7d7; *//* tan */
+    background: #58595B; /* dark gray (80% gray) */
 }
 
 .field {
@@ -10,7 +12,8 @@ input, select {
 }
 
 .field label {
-    color: #ebe7d7; /* tan */
+    /*color: #ebe7d7; *//* tan */
+    color: #ffffff;
     width: 250px;
     float: left;
     text-align: right;
@@ -42,7 +45,7 @@ input, select {
 .checkboxes ul {
     margin-top: 6px;
     margin-left: 8px;
-    padding: 0px;
+    padding: 0;
 }
 
 #required {
@@ -54,7 +57,8 @@ ul {
 }
 
 li label {
-    color: #ebe7d7; /* tan */
+    /*color: #ebe7d7; *//* tan */
+    color: #ffffff;
     /*padding-top: 2px;*/
     /*display: block;*/
     /*padding-left: 250px;*/
@@ -70,12 +74,19 @@ li label {
 }
 
 .submit input {
-    font-family: 'Sorts Mill Goudy', serif;
+    /*font-family: 'Sorts Mill Goudy', serif;*/
+    font-family: 'Open Sans', sans-serif;
     font-size: large;
     font-weight: bold;
-    color: #70667d;
-    background: #ebe7d7;
-    border: 2px outset #ebe7d7;
+    /*color: #70667d;*/
+    /*color: #58595B;*/
+    color: #ffffff;
+    /*background: #ebe7d7;*/
+    /*background: #ffffff;*/
+    background: #58595B;
+    /*border: 2px outset #ebe7d7;*/
+    /*border: 2px outset #ffffff;*/
+    border: 2px outset #58595B;
     width: auto;
 }
 
