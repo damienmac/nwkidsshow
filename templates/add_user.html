@@ -32,7 +32,7 @@ CREATE A NEW USER
         <form action="" method="post" id="center_inner">
             {% csrf_token %}
 
-            <p class="field">
+            <div class="field">
                 <label>{{ form.username.label }}
                     {% if form.username.field.required %}
                         <span class="required"></span>
@@ -42,9 +42,9 @@ CREATE A NEW USER
                 {% if form.username.errors %}
                     <div class="error">{{ form.username.errors|first }}</div>
                 {% endif %}
-            </p>
+            </div>
 
-            <p class="field">
+            <div class="field">
                 <label>{{ form.password.label }}
                     {% if form.password.field.required %}
                         <span class="required"></span>
@@ -54,9 +54,9 @@ CREATE A NEW USER
                 {% if form.password.errors %}
                     <div class="error">{{ form.password.errors|first }}</div>
                 {% endif %}
-            </p>
+            </div>
 
-            <p class="field">
+            <div class="field">
                 <label>{{ form.first_name.label }}
                     {% if form.first_name.field.required %}
                         <span class="required"></span>
@@ -66,9 +66,9 @@ CREATE A NEW USER
                 {% if form.first_name.errors %}
                     <div class="error">{{ form.first_name.errors|first }}</div>
                 {% endif %}
-            </p>
+            </div>
 
-            <p class="field">
+            <div class="field">
                 <label>{{ form.last_name.label }}
                     {% if form.last_name.field.required %}
                         <span class="required"></span>
@@ -78,9 +78,9 @@ CREATE A NEW USER
                 {% if form.last_name.errors %}
                     <div class="error">{{ form.last_name.errors|first }}</div>
                 {% endif %}
-            </p>
+            </div>
 
-            <p class="field">
+            <div class="field">
                 <label>{{ form.email.label }}
                     {% if form.email.field.required %}
                         <span class="required"></span>
@@ -90,20 +90,36 @@ CREATE A NEW USER
                 {% if form.email.errors %}
                     <div class="error">{{ form.email.errors|first }}</div>
                 {% endif %}
-            </p>
+            </div>
 
-            <p class="field">
-                <label>{{ form.attendee_type.label }}
+            <div class="field">
+                {% if form.attendee_type.errors %}
+                    <div class="error">{{ form.attendee_type.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.attendee_type.label }}
                     {% if form.attendee_type.field.required %}
                         <span class="required"></span>
                     {% endif %}
                 :</label>
-                {% if form.attendee_type.errors %}
-                    <div class="error">{{ form.attendee_type.errors|first }}</div>
-                {% endif %}
-            </p>
+            </div>
             <div class="checkboxes">
                 {{ form.attendee_type }}
+            </div>
+
+            <div class="field">
+                {% if form.venues.errors %}
+                    <div class="error">{{ form.venues.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.venues.label }}
+                    {% if form.venues.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                :</label>
+            </div>
+            <div class="checkboxes">
+                {{ form.venues }}
             </div>
 
 

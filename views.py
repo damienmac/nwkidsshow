@@ -967,7 +967,6 @@ def exhibitor(request, exhibitor_id, show_id):
 
 @staff_member_required
 def add_user(request):
-    form = None
     if request.method != 'POST': # a GET
         form = AddUserForm()
     else: # a POST
@@ -994,8 +993,19 @@ def add_user(request):
                 # print "creating retailer %s" % r
                 group = Group.objects.get(name='retailer_group')
             u.groups.add(group)
-            return redirect('/')
-    return render_to_response('add_user.html', {'form': form,}, context_instance=RequestContext(request))
+            venues = cd['venues'] # gives you: [u'cks', u'nwks'] or one or none in the list
+            if 'cks' in venues:
+                group = Group.objects.get(name='cakidsshow_group')
+                u.groups.add(group)
+            if 'nwks' in venues:
+                group = Group.objects.get(name='nwkidsshow_group')
+                u.groups.add(group)
+            return redirect('/add-user/')
+    return render_to_response('add_user.html',
+                              {
+                                  'form': form,
+                              },
+                              context_instance=RequestContext(request))
 
 @staff_member_required
 def dump(request):

@@ -56,6 +56,14 @@ class AddUserForm(forms.Form):
                                                ('retailer','Retailer')],
                                       label='Type',
                                       widget=forms.RadioSelect())
+    venues = forms.MultipleChoiceField(choices=[
+                                           ('nwks', 'Northwest Kids Show'),
+                                           ('cks',  'California Kids Show'),
+                                       ],
+                                       required=True,
+                                       widget=CheckboxSelectMultiple,
+                                       initial=None,
+                                       label='Choose Venue(s)')
 
     def clean_username(self):
         username = self.cleaned_data['username']
