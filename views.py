@@ -1,13 +1,12 @@
 
 # django request/response stuff
-from django.core.context_processors import request
 from django.forms.models import model_to_dict
 from django.http import HttpResponse
-from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.utils import timezone
+
 # django exceptions
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -24,7 +23,7 @@ from nwkidsshow.models import Show
 from nwkidsshow.models import Registration
 from nwkidsshow.models import RetailerRegistration
 
-#my forms
+# my forms
 from nwkidsshow.forms import ExhibitorRegistrationForm, RetailerRegistrationForm
 from nwkidsshow.forms import ExhibitorForm, RetailerForm
 from nwkidsshow.forms import ExhibitorLinesForm
@@ -42,7 +41,7 @@ from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
 # info from settings.py I might need here...
 from settings import running_in_prod
 
-# credit crad processing stuff
+# credit card processing stuff
 import braintree
 
 # python stuff
@@ -112,7 +111,7 @@ venue_map = {
     'www.cakidsshow.com:80' : 'cakidsshow',
 }
 
-def get_venue(request):
+def _get_venue(request):
     host = request.META['HTTP_HOST'] or ''
     # return venue_map.get(host, DEFAULT_VENUE)
     try:
@@ -122,7 +121,50 @@ def get_venue(request):
     return DEFAULT_VENUE
 
 def venue_context(request):
-    return { 'venue': get_venue(request), }
+    return {'venue': _get_venue(request), }
+
+DEFAULT_BANNER = ('cks-banner.png', '#00AAAD', '#FFFFFF',)
+
+banner_map = {
+    # path                           image name, background, foreground
+    '/':                           ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/contact/':                   ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/about/':                     ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/privacy-policy/':            ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/accounts/login/':            ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/accounts/logout/':           ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/accounts/password_change/':  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/accounts/profile/':          ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/advising/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/exhibitor/home/':            ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/retailer/home/':             ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/register/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/invoices/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/invoice/':                   ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/checkout/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/registrations/':             ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/registered/':                ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/lines/':                     ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/edit/':                      ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/report/':                    ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/exhibitors/':                ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+}
+
+def _get_banner(path):
+    pprint(path)
+    try:
+        return banner_map[path]
+    except KeyError:
+        logger.error('could not find a banner mapping for path %s' % path)
+    return DEFAULT_BANNER
+
+def banner_context(request):
+    banner = _get_banner(request.path)
+    return {
+        'banner':       banner[0],
+        'highlight_bg': banner[1],
+        'highlight_fg': banner[2],
+    }
 
 # make sure this exhibitor has the right to see the retailers for this show:
 # that they registered for it
@@ -158,7 +200,7 @@ def _get_rooms(show):
 ### views ###
 
 def home(request):
-    venue = get_venue(request)
+    venue = _get_venue(request)
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()).date())
     # show = Show.objects.filter(end_date__gt=datetime.date.today()).latest('end_date')
@@ -279,7 +321,7 @@ def get_initial_exhibitor_registration(exhibitor, shows, show_count):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
-    venue = get_venue(request)
+    venue = _get_venue(request)
     today = timezone.localtime(timezone.now(), pacific_tzinfo).date()
     retailer = None
     exhibitor = None
@@ -424,7 +466,7 @@ def register(request):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def checkout(request, show_id):
-    venue = get_venue(request)
+    venue = _get_venue(request)
 
     try:
         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
@@ -550,7 +592,7 @@ def checkout(request, show_id):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def registrations(request):
-    venue = get_venue(request)
+    venue = _get_venue(request)
     retailer = Retailer.objects.get(user=request.user)
     regs = RetailerRegistration.objects.filter(show__venue=venue, retailer=retailer)
     return render_to_response('registrations.html', {'registrations': regs},
@@ -573,7 +615,7 @@ def registered(request, show_id):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def invoices(request):
-    venue = get_venue(request)
+    venue = _get_venue(request)
     exhibitor = Exhibitor.objects.get(user=request.user)
     # print "### found exhibitor %s" % exhibitor.user
     invoices = Registration.objects.filter(show__venue=venue, exhibitor=exhibitor)
@@ -677,7 +719,7 @@ def edit(request):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def report_retailers_form(request):
-    venue = get_venue(request)
+    venue = _get_venue(request)
     # Have the exhibitor choose which show to report on.
     # Only let them choose from shows they have registered for.
     exhibitor = Exhibitor.objects.get(user=request.user)
@@ -758,7 +800,7 @@ def report_retailers_xls(request, show_id):
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
 def report_exhibitors_form(request):
-    venue = get_venue(request)
+    venue = _get_venue(request)
     # Have the retailer choose which show to report on.
     # Only let them choose from shows they have registered for.
     retailer = Retailer.objects.get(user=request.user)

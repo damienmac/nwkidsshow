@@ -26,15 +26,9 @@
 
 <div class="navblock">
     <div class="banner">
-        <img src="{{ STATIC_URL }}images/cks-banner.png" alt="California Kids Show">
+{#        <img src="{{ STATIC_URL }}images/cks-banner.png" alt="California Kids Show">#}
+        <img src="{{ STATIC_URL }}images/{{ banner }}" alt="California Kids Show">
     </div>
-{#    <div class="navimage">#}
-{#        {% if venue == 'cakidsshow' %}#}
-{#            <img height="110" width="200" src="{{ STATIC_URL }}images/caks.jpg" alt="california kids show logo">#}
-{#        {% else %}#}
-{#            <img height="110" width="200" src="{{ STATIC_URL }}images/nwks.jpg" alt="northwest kids show logo">#}
-{#        {% endif %}#}
-{#    </div>#}
     <div class="navbar">
         <ul>
             <li><a href="/">Home</a></li>

@@ -50,8 +50,8 @@ def exhibitor_xls(exhibitor_data, stream):
     widths = ' 8         14            14           28       30         30         20         20          20      8        10     12       12     20  '.split()
     data_xfs = [kind_to_xf_map[k] for k in kinds]
 
-    exhibitor_data = hyperlink_website(exhibitor_data, position=4)
-    exhibitor_data = hyperlink_email(exhibitor_data, position=2)
+    exhibitor_data = hyperlink_website(exhibitor_data, position=5)
+    exhibitor_data = hyperlink_email(exhibitor_data, position=3)
 
     widths = [256 * int(widths[i]) for i in xrange(0,len(widths))]
 

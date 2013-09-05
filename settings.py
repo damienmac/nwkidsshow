@@ -253,8 +253,9 @@ def settings_context(request):
 #CAREFUL: adding my own, but don't squash the defaults!
 from django.conf import global_settings
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-    'nwkidsshow.settings.settings_context', # this comma is important
-    'nwkidsshow.views.venue_context', # this comma is important
+    'nwkidsshow.settings.settings_context',
+    'nwkidsshow.views.venue_context',
+    'nwkidsshow.views.banner_context',
 )
 ###########################################################
 
