@@ -14,6 +14,11 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/nav.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/footer.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display.css">
+    {% if venue == 'cakidsshow' %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display-cks.css">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/display-nwks.css">
+    {% endif %}
     {% block internal_css %}{% endblock %}
     <title>{% block head %}{% endblock %}</title>
 </head>

@@ -123,41 +123,75 @@ def _get_venue(request):
 def venue_context(request):
     return {'venue': _get_venue(request), }
 
-DEFAULT_BANNER = ('cks-banner-left.png', 'cks-banner-blocks-01.png',)
+CKS_DEFAULT_BANNER  = ('cks-banner-left.png', 'cks-banner-hooper-01.png',)
+NWKS_DEFAULT_BANNER = ('cks-banner-left.png', 'cks-banner-hooper-01.png',)
 
 banner_map = {
-    '/':                 ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
+    'nwkidsshow': {
+        '/':                 ('nwks-banner-left.png', 'cks-banner-hooper-01.png',),
 
-    '/contact/':         ('cks-banner-left.png', 'cks-banner-polkadot-01.png',),
+        '/contact/':         ('nwks-banner-left.png', 'cks-banner-polkadot-01.png',),
 
-    '/about/':           ('cks-banner-left.png', 'cks-banner-snowangel-01.png',),
-    '/privacy-policy/':  ('cks-banner-left.png', 'cks-banner-snowangel-01.png',),
+        '/about/':           ('nwks-banner-left.png', 'cks-banner-snowangel-01.png',),
+        '/privacy-policy/':  ('nwks-banner-left.png', 'cks-banner-snowangel-01.png',),
 
-    '/accounts/':        ('cks-banner-left.png', 'cks-banner-dad-01.png',),
+        '/accounts/':        ('nwks-banner-left.png', 'cks-banner-dad-01.png',),
 
-    '/advising/':        ('cks-banner-left.png', 'cks-banner-paint-01.png',),
+        '/advising/':        ('nwks-banner-left.png', 'cks-banner-paint-01.png',),
 
-    '/exhibitor/home/':  ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
-    '/retailer/home/':   ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
+        '/exhibitor/home/':  ('nwks-banner-left.png', 'cks-banner-dancers-01.png',),
+        '/retailer/home/':   ('nwks-banner-left.png', 'cks-banner-dancers-01.png',),
 
-    '/register/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
-    '/checkout/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
-    '/registered/':      ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+        '/register/':        ('nwks-banner-left.png', 'cks-banner-handstand-01.png',),
+        '/checkout/':        ('nwks-banner-left.png', 'cks-banner-handstand-01.png',),
+        '/registered/':      ('nwks-banner-left.png', 'cks-banner-handstand-01.png',),
 
-    '/invoices/':        ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
-    '/invoice/':         ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
-    '/registrations/':   ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+        '/invoices/':        ('nwks-banner-left.png', 'cks-banner-poodle-01.png',),
+        '/invoice/':         ('nwks-banner-left.png', 'cks-banner-poodle-01.png',),
+        '/registrations/':   ('nwks-banner-left.png', 'cks-banner-poodle-01.png',),
 
-    '/lines/':           ('cks-banner-left.png', 'cks-banner-yellow-01.png',),
+        '/lines/':           ('nwks-banner-left.png', 'cks-banner-yellow-01.png',),
 
-    '/edit/':            ('cks-banner-left.png', 'cks-banner-dino1-01.png',),
+        '/edit/':            ('nwks-banner-left.png', 'cks-banner-dino1-01.png',),
 
-    '/report/':          ('cks-banner-left.png', 'cks-banner-camera-01.png',),
+        '/report/':          ('nwks-banner-left.png', 'cks-banner-camera-01.png',),
 
-    '/exhibitors/':      ('cks-banner-left.png', 'cks-banner-snowhat-01.png',),
+        '/exhibitors/':      ('nwks-banner-left.png', 'cks-banner-snowhat-01.png',),
+    },
+    'cakidsshow': {
+        '/':                 ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
+
+        '/contact/':         ('cks-banner-left.png', 'cks-banner-polkadot-01.png',),
+
+        '/about/':           ('cks-banner-left.png', 'cks-banner-snowangel-01.png',),
+        '/privacy-policy/':  ('cks-banner-left.png', 'cks-banner-snowangel-01.png',),
+
+        '/accounts/':        ('cks-banner-left.png', 'cks-banner-dad-01.png',),
+
+        '/advising/':        ('cks-banner-left.png', 'cks-banner-paint-01.png',),
+
+        '/exhibitor/home/':  ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
+        '/retailer/home/':   ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
+
+        '/register/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+        '/checkout/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+        '/registered/':      ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+
+        '/invoices/':        ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+        '/invoice/':         ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+        '/registrations/':   ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+
+        '/lines/':           ('cks-banner-left.png', 'cks-banner-yellow-01.png',),
+
+        '/edit/':            ('cks-banner-left.png', 'cks-banner-dino1-01.png',),
+
+        '/report/':          ('cks-banner-left.png', 'cks-banner-camera-01.png',),
+
+        '/exhibitors/':      ('cks-banner-left.png', 'cks-banner-snowhat-01.png',),
+    },
 }
 
-def _get_banner(path):
+def _get_banner(path, venue):
     if   path.startswith('/accounts/'):   path = '/accounts/'
     elif path.startswith('/advising/'):   path = '/advising/'
     elif path.startswith('/invoice/'):    path = '/invoice/'
@@ -166,13 +200,16 @@ def _get_banner(path):
     elif path.startswith('/report/'):     path = '/report/'
     elif path.startswith('/exhibitors/'): path = '/exhibitors/'
     try:
-        return banner_map[path]
+        return banner_map[venue][path]
     except KeyError:
         logger.error('could not find a banner mapping for path %s' % path)
-    return DEFAULT_BANNER
+    if venue == 'cakidsshow':
+        return CKS_DEFAULT_BANNER
+    return NWKS_DEFAULT_BANNER
 
 def banner_context(request):
-    banner_left, banner_right = _get_banner(request.path)
+    venue = _get_venue(request)
+    banner_left, banner_right = _get_banner(request.path, venue)
     return {
         'banner_left':  banner_left,
         'banner_right': banner_right,

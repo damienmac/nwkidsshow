@@ -8,8 +8,6 @@
     float: left;
     font-size: small;
     line-height: 20px;
-    /*background: #70667d; *//* purple */
-    /*background: #808285; *//* lighter gray (60% gray) */
     background: #58595B; /* dark gray (80% gray) */
     padding-top: 2px;
     padding-bottom: 4px;
@@ -23,9 +21,6 @@
     text-align: center;
     margin-top: 0;
     margin-bottom: 0;
-    /*width: 400px;*/
-    /*margin-left: 0;*/
-    /*margin-right: 0;*/
 }
 
 .footerbar ul {
