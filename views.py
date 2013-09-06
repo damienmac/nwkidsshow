@@ -126,7 +126,7 @@ def venue_context(request):
 DEFAULT_BANNER = ('cks-banner-left.png', 'cks-banner-blocks-01.png',)
 
 banner_map = {
-    '/':                 ('cks-banner-left.png', 'cks-banner-blocks-01.png',),
+    '/':                 ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
 
     '/contact/':         ('cks-banner-left.png', 'cks-banner-polkadot-01.png',),
 
@@ -138,8 +138,7 @@ banner_map = {
     '/advising/':        ('cks-banner-left.png', 'cks-banner-paint-01.png',),
 
     '/exhibitor/home/':  ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
-
-    '/retailer/home/':   ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
+    '/retailer/home/':   ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
 
     '/register/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
     '/checkout/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
