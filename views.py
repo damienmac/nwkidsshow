@@ -123,35 +123,49 @@ def _get_venue(request):
 def venue_context(request):
     return {'venue': _get_venue(request), }
 
-DEFAULT_BANNER = ('cks-banner.png', '#00AAAD', '#FFFFFF',)
+DEFAULT_BANNER = ('cks-banner-left.png', 'cks-banner-blocks-01.png',)
 
 banner_map = {
-    # path                           image name, background, foreground
-    '/':                           ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/contact/':                   ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/about/':                     ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/privacy-policy/':            ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/accounts/login/':            ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/accounts/logout/':           ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/accounts/password_change/':  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/accounts/profile/':          ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/advising/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/exhibitor/home/':            ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/retailer/home/':             ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/register/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/invoices/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/invoice/':                   ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/checkout/':                  ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/registrations/':             ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/registered/':                ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/lines/':                     ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/edit/':                      ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/report/':                    ('cks-banner.png', '#00AAAD', '#FFFFFF',),
-    '/exhibitors/':                ('cks-banner.png', '#00AAAD', '#FFFFFF',),
+    '/':                 ('cks-banner-left.png', 'cks-banner-blocks-01.png',),
+
+    '/contact/':         ('cks-banner-left.png', 'cks-banner-polkadot-01.png',),
+
+    '/about/':           ('cks-banner-left.png', 'cks-banner-snowangel-01.png',),
+    '/privacy-policy/':  ('cks-banner-left.png', 'cks-banner-snowangel-01.png',),
+
+    '/accounts/':        ('cks-banner-left.png', 'cks-banner-dad-01.png',),
+
+    '/advising/':        ('cks-banner-left.png', 'cks-banner-paint-01.png',),
+
+    '/exhibitor/home/':  ('cks-banner-left.png', 'cks-banner-dancers-01.png',),
+
+    '/retailer/home/':   ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
+
+    '/register/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+    '/checkout/':        ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+    '/registered/':      ('cks-banner-left.png', 'cks-banner-handstand-01.png',),
+
+    '/invoices/':        ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+    '/invoice/':         ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+    '/registrations/':   ('cks-banner-left.png', 'cks-banner-poodle-01.png',),
+
+    '/lines/':           ('cks-banner-left.png', 'cks-banner-yellow-01.png',),
+
+    '/edit/':            ('cks-banner-left.png', 'cks-banner-dino1-01.png',),
+
+    '/report/':          ('cks-banner-left.png', 'cks-banner-camera-01.png',),
+
+    '/exhibitors/':      ('cks-banner-left.png', 'cks-banner-snowhat-01.png',),
 }
 
 def _get_banner(path):
-    pprint(path)
+    if   path.startswith('/accounts/'):   path = '/accounts/'
+    elif path.startswith('/advising/'):   path = '/advising/'
+    elif path.startswith('/invoice/'):    path = '/invoice/'
+    elif path.startswith('/checkout/'):   path = '/checkout/'
+    elif path.startswith('/registered/'): path = '/registered/'
+    elif path.startswith('/report/'):     path = '/report/'
+    elif path.startswith('/exhibitors/'): path = '/exhibitors/'
     try:
         return banner_map[path]
     except KeyError:
@@ -159,11 +173,10 @@ def _get_banner(path):
     return DEFAULT_BANNER
 
 def banner_context(request):
-    banner = _get_banner(request.path)
+    banner_left, banner_right = _get_banner(request.path)
     return {
-        'banner':       banner[0],
-        'highlight_bg': banner[1],
-        'highlight_fg': banner[2],
+        'banner_left':  banner_left,
+        'banner_right': banner_right,
     }
 
 # make sure this exhibitor has the right to see the retailers for this show:
