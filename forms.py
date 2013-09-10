@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms.widgets import TextInput
+from django.forms.widgets import TextInput, Select
 
 from nwkidsshow.models import Show, Exhibitor, Retailer
 
@@ -16,7 +16,13 @@ class SensitiveTextInput(TextInput):
         return attrs
 
 class ExhibitorRegistrationForm(forms.Form):
-    show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
+    show = forms.ModelChoiceField(queryset=Show.objects.none(),
+                                  required=True,
+                                  initial=0,
+                                  label='Pick a show',
+                                  widget=Select(attrs={
+                                      'onchange': 'updateTotal()',
+                                  }))
     num_associates = forms.IntegerField(required=True,
                                         min_value=1,
                                         max_value=1,
