@@ -7,13 +7,66 @@ from django.forms.widgets import TextInput
 
 from nwkidsshow.models import Show, Exhibitor, Retailer
 
+class SensitiveTextInput(TextInput):
+    def build_attrs(self, extra_attrs=None, **kwargs):
+        attrs = super(SensitiveTextInput, self).build_attrs(extra_attrs, **kwargs)
+        if 'name' in attrs:
+            attrs['data-encrypted-name'] = attrs['name']
+            del attrs['name']
+        return attrs
+
 class ExhibitorRegistrationForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
-    num_associates = forms.IntegerField(required=True,  min_value=1, max_value=1,  initial=1, label='Exhibitors')
-    num_assistants = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Assistants')
-    num_racks      = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Racks')
-    num_tables     = forms.IntegerField(required=False, min_value=0, max_value=20, initial=0, label='Tables')
-    
+    num_associates = forms.IntegerField(required=True,
+                                        min_value=1,
+                                        max_value=1,
+                                        initial=1,
+                                        label='Exhibitors',
+                                        widget=TextInput(attrs={
+                                            'onchange': 'updateTotal()',
+                                        }))
+    num_assistants = forms.IntegerField(required=False,
+                                        min_value=0,
+                                        max_value=20,
+                                        initial=0,
+                                        label='Assistants',
+                                        widget=TextInput(attrs={
+                                            'onchange': 'updateTotal()',
+                                        }))
+    num_racks      = forms.IntegerField(required=False,
+                                        min_value=0,
+                                        max_value=20,
+                                        initial=0,
+                                        label='Racks',
+                                        widget=TextInput(attrs={
+                                            'onchange': 'updateTotal()',
+                                        }))
+    num_tables     = forms.IntegerField(required=False,
+                                        min_value=0,
+                                        max_value=20,
+                                        initial=0,
+                                        label='Tables',
+                                        widget=TextInput(attrs={
+                                            'onchange': 'updateTotal()',
+                                        }))
+
+    cardholder_name = forms.CharField(required=True, max_length=100, label='Cardholder name')
+    number = forms.CharField(required=True,
+                             label='Credit card number',
+                             widget=SensitiveTextInput(attrs={
+                                 'autocomplete': 'off',
+                                 'size': 20, # oops, overridden in css
+                             }))
+    month  = forms.CharField(required=True, max_length=2,  label='expiration month (MM)',
+                             widget=TextInput(attrs={
+                                 'size': 2, # oops, overridden in css
+                             }))
+    year   = forms.CharField(required=True, max_length=4,  label='expiration year (YYYY)',
+                             widget=TextInput(attrs={
+                                 'size': 4, # oops, overridden in css
+                             }))
+
+
     def __init__(self, request=None, show=None, initial=None):
         if request:
             super(ExhibitorRegistrationForm, self).__init__(request, initial=initial)
@@ -125,28 +178,20 @@ class ExhibitorReportForm(forms.Form):
         # self.fields['show'].queryset = Show.objects.filter(retailers=retailer)
         self.fields['show'].queryset = shows
 
-class SensitiveTextInput(TextInput):
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        attrs = super(SensitiveTextInput, self).build_attrs(extra_attrs, **kwargs)
-        if 'name' in attrs:
-            attrs['data-encrypted-name'] = attrs['name']
-            del attrs['name']
-        return attrs
-
-class CheckoutForm(forms.Form):
-
-    cardholder_name = forms.CharField(required=True, max_length=100, label='Cardholder name')
-    number = forms.CharField(required=True,
-                             label='Credit card number',
-                             widget=SensitiveTextInput(attrs={
-                                 'autocomplete': 'off',
-                                 'size': 20, # oops, overridden in css
-                             }))
-    month  = forms.CharField(required=True, max_length=2,  label='expiration month (MM)',
-                             widget=TextInput(attrs={
-                                 'size': 2, # oops, overridden in css
-                             }))
-    year   = forms.CharField(required=True, max_length=4,  label='expiration year (YYYY)',
-                             widget=TextInput(attrs={
-                                 'size': 4, # oops, overridden in css
-                             }))
+# class CheckoutForm(forms.Form):
+#
+#     cardholder_name = forms.CharField(required=True, max_length=100, label='Cardholder name')
+#     number = forms.CharField(required=True,
+#                              label='Credit card number',
+#                              widget=SensitiveTextInput(attrs={
+#                                  'autocomplete': 'off',
+#                                  'size': 20, # oops, overridden in css
+#                              }))
+#     month  = forms.CharField(required=True, max_length=2,  label='expiration month (MM)',
+#                              widget=TextInput(attrs={
+#                                  'size': 2, # oops, overridden in css
+#                              }))
+#     year   = forms.CharField(required=True, max_length=4,  label='expiration year (YYYY)',
+#                              widget=TextInput(attrs={
+#                                  'size': 4, # oops, overridden in css
+#                              }))

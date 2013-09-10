@@ -30,10 +30,13 @@ from nwkidsshow.forms import ExhibitorLinesForm
 from nwkidsshow.forms import RetailerReportForm
 from nwkidsshow.forms import ExhibitorReportForm
 from nwkidsshow.forms import AddUserForm
-from nwkidsshow.forms import CheckoutForm
+# from nwkidsshow.forms import CheckoutForm
 
 # django query stuff
 from django.db.models import Q
+
+# django don't escape my javascript
+from django.utils.safestring import mark_safe
 
 # my excel exporting methods
 from nwkidsshow.excel import exhibitor_xls, exhibitor_lines_xls, retailer_xls
@@ -129,6 +132,7 @@ NWKS_DEFAULT_BANNER = ('cks-banner-left.png', 'cks-banner-hooper-01.png',)
 banner_map = {
     'nwkidsshow': {
         '/':                 ('nwks-banner-left.png', 'cks-banner-hooper-01.png',),
+        '/admin/':           ('nwks-banner-left.png', 'cks-banner-hooper-01.png',),
 
         '/contact/':         ('nwks-banner-left.png', 'cks-banner-polkadot-01.png',),
 
@@ -160,6 +164,7 @@ banner_map = {
     },
     'cakidsshow': {
         '/':                 ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
+        '/admin/':           ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
 
         '/contact/':         ('cks-banner-left.png', 'cks-banner-polkadot-01.png',),
 
@@ -199,6 +204,7 @@ def _get_banner(path, venue):
     elif path.startswith('/registered/'): path = '/registered/'
     elif path.startswith('/report/'):     path = '/report/'
     elif path.startswith('/exhibitors/'): path = '/exhibitors/'
+    elif path.startswith('/admin/'):      path = '/admin/'
     try:
         return banner_map[venue][path]
     except KeyError:
@@ -334,6 +340,8 @@ def get_better_choices(shows, show_count):
     # BUT there is usually only ONE show to register for at a time, so grab those
     # dates, as strings, and pass to the form as better "choices"
     choices = []
+    # pprint(shows)
+    # pprint(show_count)
     if show_count == 1:
         show = shows[0]
         delta = (show.end_date - show.start_date).days
@@ -367,6 +375,18 @@ def get_initial_exhibitor_registration(exhibitor, shows, show_count):
     # pprint(model_to_dict(registration))
     return model_to_dict(registration)
 
+# (bad) inject javascript with the session specific (show) info I need there.
+# TODO: use ajax some day and do this right
+def _make_show_fees_js(shows):
+    js = ''
+    for show in shows:
+        js += '\t\tshows["%s"]={};\n' % show.name
+        js += '\t\tshows["%s"]["registration_fee"] = %.2f;\n' % (show.name, show.registration_fee)
+        js += '\t\tshows["%s"]["assistant_fee"] = %.2f;\n' %    (show.name, show.assistant_fee)
+        js += '\t\tshows["%s"]["rack_fee"] = %.2f;\n' %         (show.name, show.rack_fee)
+        js += '\t\tshows["%s"]["late_fee"] = %.2f;\n' %         (show.name, show.late_fee)
+    return js
+
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def register(request):
@@ -375,6 +395,8 @@ def register(request):
     retailer = None
     exhibitor = None
     form = None
+    is_late = False
+    message1 = message2 = None # special error messages from Braintree, not django forms.
 
     if user_is_exhibitor(request.user):
         exhibitor = Exhibitor.objects.get(user=request.user)
@@ -384,6 +406,7 @@ def register(request):
         shows = Show.objects.filter(venue=venue,
                                     end_date__gte=today)
     show_count = shows.count()
+    show_fees_js = _make_show_fees_js(shows)
 
     if request.method != 'POST': # a GET
 
@@ -445,34 +468,135 @@ def register(request):
                 cd['late_total']         = late_total
                 cd['total']              = total
 
-                # Add this exhibitor to the Show exhibitors
-                show.exhibitors.add(exhibitor)
+                amount = '%.2f' % total
+                name   = cd['cardholder_name']
+                number = cd['number']
+                month  = cd['month']
+                year   = cd['year']
 
-                # add a new registration object and associate with this exhibitor & show
-                # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
-                try:
-                    r = Registration.objects.get(exhibitor=exhibitor, show=show)
-                    # print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
-                except ObjectDoesNotExist:
-                    r = Registration(exhibitor=exhibitor, show=show)
-                    r.has_paid = False
-                    # print "created registration: (%s & %s)" % (exhibitor.user, show.name)
-                r.num_exhibitors     = num_associates
-                r.num_assistants     = num_assistants
-                r.num_racks          = num_racks
-                r.num_tables         = num_tables
-                r.is_late            = is_late
-                # r.date_registered    = datetime.date.today()
-                r.date_registered    = today
-                r.registration_total = registration_total
-                r.assistant_total    = assistant_total
-                r.rack_total         = rack_total
-                r.late_total         = late_total
-                r.total              = total
-                r.save()
+                # do some validation on the fields? integers, lengths, etc....?
+                # No, Braintree does all of that - I just need to convey the error message.
 
-                # display the show info, fees, disclaimers, etc. on a nice page
-                return redirect('/invoice/%s/' % show.id)
+                dynamic_descriptor = 'Laurel Event*nwkidshow'
+                if venue == 'cakidsshow':
+                    dynamic_descriptor = 'Laurel Event*cakidshow'
+
+                transaction = {
+                    "amount": amount,
+                    "credit_card": {
+                        "cardholder_name": name,
+                        "number": number,
+                        "expiration_month": month,
+                        "expiration_year": year,
+                    },
+                    "options": {
+                        "submit_for_settlement": True,
+                    },
+                    "customer": {
+                        "first_name": exhibitor.first_name_display(),
+                        "last_name": exhibitor.last_name_display(),
+                        "company": exhibitor.company,
+                        "phone": exhibitor.phone,
+                        "fax": exhibitor.fax,
+                        "website": exhibitor.website,
+                        "email": exhibitor.email_display(),
+                    },
+                    "descriptor": {
+                        "name": dynamic_descriptor,
+                        "phone": "503-330-7167",
+                    }
+                }
+
+                if running_in_prod:
+                    if venue == 'cakidsshow':
+                        transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
+                    # else nothing - defaults to NW Kids Show.
+                else:
+                    transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
+
+                if not running_in_prod:
+                    pprint(transaction)
+
+                result = braintree.Transaction.sale(transaction)
+
+                if not running_in_prod:
+                    pprint(result)
+
+                if result.is_success:
+                    logger.error('%s %s (cardholder %s) successfully charged %s on %s' %
+                                 (exhibitor.first_name_display(), exhibitor.last_name_display(),
+                                  name, amount, result.transaction.credit_card['last_4']))
+
+                    # Add this exhibitor to the Show exhibitors
+                    show.exhibitors.add(exhibitor)
+
+                    # add a new registration object and associate with this exhibitor & show
+                    # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
+                    try:
+                        r = Registration.objects.get(exhibitor=exhibitor, show=show)
+                        # print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
+                    except ObjectDoesNotExist:
+                        r = Registration(exhibitor=exhibitor, show=show)
+                        r.has_paid = False
+                        # print "created registration: (%s & %s)" % (exhibitor.user, show.name)
+                    r.num_exhibitors     = num_associates
+                    r.num_assistants     = num_assistants
+                    r.num_racks          = num_racks
+                    r.num_tables         = num_tables
+                    r.is_late            = is_late
+                    # r.date_registered    = datetime.date.today()
+                    r.date_registered    = today
+                    r.registration_total = registration_total
+                    r.assistant_total    = assistant_total
+                    r.rack_total         = rack_total
+                    r.late_total         = late_total
+                    r.total              = total
+                    r.has_paid           = True
+                    r.save()
+
+                    # display the show info, fees, disclaimers, etc. on a nice page
+                    # return redirect('/invoice/%s/' % show.id)
+                    # show them the receipt with relevant details (which they can print)
+                    return render_to_response('receipt.html',
+                                              {
+                                                  'transaction': result.transaction,
+                                              },
+                                              context_instance=RequestContext(request))
+                else: # error from Braintree
+                    status = result.transaction
+                    status = status and result.transaction.status
+                    if status == 'processor_declined':
+                        code = result.transaction.processor_response_code
+                        message1 = 'The payment processor declined the credit card transaction.'
+                        message2 = result.transaction.processor_response_text
+                    elif status == 'gateway_rejected':
+                        code = 'n/a'
+                        message1 = 'The payment gateway rejected the credit card transaction.'
+                        message2 = result.transaction.gateway_rejection_reason
+                    else:
+                        code = 'n/a'
+                        #code = ???? result.errors.deep_errors[0].code
+                        message1 = 'There was a problem processing this credit card transaction'
+                        message2 = result.message
+                    logger.error('%s %s (cardholder %s) failed to charge %s: %s: %s' %
+                                 (exhibitor.first_name_display(), exhibitor.last_name_display(),
+                                  name, amount, status, message2))
+                    # Instead of a separate error page, let's try and put the Briantree error
+                    # on the pre-filled form again, just like a form error...
+                    # return render_to_response('checkout_error.html',
+                    #               {
+                    #                   'message1': message1,
+                    #                   'message2': message2,
+                    #                   'show': show,
+                    #               },
+                    #               context_instance=RequestContext(request))
+            # Whether we got here by a form error or a Braintree error,
+            # manually clear the (now encrypted) credit card number field so does not show encrypted string,
+            # and remove the error about the now missing required field.
+            form = ExhibitorRegistrationForm(request.POST.copy(), show=shows)
+            form.data['number'] = ''
+            form.errors['number'] = None
+
         else:
             # print "### found retailer %s" % retailer.user
             form = RetailerRegistrationForm(request.POST, show=shows, better_choices=get_better_choices(shows, show_count))
@@ -507,10 +631,17 @@ def register(request):
                 return redirect('/registered/%s/' % show.id)
 
     return render_to_response('register.html',
-                              {'form': form,
-                               'show_count': show_count,
-                               'is_exhibitor': user_is_exhibitor(request.user)},
+                              {
+                                  'form': form,
+                                  'show_count': show_count,
+                                  'is_late_js': 'true' if is_late else 'false',
+                                  'shows_fees_js': mark_safe(show_fees_js),
+                                  'is_exhibitor': user_is_exhibitor(request.user),
+                                  'message1': message1,
+                                  'message2': message2,
+                              },
                               context_instance=RequestContext(request))
+
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
@@ -635,6 +766,8 @@ def checkout(request, show_id):
                               {
                                   'form': form,
                                   'amount': amount,
+                                  'message1': message1,
+                                  'message2': message2,
                               },
                               context_instance=RequestContext(request))
 

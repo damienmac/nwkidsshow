@@ -8,11 +8,55 @@
 
 {% block jquery %}{# Set focus on the first input field, show picker #}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript">
-     $(document).ready(function () {
-         $("#id_show").focus();
-     });
-</script>
+    <script type="text/javascript">
+        var num_associates = 0;
+        var num_assistants = 0;
+        var num_racks = 0;
+        var registration_total = 0.0;
+        var assistant_total    = 0.0;
+        var rack_total         = 0.0;
+        var late_total         = 0.0;
+        var is_late = {{ is_late_js }};
+        var show = "";
+        var shows = {};
+        {{ shows_fees_js }}
+        var total = 0.0;
+
+        function updateTotal() {
+            e = document.getElementById("id_show");
+            show = e.options[e.selectedIndex].text;
+            //console.log(show);
+            num_associates = document.getElementById("id_num_associates").value;
+            num_assistants = document.getElementById("id_num_assistants").value;
+            num_racks      = document.getElementById("id_num_racks").value;
+
+            registration_total = shows[show]["registration_fee"];
+            assistant_total    = shows[show]["assistant_fee"] * num_assistants;
+            rack_total         = shows[show]["rack_fee"] * num_racks;
+            late_total = 0.0;
+            if (is_late) {
+                late_total = shows[show]["late_fee"];
+            }
+            total = registration_total + assistant_total + rack_total + late_total;
+
+            document.getElementById('registration_total').innerHTML = registration_total.toFixed(2);
+            document.getElementById('registration_fee').innerHTML = shows[show]["registration_fee"].toFixed(2);
+            document.getElementById('assistant_total').innerHTML = assistant_total.toFixed(2);
+            document.getElementById('num_assistants').innerHTML = num_assistants.toString();
+            document.getElementById('assistant_fee').innerHTML = shows[show]["assistant_fee"].toFixed(2);
+            document.getElementById('rack_total').innerHTML = rack_total.toFixed(2);
+            document.getElementById('num_racks').innerHTML = num_racks.toString();
+            document.getElementById('rack_fee').innerHTML = shows[show]["rack_fee"].toFixed(2);
+            document.getElementById('late_total').innerHTML = late_total.toFixed(2);
+            document.getElementById('total').innerHTML = total.toFixed(2);
+        }
+
+        $(document).ready(function () {
+            $("#id_show").focus();
+            updateTotal();
+        });
+
+    </script>
 {% endblock %}
 
 {% block head %}
@@ -28,10 +72,15 @@ REGISTER FOR A SHOW
             <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
         {% endif %}
 
+{#        <form action="" method="post" id="checkout-form" class="center_inner">#}
+        <form action="" method="post" id="checkout-form">
+        {% csrf_token %}
+
         <fieldset>
         <legend>Register for a show</legend>
-        <form action="" method="post" id="center_inner">
-            {% csrf_token %}
+        <div id="center_inner">
+{#        <form action="" method="post" id="center_inner">#}
+{#            {% csrf_token %}#}
             <div class="field">
                 {% if form.show.errors %}
                     <div class="error">{{ form.show.errors|first }}</div>
@@ -93,6 +142,7 @@ REGISTER FOR A SHOW
                     </label>
                     {{ form.num_tables }}
                 </div>
+
             {% else %}
                 <div class="field">
                     {% if form.num_attendees.errors %}
@@ -122,13 +172,146 @@ REGISTER FOR A SHOW
                     {{ form.days_attending }}
                 </div>
 
+                <div class="submit">
+                    <input type="submit" value="Submit">
+                </div>
             {% endif %}
             <div id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</div>
-            <div class="submit">
-                <input type="submit" value="Submit">
-            </div>
-        </form>
+        </div>
+        </fieldset>
 
+        {% if is_exhibitor %}
+            <p></p>
+            <fieldset>
+            <legend>Totals</legend>
+            <div id="center_inner">
+            <div class="block">
+                <p class="mylabel">Registration fee:</p>
+                <p class="myvalue number">{{ "$"|iriencode }}<span id="registration_total"></span></p>
+                <p class="extra">{{ "("|iriencode }}1 {{ "@"|iriencode }} {{ "$"|iriencode }}<span id="registration_fee"></span> each{{ ")"|iriencode }}</p>
+            </div>
+            <div class="block">
+                <p class="mylabel">Assistant fee:</p>
+                <p class="myvalue number">{{ "$"|iriencode }}<span id="assistant_total"></span></p>
+                <p class="extra">{{ "("|iriencode }}<span id="num_assistants"></span> {{ "@"|iriencode }} {{ "$"|iriencode }}<span id="assistant_fee"></span> each{{ ")"|iriencode }}</p>
+            </div>
+            <div class="block">
+                <p class="mylabel">Rack fee:</p>
+                <p class="myvalue number">{{ "$"|iriencode }}<span id="rack_total"></span></p>
+                <p class="extra">{{ "("|iriencode }}<span id="num_racks"></span> {{ "@"|iriencode }} {{ "$"|iriencode }}<span id="rack_fee"></span> each{{ ")"|iriencode }}</p>
+            </div>
+            <div class="block">
+                <p class="mylabel">Late fee:</p>
+                <p class="myvalue number">{{ "$"|iriencode }}<span id="late_total"></span></p>
+            </div>
+            <p></p>
+            <div class="block">
+                <p class="mylabel">TOTAL:</p>
+                <p class="myvalue number">{{ "$"|iriencode }}<span id="total"></span></p>
+            </div>
+            </div>
+            </fieldset>
+        {% endif %}
+
+        {% if is_exhibitor %}
+            <p></p>
+            <fieldset>
+            <legend>Provide Payment Details</legend>
+
+            {% if message1 %}
+                <div class="block">
+                    <p class="error">{{ message1 }}</p>
+                    <p class="error">{{ message2 }}</p>
+                </div>
+            {% endif %}
+
+
+            <div id="center_inner">
+                <div class="block">
+                    <div class="center">
+                        We accept any of these credit or debit cards:
+                        <br>
+                        <img width="320" height="35" src="{{ STATIC_URL }}images/accepted-credit-cards.png" border="0"
+                             alt="We accept Visa, MasterCard, American Express, Discover, JCB, and Diner’s Club">
+                    </div>
+                </div>
+
+                <p></p>
+                <div class="field">
+                    {% if form.cardholder_name.errors %}
+                        <div class="error">{{ form.cardholder_name.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.cardholder_name.label }}:
+                        {% if form.cardholder_name.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.cardholder_name }}
+                </div>
+
+                <div class="field">
+                    {% if form.number.errors %}
+                        <div class="error">{{ form.number.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.number.label }}:
+                        {% if form.number.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.number }}
+                </div>
+
+                <div class="field">
+                    {% if form.month.errors %}
+                        <div class="error">{{ form.month.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.month.label }}:
+                        {% if form.month.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.month }}
+                </div>
+
+                <div class="field">
+                    {% if form.year.errors %}
+                        <div class="error">{{ form.year.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.year.label }}:
+                        {% if form.year.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.year }}
+                </div>
+
+                <p></p>
+
+                <div id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</div>
+                <div class="submit">
+                    <input type="submit" value="Register" id="register">
+                </div>
+            </div>
+            </fieldset>
+
+            <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree.js"></script>
+            <script type="text/javascript">
+                {% if PROD %}
+                    {# for both nwkidsshow and cakidsshow #}
+                    var braintree = Braintree.create("MIIBCgKCAQEAtfAZ1MJ4zSqtnPufPj2/M0ctK9KrJHCCmF/sfqZ8VbtYyYptfhEJ6nGEm7SqNa9MssiS21S9+9FdwVKJRU0aGvHkjlxSAposuc0lmJdauJzz2CTAMMmyCUkEZkDmyaqBJM9WrGkM47FYz2n8cNn92ThjGc+XpxGfAfTrA4W2qZwJNwetuiddD+xJeTlCQKobsmy7hyq2xzT3Sk4qqTcSY0GUkR1Otlg5Od6EgY5Mzqf8YLS34rSIBSggXu3kdsqJtdSlqvzci++DxSksV61i4Kl0eQ5oEgxfuHtWb5rbdNsJHJN7h76nne+31gXFdG92hmizb9lmT5cIe217mgfivwIDAQAB");
+                {% else %}
+                    {# SANDBOX #}
+                    var braintree = Braintree.create("MIIBCgKCAQEAqgULrOr7Sdox/umGCtIveF0Mao/Q/6HA65QKG9aymBC3tPVW8aqO6VcMRMjaB9QY1aQyGUJ/3AzhNEmkbjXIequ5QewXiY7V1ADDCV3k8dIPxwJMPyBvJKMCYRrh5VTuTnxSGV6BXDCoR8TX8mvPxR6ffG1wfsYHSSzpsEah7UKWu+ceka16rKM6heO8dZrYACltDehsYOfWCRzPOZeNqZPdAeV0RbBhXR2j0XILh7JUzwT2+u9LNXjwnqgkCedDiYBkTtlngEu2bmLiIeaV5VjIjR0M8gzp8V8lRYCFt9D7FSddVTwS8NHgaSo8J91jVTsEDfF23EU49eomeRWBfQIDAQAB");
+                {% endif %}
+                braintree.onSubmitEncryptForm('checkout-form');
+            </script>
+
+        {% endif %}
+
+    </form>
     {% endif %}
-</fieldset>
 {% endblock %}

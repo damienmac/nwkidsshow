@@ -16,32 +16,32 @@
     <fieldset class="printme">
         <legend>Charge Receipt</legend>
         <div class="block">
-            <p class="mylabel">Amount:</p>
+            <p class="mywidelabel">Amount:</p>
 
             <p class="myvalue">{{ "$"|iriencode }}{{ transaction.amount }}</p>
         </div>
         <div class="block">
-            <p class="mylabel">Cardholder name:</p>
+            <p class="mywidelabel">Cardholder name:</p>
 
             <p class="myvalue">{{ transaction.credit_card.cardholder_name }}</p>
         </div>
         <div class="block">
-            <p class="mylabel">Card type:</p>
+            <p class="mywidelabel">Card type:</p>
 
             <p class="myvalue">{{ transaction.credit_card.card_type }}</p>
         </div>
         <div class="block">
-            <p class="mylabel">Last 4 digits:</p>
+            <p class="mywidelabel">Last 4 digits:</p>
 
             <p class="myvalue">{{ transaction.credit_card.last_4 }}</p>
         </div>
         <div class="block">
-            <p class="mylabel">Exp. Month:</p>
+            <p class="mywidelabel">Expiration Month:</p>
 
             <p class="myvalue">{{ transaction.credit_card.expiration_month }}</p>
         </div>
         <div class="block">
-            <p class="mylabel">Exp. Year:</p>
+            <p class="mywidelabel">Expiration Year:</p>
 
             <p class="myvalue">{{ transaction.credit_card.expiration_year }}</p>
         </div>
