@@ -142,6 +142,32 @@ REGISTER FOR A SHOW
                     </label>
                     {{ form.num_tables }}
                 </div>
+                <div class="field">
+                    {% if form.num_rooms.errors %}
+                        <div class="error">{{ form.num_rooms.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.num_rooms.label }}:
+                        {% if form.num_rooms.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                    {{ form.num_rooms }}
+                </div>
+                <div class="field">
+                    {% if form.bed_type.errors %}
+                        <div class="error">{{ form.bed_type.errors|first }}</div>
+                    {% endif %}
+                    <label>
+                        {{ form.bed_type.label }}:
+                        {% if form.bed_type.field.required %}
+                            <span class="required"></span>
+                        {% endif %}
+                    </label>
+                </div>
+                <div class="checkboxes">
+                    {{ form.bed_type }}
+                </div>
 
             {% else %}
                 <div class="field">

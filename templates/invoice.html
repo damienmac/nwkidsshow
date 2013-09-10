@@ -114,6 +114,23 @@ YOUR INVOICE AND DETAILS
 
     <p></p>
     <fieldset class="printme">
+    <legend>Other Info</legend>
+    <div class="block">
+        <p class="mylabel">Tables:</p>
+        <p class="myvalue number">{{ registration.num_tables }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Rooms:</p>
+        <p class="myvalue number">{{ registration.num_rooms }}</p>
+    </div>
+    <div class="block">
+        <p class="mylabel">Beds:</p>
+        <p class="myvalue number">{{ bed_type }}</p>
+    </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset class="printme">
         <legend>Disclaimers</legend>
         <div class="block">
             {% if venue == 'cakidsshow' %}

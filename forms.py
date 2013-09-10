@@ -55,6 +55,19 @@ class ExhibitorRegistrationForm(forms.Form):
                                         widget=TextInput(attrs={
                                             'onchange': 'updateTotal()',
                                         }))
+    num_rooms      = forms.IntegerField(required=True,
+                                        min_value=1,
+                                        max_value=2,
+                                        initial=1,
+                                        label='# of Rooms',
+                                        widget=TextInput(attrs={
+                                            'onchange': 'updateTotal()',
+                                        }))
+    bed_type = forms.ChoiceField(choices=[('queen', '2 Queens'),
+                                          ('king', '1 King')],
+                                 initial='queen',
+                                 label='Bed Choice',
+                                 widget=forms.RadioSelect())
 
     cardholder_name = forms.CharField(required=True, max_length=100, label='Cardholder name')
     number = forms.CharField(required=True,

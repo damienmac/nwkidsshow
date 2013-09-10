@@ -436,6 +436,8 @@ def register(request):
                 num_assistants = cd['num_assistants'] or 0
                 num_racks      = cd['num_racks'] or 0
                 num_tables     = cd['num_tables'] or 0
+                num_rooms      = cd['num_rooms']
+                bed_type       = cd['bed_type']
 
                 # is_late        = cd['show'].late_date < datetime.date.today()
                 late_date = cd['show'].late_date
@@ -543,6 +545,8 @@ def register(request):
                     r.num_assistants     = num_assistants
                     r.num_racks          = num_racks
                     r.num_tables         = num_tables
+                    r.num_rooms          = num_rooms
+                    r.bed_type           = bed_type
                     r.is_late            = is_late
                     # r.date_registered    = datetime.date.today()
                     r.date_registered    = today
@@ -811,10 +815,14 @@ def invoice(request, show_id):
         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/noinvoice/')
+    bed_type = "2 Queens"
+    if registration.bed_type == 'king':
+        bed_type = "1 King"
     return render_to_response('invoice.html',
                               {
                                   'show': show,
-                                  'registration': registration
+                                  'registration': registration,
+                                  'bed_type': bed_type,
                               },
                               context_instance=RequestContext(request))
 

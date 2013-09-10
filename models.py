@@ -106,6 +106,8 @@ class Registration(models.Model):
     num_assistants  = models.SmallIntegerField()
     num_racks       = models.SmallIntegerField()
     num_tables      = models.SmallIntegerField()
+    num_rooms       = models.SmallIntegerField()
+    bed_type        = models.CharField(max_length=50)
     is_late         = models.BooleanField()
     date_registered = models.DateField()
 

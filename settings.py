@@ -1,8 +1,8 @@
 # Django settings for nwkidsshow project.
 import os
 
-from google.appengine.api import app_identity
-app_id = app_identity.get_application_id()
+# from google.appengine.api import app_identity
+# app_id = app_identity.get_application_id()
 
 BASE_DIR = (os.path.abspath(os.path.dirname(__file__)) + os.sep).replace('\\','/')
 
