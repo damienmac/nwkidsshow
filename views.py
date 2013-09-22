@@ -1239,6 +1239,22 @@ def populate_users(users, groups):
             u.groups.add(group)
     return
 
+def populate_users2(users, groups):
+    for user in users:
+        try:
+            u = User.objects.get(username=user['username'])
+            # print "user already exists: %s (%s)" % (u.username, u.get_full_name())
+        except ObjectDoesNotExist:
+            u = User.objects.create_user(username=user['username'])
+            # print "created user: %s" % u.username
+            u.first_name = user['first_name'] if not u.first_name else u.first_name
+            u.last_name  = user['last_name']  if not u.last_name else u.last_name
+            u.email      = user['email']      if not u.email else u.email
+            u.set_password(user['password'])
+            u.save()
+            for group in groups:
+                u.groups.add(group)
+    return
 
 def populate_exhibitors(exhibitors, password=True):
     for exhibitor in exhibitors:
@@ -1269,10 +1285,10 @@ def populate_retailers(retailers, password=True):
         user = User.objects.get(username=retailer['username']) # had better be one already!
         try:
             r = Retailer.objects.get(user=user)
-            print "updating retailer %s" % r
+            # print "updating retailer %s" % r
         except ObjectDoesNotExist:
             r = Retailer(user=user)
-            print "creating retailer %s" % r
+            # print "creating retailer %s" % r
         r.company   = retailer['company']  if not r.company  else r.company
         r.website   = retailer['website']  if not r.website  else r.website
         r.address   = retailer['address']  if not r.address  else r.address
@@ -1284,6 +1300,28 @@ def populate_retailers(retailers, password=True):
         r.fax       = retailer['fax']      if not r.fax      else r.fax
         r.must_change_password = password # True # False
         r.save()
+    return
+
+def populate_retailers2(retailers, password=True):
+    for retailer in retailers:
+        user = User.objects.get(username=retailer['username']) # had better be one already!
+        try:
+            r = Retailer.objects.get(user=user)
+            # print "updating retailer %s" % r
+        except ObjectDoesNotExist:
+            r = Retailer(user=user)
+            # print "creating retailer %s" % r
+            r.company   = retailer['company']
+            r.website   = retailer['website']
+            r.address   = retailer['address']
+            r.address2  = retailer['address2']
+            r.city      = retailer['city']
+            r.state     = retailer['state'].strip()
+            r.phone     = retailer['phone']
+            r.zip       = retailer['zip']
+            r.fax       = retailer['fax']
+            r.must_change_password = password # True # False
+            r.save()
     return
 
 
@@ -1371,81 +1409,82 @@ def all_users_to_groups():
 @staff_member_required
 def seed(request):
 
-    populate_exhibitors([{
-                             'username': 'damien',
-                             'password': 'password',
-                             'first_name': 'Damien',
-                             'last_name': 'Macielinski',
-                             'email': 'info@nwkidsshow.com',
-                             'company': 'Laurel Event Management',
-                             'website': 'http://www.nwkidsshow.com/',
-                             'address': '17565 SW 108th place',
-                             'address2': '',
-                             'city': 'Tualatin',
-                             'state': 'OR',
-                             'zip': '97062',
-                             'phone': '503-330-7167',
-                             'fax': '503-555-1212',
-                             'lines': """no * lines * really""",
-                         },
-                         {
-                             'username': 'laurie',
-                             'password': 'password',
-                             'first_name': 'Laurie',
-                             'last_name': 'Macielinski',
-                             'email': 'info@nwkidsshow.com',
-                             'company': 'Laurel Event Management',
-                             'website': 'http://www.nwkidsshow.com/',
-                             'address': '17565 SW 108th place',
-                             'address2': '',
-                             'city': 'Tualatin',
-                             'state': 'OR',
-                             'zip': '97062',
-                             'phone': '503-330-7167',
-                             'fax': '503-555-1212',
-                             'lines': """no * lines * really""",
-                         }], password=False)
+    # populate_exhibitors([{
+    #                          'username': 'damien',
+    #                          'password': 'password',
+    #                          'first_name': 'Damien',
+    #                          'last_name': 'Macielinski',
+    #                          'email': 'info@nwkidsshow.com',
+    #                          'company': 'Laurel Event Management',
+    #                          'website': 'http://www.nwkidsshow.com/',
+    #                          'address': '17565 SW 108th place',
+    #                          'address2': '',
+    #                          'city': 'Tualatin',
+    #                          'state': 'OR',
+    #                          'zip': '97062',
+    #                          'phone': '503-330-7167',
+    #                          'fax': '503-555-1212',
+    #                          'lines': """no * lines * really""",
+    #                      },
+    #                      {
+    #                          'username': 'laurie',
+    #                          'password': 'password',
+    #                          'first_name': 'Laurie',
+    #                          'last_name': 'Macielinski',
+    #                          'email': 'info@nwkidsshow.com',
+    #                          'company': 'Laurel Event Management',
+    #                          'website': 'http://www.nwkidsshow.com/',
+    #                          'address': '17565 SW 108th place',
+    #                          'address2': '',
+    #                          'city': 'Tualatin',
+    #                          'state': 'OR',
+    #                          'zip': '97062',
+    #                          'phone': '503-330-7167',
+    #                          'fax': '503-555-1212',
+    #                          'lines': """no * lines * really""",
+    #                      }], password=False)
+    #
+    # populate_retailers([{
+    #                         "username": "damien",
+    #                         "password": "password",
+    #                         "first_name": "Damien",
+    #                         "last_name": "Macielinski",
+    #                         'email': 'info@nwkidsshow.com',
+    #                         'company': 'Laurel Event Management',
+    #                         'website': 'http://www.nwkidsshow.com/',
+    #                         'address': '17565 SW 108th place',
+    #                         'address2': '',
+    #                         'city': 'Tualatin',
+    #                         'state': 'OR',
+    #                         'zip': '97062',
+    #                         'phone': '503-330-7167',
+    #                         'fax': '503-555-1212',
+    #                     },
+    #                     {
+    #                         "username": "laurie",
+    #                         "password": "password",
+    #                         "first_name": "Laurie",
+    #                         "last_name": "Macielinski",
+    #                         'email': 'info@nwkidsshow.com',
+    #                         'company': 'Laurel Event Management',
+    #                         'website': 'http://www.nwkidsshow.com/',
+    #                         'address': '17565 SW 108th place',
+    #                         'address2': '',
+    #                         'city': 'Tualatin',
+    #                         'state': 'OR',
+    #                         'zip': '97062',
+    #                         'phone': '503-330-7167',
+    #                         'fax': '503-555-1212',
+    #                     }], password=False)
 
-    populate_retailers([{
-                            "username": "damien",
-                            "password": "password",
-                            "first_name": "Damien",
-                            "last_name": "Macielinski",
-                            'email': 'info@nwkidsshow.com',
-                            'company': 'Laurel Event Management',
-                            'website': 'http://www.nwkidsshow.com/',
-                            'address': '17565 SW 108th place',
-                            'address2': '',
-                            'city': 'Tualatin',
-                            'state': 'OR',
-                            'zip': '97062',
-                            'phone': '503-330-7167',
-                            'fax': '503-555-1212',
-                        },
-                        {
-                            "username": "laurie",
-                            "password": "password",
-                            "first_name": "Laurie",
-                            "last_name": "Macielinski",
-                            'email': 'info@nwkidsshow.com',
-                            'company': 'Laurel Event Management',
-                            'website': 'http://www.nwkidsshow.com/',
-                            'address': '17565 SW 108th place',
-                            'address2': '',
-                            'city': 'Tualatin',
-                            'state': 'OR',
-                            'zip': '97062',
-                            'phone': '503-330-7167',
-                            'fax': '503-555-1212',
-                        }], password=False)
-
-    retailer_group,  created = Group.objects.get_or_create(name='retailer_group')
-    cakidsshow_group,  created      = Group.objects.get_or_create(name='cakidsshow_group')
-    populate_users(retailer_data.retailers, [retailer_group,cakidsshow_group,])
-    populate_retailers(retailer_data.retailers)
+    # retailer_group,  created = Group.objects.get_or_create(name='retailer_group')
+    # cakidsshow_group,  created      = Group.objects.get_or_create(name='cakidsshow_group')
+    # populate_users(retailer_data.retailers, [retailer_group,cakidsshow_group,])
+    # populate_users2(retailer_data.retailers, [retailer_group,cakidsshow_group,])
+    # populate_retailers2(retailer_data.retailers4)
 
     # TURNING THIS OFF NOW
-    return HttpResponseRedirect('/dump/')
+    return HttpResponseRedirect('/')
 
     exhibitor_group, created = Group.objects.get_or_create(name='exhibitor_group')
     # if created:
