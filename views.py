@@ -133,6 +133,7 @@ banner_map = {
     'nwkidsshow': {
         '/':                 ('nwks-banner-left.png', 'cks-banner-hooper-01.png',),
         '/admin/':           ('nwks-banner-left.png', 'cks-banner-hooper-01.png',),
+        '/add-user/':        ('nwks-banner-left.png', 'cks-banner-hooper-01.png',),
 
         '/contact/':         ('nwks-banner-left.png', 'cks-banner-polkadot-01.png',),
 
@@ -165,6 +166,7 @@ banner_map = {
     'cakidsshow': {
         '/':                 ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
         '/admin/':           ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
+        '/add-user/':        ('cks-banner-left.png', 'cks-banner-hooper-01.png',),
 
         '/contact/':         ('cks-banner-left.png', 'cks-banner-polkadot-01.png',),
 
@@ -938,7 +940,7 @@ def report_retailers_form(request):
 def report_retailers(request, show_id):
     try:
         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-        retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
+        retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     return render_to_response('report_retailers.html',
@@ -954,7 +956,7 @@ def report_retailers(request, show_id):
 def report_retailers_xls(request, show_id):
     try:
         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-        retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
+        retailers = Retailer.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     fields = ['company',
@@ -1029,7 +1031,7 @@ def report_exhibitors_form(request):
 def report_exhibitors(request, show_id):
     try:
         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-        exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
+        exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     rooms = _get_rooms(show)
@@ -1047,7 +1049,7 @@ def report_exhibitors(request, show_id):
 def report_exhibitors_xls(request, show_id):
     try:
         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-        exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').order_by('user__last_name')
+        exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     rooms = _get_rooms(show)
@@ -1086,7 +1088,7 @@ def report_exhibitors_xls(request, show_id):
 # return a sorted list of tuples [(line, name, id, room#), ... ]
 def _build_lines_data(show):
     rooms = _get_rooms(show)
-    exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test')
+    exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).exclude(user__is_superuser=1)
 
     lines_list2 = []
     for exhibitor in exhibitors:
@@ -1215,7 +1217,7 @@ def dump(request):
                                             },
                               context_instance=RequestContext(request))
 
-def populate_users(users, group):
+def populate_users(users, groups):
     for user in users:
         try:
             u = User.objects.get(username=user['username'])
@@ -1233,11 +1235,12 @@ def populate_users(users, group):
             pass
             # print 'password for %s is %s' % (u.get_full_name(), u.password)
         u.save()
-        u.groups.add(group)
+        for group in groups:
+            u.groups.add(group)
     return
 
 
-def populate_exhibitors(exhibitors):
+def populate_exhibitors(exhibitors, password=True):
     for exhibitor in exhibitors:
         user = User.objects.get(username=exhibitor['username']) # had better be one already!
         try:
@@ -1256,30 +1259,30 @@ def populate_exhibitors(exhibitors):
         e.zip       = exhibitor['zip']      if not e.zip      else e.zip
         e.fax       = exhibitor['fax']      if not e.fax      else e.fax
         e.lines     = exhibitor['lines']    if not e.lines    else e.lines
-        e.must_change_password = True # False
+        e.must_change_password = password # True # False
         e.save()
     return
 
 
-def populate_retailers(retailers):
+def populate_retailers(retailers, password=True):
     for retailer in retailers:
         user = User.objects.get(username=retailer['username']) # had better be one already!
         try:
             r = Retailer.objects.get(user=user)
-            # print "updating retailer %s" % r
+            print "updating retailer %s" % r
         except ObjectDoesNotExist:
             r = Retailer(user=user)
-            # print "creating retailer %s" % r
+            print "creating retailer %s" % r
         r.company   = retailer['company']  if not r.company  else r.company
         r.website   = retailer['website']  if not r.website  else r.website
         r.address   = retailer['address']  if not r.address  else r.address
         r.address2  = retailer['address2'] if not r.address2 else r.address2
         r.city      = retailer['city']     if not r.city     else r.city
-        r.state     = retailer['state']    if not r.state    else r.state
+        r.state     = retailer['state'].strip()    if not r.state    else r.state
         r.phone     = retailer['phone']    if not r.phone    else r.phone
         r.zip       = retailer['zip']      if not r.zip      else r.zip
         r.fax       = retailer['fax']      if not r.fax      else r.fax
-        r.must_change_password = True # False
+        r.must_change_password = password # True # False
         r.save()
     return
 
@@ -1368,9 +1371,78 @@ def all_users_to_groups():
 @staff_member_required
 def seed(request):
 
-    # all_users_to_groups()
+    populate_exhibitors([{
+                             'username': 'damien',
+                             'password': 'password',
+                             'first_name': 'Damien',
+                             'last_name': 'Macielinski',
+                             'email': 'info@nwkidsshow.com',
+                             'company': 'Laurel Event Management',
+                             'website': 'http://www.nwkidsshow.com/',
+                             'address': '17565 SW 108th place',
+                             'address2': '',
+                             'city': 'Tualatin',
+                             'state': 'OR',
+                             'zip': '97062',
+                             'phone': '503-330-7167',
+                             'fax': '503-555-1212',
+                             'lines': """no * lines * really""",
+                         },
+                         {
+                             'username': 'laurie',
+                             'password': 'password',
+                             'first_name': 'Laurie',
+                             'last_name': 'Macielinski',
+                             'email': 'info@nwkidsshow.com',
+                             'company': 'Laurel Event Management',
+                             'website': 'http://www.nwkidsshow.com/',
+                             'address': '17565 SW 108th place',
+                             'address2': '',
+                             'city': 'Tualatin',
+                             'state': 'OR',
+                             'zip': '97062',
+                             'phone': '503-330-7167',
+                             'fax': '503-555-1212',
+                             'lines': """no * lines * really""",
+                         }], password=False)
 
-    populate_shows(show_data.shows)
+    populate_retailers([{
+                            "username": "damien",
+                            "password": "password",
+                            "first_name": "Damien",
+                            "last_name": "Macielinski",
+                            'email': 'info@nwkidsshow.com',
+                            'company': 'Laurel Event Management',
+                            'website': 'http://www.nwkidsshow.com/',
+                            'address': '17565 SW 108th place',
+                            'address2': '',
+                            'city': 'Tualatin',
+                            'state': 'OR',
+                            'zip': '97062',
+                            'phone': '503-330-7167',
+                            'fax': '503-555-1212',
+                        },
+                        {
+                            "username": "laurie",
+                            "password": "password",
+                            "first_name": "Laurie",
+                            "last_name": "Macielinski",
+                            'email': 'info@nwkidsshow.com',
+                            'company': 'Laurel Event Management',
+                            'website': 'http://www.nwkidsshow.com/',
+                            'address': '17565 SW 108th place',
+                            'address2': '',
+                            'city': 'Tualatin',
+                            'state': 'OR',
+                            'zip': '97062',
+                            'phone': '503-330-7167',
+                            'fax': '503-555-1212',
+                        }], password=False)
+
+    retailer_group,  created = Group.objects.get_or_create(name='retailer_group')
+    cakidsshow_group,  created      = Group.objects.get_or_create(name='cakidsshow_group')
+    populate_users(retailer_data.retailers, [retailer_group,cakidsshow_group,])
+    populate_retailers(retailer_data.retailers)
 
     # TURNING THIS OFF NOW
     return HttpResponseRedirect('/dump/')
@@ -1386,8 +1458,8 @@ def seed(request):
     # else:
     #     print "retailer_group already exists"
 
-    populate_users(exhibitor_data.exhibitors, exhibitor_group)
-    populate_users(retailer_data.retailers, retailer_group)
+    populate_users(exhibitor_data.exhibitors, [exhibitor_group,])
+    populate_users(retailer_data.retailers, [retailer_group,])
     populate_exhibitors(exhibitor_data.exhibitors)
     populate_retailers(retailer_data.retailers)
     populate_shows(show_data.shows)

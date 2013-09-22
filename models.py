@@ -132,6 +132,10 @@ class RetailerRegistration(models.Model):
     num_attendees  = models.PositiveSmallIntegerField()
     days_attending = models.CommaSeparatedIntegerField(max_length=7)
 
+    def retailer_company(self):
+        return self.retailer.company
+    retailer_company.short_description = 'Company'
+
     def days_as_list(self):
         # days_attending is something like u'0,1'
         # convert it to [u'0', u'1']
