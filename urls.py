@@ -46,6 +46,7 @@ urlpatterns = patterns('',
     url(r'^edit/$', 'nwkidsshow.views.edit', name='edit'),
 
     url(r'^report/retailers/$', 'nwkidsshow.views.report_retailers_form', name='report_retailers_form'),
+    url(r'^report/retailers/count/$', 'nwkidsshow.views.report_retailers_count', name='report_retailers_count'),
     url(r'^report/retailers/(?P<show_id>\w+)/$', 'nwkidsshow.views.report_retailers', name='report_retailers'),
     url(r'^report/retailers/(?P<show_id>\w+)/xls/$', 'nwkidsshow.views.report_retailers_xls', name='report_retailers_xls'),
 

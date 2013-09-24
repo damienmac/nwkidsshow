@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block jquery %}
+{% include "printer_script.html" %}
+{% endblock %}
+
+{% block head %}
+RETAILER COUNT PER DAY
+{% endblock %}
+
+{% block content %}
+    {% load datemath %}
+    {% include "printer_export_bar.html" %}
+    {% for registration in registrations %}
+        <p></p>
+        <fieldset class="printme">
+        <legend>Retailers by day for show: {{ registration.show_name }}</legend>
+        <div class="block">
+            <p class="mywidelabel">{{ registration.show.start_date|dayadd:0|date:"l, F jS Y" }}:</p>
+            <p class="myvalue3">{{ registration.0 }}</p>
+        </div>
+        <div class="block">
+            <p class="mywidelabel">{{ registration.show.start_date|dayadd:1|date:"l, F jS Y" }}:</p>
+            <p class="myvalue3">{{ registration.1 }}</p>
+        </div>
+        <div class="block">
+            <p class="mywidelabel">{{ registration.show.start_date|dayadd:2|date:"l, F jS Y" }}:</p>
+            <p class="myvalue3">{{ registration.2 }}</p>
+        </div>
+    </fieldset>
+    {% endfor %}
+{% endblock %}

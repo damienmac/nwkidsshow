@@ -207,6 +207,8 @@ def _get_banner(path, venue):
     elif path.startswith('/report/'):     path = '/report/'
     elif path.startswith('/exhibitors/'): path = '/exhibitors/'
     elif path.startswith('/admin/'):      path = '/admin/'
+    elif path.startswith('/seed/'):       path = '/admin/'
+    elif path.startswith('/dump/'):       path = '/admin/'
     try:
         return banner_map[venue][path]
     except KeyError:
@@ -934,6 +936,38 @@ def report_retailers_form(request):
                               {'form': form,
                                'show_count': show_count,},
                               context_instance=RequestContext(request))
+
+
+@staff_member_required
+def report_retailers_count(request):
+    """
+    For every show, count how many retailers are showing up on each day.
+    Datastructure ends up looking like this
+        [
+            {'0': 94, '1': 0, '2': 0, 'show_name': u'February 2013', 'show':show-object },
+            {'0': 26, '1': 37, '2': 30, 'show_name': u'September 2013', 'show':show-object }
+        ]
+    """
+    venue = _get_venue(request)
+    shows = Show.objects.filter(venue=venue).order_by('start_date')
+    registrations = []
+    for show in shows:
+        registration = {}
+        registration["show_name"] = show.name
+        registration["show"] = show
+        # regs = RetailerRegistration.objects.all().filter(show=show)
+        # for reg in regs:
+        #     print reg.show.name, reg.retailer.first_name_display(), reg.retailer.last_name_display(), reg.days_attending
+        for day in [0, 1, 2]:
+            registration[str(day)] = RetailerRegistration.objects.all().filter(show=show, days_attending__contains=str(day)).count()
+        registrations += [registration, ]
+    # pprint(registrations)
+    return render_to_response('report_retailers_count.html',
+                              {
+                                  'registrations': registrations,
+                              },
+                              context_instance=RequestContext(request))
+
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
