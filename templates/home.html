@@ -30,10 +30,16 @@
     </legend>
     <div class="block">
         <p class="myheader">
-            {{ show.start_date|date:"l, F jS" }}<br>
-            through<br>
-            {{ show.end_date|date:"l, F jS" }}<br>
-            {{ show.end_date|date:"Y" }}
+            {% if show %}
+                {{ show.start_date|date:"l, F jS" }}<br>
+                through<br>
+                {{ show.end_date|date:"l, F jS" }}<br>
+                {{ show.end_date|date:"Y" }}<br>
+                9am to 6pm daily.<br>
+                Note: Show is not open to the general public, only registered retailers and wholesalers.
+            {% else %}
+                Sorry, next show dates not available yet...
+            {% endif %}
         </p>
         <p class="address">
             {% if venue == 'cakidsshow' %}
@@ -55,7 +61,9 @@
         Exhibitors
     </legend>
     <div class="block">
-        {% if show.is_closed %}
+        {% if not show %}
+            <p class="myheader">Sorry, next show dates not available yet...</p>
+        {% elif show.is_closed %}
             <p class="myheader">Exhibitor registration is now closed.</p>
             <p class="myparagraph">Please make sure your <a href="/edit/">profile</a> and <a href="/lines/">lines</a> are up-to-date!</p>
         {% else %}
@@ -118,11 +126,11 @@
         </p>
         <p class="myparagraph">
            {% if venue == 'cakidsshow' %}
-            <a href="http://embassysuites.hilton.com/en/es/groups/personalized/S/SFOSOES-CKS-20140222/index.jhtml">
+            <a href="http://embassysuites.hilton.com/en/es/groups/personalized/S/SFOSOES-CK2-20140222/index.jhtml">
                 Click here
             </a> to make your Embassy Suites reservation online.
            {% else %}
-            <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-NWK-20130927/index.jhtml?WT.mc_id=POG">
+            <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-KID-20140307/index.jhtml">
                 Click here
             </a> to make your DoubleTree reservation online.
             {% endif %}

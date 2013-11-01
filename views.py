@@ -212,7 +212,8 @@ def _get_banner(path, venue):
     try:
         return banner_map[venue][path]
     except KeyError:
-        logger.error('could not find a banner mapping for path %s' % path)
+        # logger.error('could not find a banner mapping for path %s' % path)
+        pass
     if venue == 'cakidsshow':
         return CKS_DEFAULT_BANNER
     return NWKS_DEFAULT_BANNER
@@ -263,7 +264,10 @@ def home(request):
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()))
     # pprint(timezone.localtime(timezone.now(), Pacific_tzinfo()).date())
     # show = Show.objects.filter(end_date__gt=datetime.date.today()).latest('end_date')
-    show = Show.objects.filter(venue=venue, end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date()).latest('end_date')
+    try:
+        show = Show.objects.filter(venue=venue, end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo).date()).latest('end_date')
+    except ObjectDoesNotExist:
+        show = None
     # TODO this still assumes only one active show at a time ever.
     return render_to_response('home.html',
                               {'show': show, },
