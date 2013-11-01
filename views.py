@@ -116,6 +116,7 @@ venue_map = {
 
 def _get_venue(request):
     host = request.META['HTTP_HOST'] or ''
+    host = host.lower()
     # return venue_map.get(host, DEFAULT_VENUE)
     try:
         return venue_map[host]
