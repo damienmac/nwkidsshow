@@ -286,46 +286,6 @@ def privacy_policy(request):
 def make_500(request):
     raise ObjectDoesNotExist()
 
-NWKS_DEFAULT_ICON = 'NWKS_color-square-57.png'
-CKS_DEFAULT_ICON =  'CKS_color-square-57.png'
-
-icon_map = {
-    'nwkidsshow': {
-        'apple-touch-icon-57x57-precomposed.png'  : 'NWKS_color-square-57.png',
-        'apple-touch-icon-57x57.png'              : 'NWKS_color-square-57.png',
-        'apple-touch-icon-76x76-precomposed.png'  : 'NWKS_color-square-76.png',
-        'apple-touch-icon-76x76.png'              : 'NWKS_color-square-76.png',
-        'apple-touch-icon-120x120-precomposed.png': 'NWKS_color-square-120.png',
-        'apple-touch-icon-120x120.png'            : 'NWKS_color-square-120.png',
-        'apple-touch-icon-152x152-precomposed.png': 'NWKS_color-square-152.png',
-        'apple-touch-icon-152x152.png'            : 'NWKS_color-square-152.png',
-    },
-    'cakidsshow': {
-        'apple-touch-icon-57x57.png'              : 'CKS_color-square-57.png',
-        'apple-touch-icon-57x57-precomposed.png'  : 'CKS_color-square-57.png',
-        'apple-touch-icon-76x76-precomposed.png'  : 'CKS_color-square-76.png',
-        'apple-touch-icon-76x76.png'              : 'CKS_color-square-76.png',
-        'apple-touch-icon-120x120-precomposed.png': 'CKS_color-square-120.png',
-        'apple-touch-icon-120x120.png'            : 'CKS_color-square-120.png',
-        'apple-touch-icon-152x152-precomposed.png': 'CKS_color-square-152.png',
-        'apple-touch-icon-152x152.png'            : 'CKS_color-square-152.png',
-    },
-}
-
-def icon_requested(request, icon):
-    venue = _get_venue(request)
-    icon = icon.lower()
-    try:
-        icon_returned = icon_map[venue][icon]
-    except KeyError:
-        logger.error('Could not find an icon mapping for "%s" in %s' % (icon,venue))
-        icon_returned = NWKS_DEFAULT_ICON
-        if venue == 'cakidsshow':
-            icon_returned = CKS_DEFAULT_ICON
-    image_data = open(BASE_DIR + 'static/images/' + icon_returned, "rb").read()
-    return HttpResponse(image_data, mimetype="image/png")
-
-
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def password_change_wrapper(request, template_name, post_change_redirect):

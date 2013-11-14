@@ -11,8 +11,6 @@ urlpatterns = patterns('',
     url(r'^$', 'nwkidsshow.views.home', name='home'),
     # url(r'^nwkidsshow/', include('nwkidsshow.foo.urls')),
 
-    url(r'^(?P<icon>apple\-touch\-icon\-.+\.png)$', 'nwkidsshow.views.icon_requested', name='icon_requested'),
-
     url(r'^dump/$', 'nwkidsshow.views.dump', name='dump'),
     url(r'^seed/$', 'nwkidsshow.views.seed', name='seed'),
     url(r'^add-user/$', 'nwkidsshow.views.add_user', name='adduser'),
