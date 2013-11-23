@@ -79,12 +79,14 @@ def user_is_exhibitor_or_retailer(user):
 
 def get_user(request):
     try:
-        user = Retailer.objects.get(user=request.user)
+        # user = Retailer.objects.get(user=request.user)
+        user = Exhibitor.objects.get(user=request.user)
     except ObjectDoesNotExist:
         user = None
     if not user:
         try:
-            user = Exhibitor.objects.get(user=request.user)
+            # user = Exhibitor.objects.get(user=request.user)
+            user = Retailer.objects.get(user=request.user)
         except ObjectDoesNotExist:
             user = None
     return user
@@ -256,6 +258,8 @@ def _get_rooms(show):
     registrations = Registration.objects.filter(show=show)
     for r in registrations:
         rooms[r.exhibitor.id] = r.room
+    # print("ROOMS:")
+    # pprint(rooms)
     return rooms
 
 ### views ###
@@ -525,6 +529,14 @@ def register(request):
                 else:
                     transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
 
+                # undo all that above if it is the special Test accounts (yes I hate this, oh well)
+                if request.user.username == 'testex' or request.user.username == 'testre':
+                    transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
+
+                # undo all that above if Laurie or Damien are registering - use test account only, even in prod.
+                if request.user.is_superuser:
+                    transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
+
                 if not running_in_prod:
                     pprint(transaction)
 
@@ -537,9 +549,6 @@ def register(request):
                     logger.error('%s %s (cardholder %s) successfully charged %s on %s' %
                                  (exhibitor.first_name_display(), exhibitor.last_name_display(),
                                   name, amount, result.transaction.credit_card['last_4']))
-
-                    # Add this exhibitor to the Show exhibitors
-                    show.exhibitors.add(exhibitor)
 
                     # add a new registration object and associate with this exhibitor & show
                     # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
@@ -557,7 +566,6 @@ def register(request):
                     r.num_rooms          = num_rooms
                     r.bed_type           = bed_type
                     r.is_late            = is_late
-                    # r.date_registered    = datetime.date.today()
                     r.date_registered    = today
                     r.registration_total = registration_total
                     r.assistant_total    = assistant_total
@@ -566,6 +574,9 @@ def register(request):
                     r.total              = total
                     r.has_paid           = True
                     r.save()
+
+                    # Add this exhibitor to the Show exhibitors
+                    show.exhibitors.add(exhibitor)
 
                     # display the show info, fees, disclaimers, etc. on a nice page
                     # return redirect('/invoice/%s/' % show.id)
@@ -591,18 +602,10 @@ def register(request):
                         #code = ???? result.errors.deep_errors[0].code
                         message1 = 'There was a problem processing this credit card transaction'
                         message2 = result.message
-                    logger.error('%s %s (cardholder %s) failed to charge %s: %s: %s' %
+                    logger.error('%s %s (cardholder %s) FAILED to charge %s: %s: %s' %
                                  (exhibitor.first_name_display(), exhibitor.last_name_display(),
                                   name, amount, status, message2))
-                    # Instead of a separate error page, let's try and put the Briantree error
-                    # on the pre-filled form again, just like a form error...
-                    # return render_to_response('checkout_error.html',
-                    #               {
-                    #                   'message1': message1,
-                    #                   'message2': message2,
-                    #                   'show': show,
-                    #               },
-                    #               context_instance=RequestContext(request))
+
             # Whether we got here by a form error or a Braintree error,
             # manually clear the (now encrypted) credit card number field so does not show encrypted string,
             # and remove the error about the now missing required field.
@@ -812,8 +815,9 @@ def registered(request, show_id):
 def invoices(request):
     venue = _get_venue(request)
     exhibitor = Exhibitor.objects.get(user=request.user)
-    # print "### found exhibitor %s" % exhibitor.user
+    # print "### found exhibitor %s, venue %s" % (exhibitor.user, venue)
     invoices = Registration.objects.filter(show__venue=venue, exhibitor=exhibitor)
+    # print "### %d invoices" % invoices.count()
     return render_to_response('invoices.html', {'invoices': invoices},
                               context_instance=RequestContext(request))
 
@@ -1029,13 +1033,17 @@ def report_retailers_xls(request, show_id):
 
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+# @user_passes_test(user_is_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_exhibitors_form(request):
+    user = get_user(request)
     venue = _get_venue(request)
-    # Have the retailer choose which show to report on.
+    # Have the retailer or exhibitor choose which show to report on.
     # Only let them choose from shows they have registered for.
-    retailer = Retailer.objects.get(user=request.user)
-    shows = Show.objects.filter(venue=venue, retailers=retailer)
+    if user_is_exhibitor(request.user):
+        shows = Show.objects.filter(venue=venue, exhibitors=user)
+    else:
+        shows = Show.objects.filter(venue=venue, retailers=user)
     show_count = shows.count()
     show_latest_id = None
     if show_count:
@@ -1046,9 +1054,9 @@ def report_exhibitors_form(request):
     else:
         title = u"List Exhibitors' Lines at a Show"
     if request.method != 'POST': # a GET
-        form = ExhibitorReportForm(shows=shows, retailer=retailer, initial={'show': show_latest_id})
+        form = ExhibitorReportForm(shows=shows, initial={'show': show_latest_id})
     else: # a POST
-        form = ExhibitorReportForm(request.POST, shows=shows, retailer=retailer,  initial={'show': show_latest_id})
+        form = ExhibitorReportForm(request.POST, shows=shows, initial={'show': show_latest_id})
         if form.is_valid():
             cd = form.cleaned_data
             show = cd['show']
@@ -1066,10 +1074,14 @@ def report_exhibitors_form(request):
 
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+# @user_passes_test(user_is_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_exhibitors(request, show_id):
     try:
-        retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
+        if user_is_exhibitor(request.user):
+            exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+        else:
+            retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
         exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
@@ -1084,10 +1096,14 @@ def report_exhibitors(request, show_id):
 
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+# @user_passes_test(user_is_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_exhibitors_xls(request, show_id):
     try:
-        retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
+        if user_is_exhibitor(request.user):
+            exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+        else:
+            retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
         exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
@@ -1148,10 +1164,14 @@ def _build_lines_data(show):
 
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+# @user_passes_test(user_is_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_lines(request, show_id):
     try:
-        retailer, show, registration = _fetch_retailer(request.user, show_id)
+        if user_is_exhibitor(request.user):
+            exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+        else:
+            retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     lines_list = _build_lines_data(show)
@@ -1163,10 +1183,13 @@ def report_lines(request, show_id):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_lines_xls(request, show_id):
     try:
-        retailer, show, registration = _fetch_retailer(request.user, show_id)
+        if user_is_exhibitor(request.user):
+            exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+        else:
+            retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/noregistration/')
     lines_list = _build_lines_data(show)
@@ -1180,11 +1203,15 @@ def report_lines_xls(request, show_id):
     return http_response
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def exhibitor(request, exhibitor_id, show_id):
     # make sure this retailer and exhibitor (they want to see) have BOTH registered for this show!
     try:
-        retailer,  show, registration = _fetch_retailer(request.user, show_id=show_id)
+        # retailer,  show, registration = _fetch_retailer(request.user, show_id=show_id)
+        if user_is_exhibitor(request.user):
+            exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
+        else:
+            retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
         exhibitor, show, registration = _fetch_exhibitor_id(exhibitor_id, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/not_allowed_exhibitor/')

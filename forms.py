@@ -189,7 +189,7 @@ class RetailerReportForm(forms.Form):
 
 class ExhibitorReportForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
-    def __init__(self, request=None, shows=None, initial=None, retailer=None):
+    def __init__(self, request=None, shows=None, initial=None):
         if request:
             super(ExhibitorReportForm, self).__init__(request, initial=initial)
         else:
