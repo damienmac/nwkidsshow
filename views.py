@@ -421,6 +421,18 @@ def register(request):
     show_count = shows.count()
     show_fees_js = _make_show_fees_js(shows)
 
+    braintree_api_key_PROD    = "MIIBCgKCAQEAtfAZ1MJ4zSqtnPufPj2/M0ctK9KrJHCCmF/sfqZ8VbtYyYptfhEJ6nGEm7SqNa9MssiS21S9+9FdwVKJRU0aGvHkjlxSAposuc0lmJdauJzz2CTAMMmyCUkEZkDmyaqBJM9WrGkM47FYz2n8cNn92ThjGc+XpxGfAfTrA4W2qZwJNwetuiddD+xJeTlCQKobsmy7hyq2xzT3Sk4qqTcSY0GUkR1Otlg5Od6EgY5Mzqf8YLS34rSIBSggXu3kdsqJtdSlqvzci++DxSksV61i4Kl0eQ5oEgxfuHtWb5rbdNsJHJN7h76nne+31gXFdG92hmizb9lmT5cIe217mgfivwIDAQAB"
+    braintree_api_key_SANDBOX = "MIIBCgKCAQEAqgULrOr7Sdox/umGCtIveF0Mao/Q/6HA65QKG9aymBC3tPVW8aqO6VcMRMjaB9QY1aQyGUJ/3AzhNEmkbjXIequ5QewXiY7V1ADDCV3k8dIPxwJMPyBvJKMCYRrh5VTuTnxSGV6BXDCoR8TX8mvPxR6ffG1wfsYHSSzpsEah7UKWu+ceka16rKM6heO8dZrYACltDehsYOfWCRzPOZeNqZPdAeV0RbBhXR2j0XILh7JUzwT2+u9LNXjwnqgkCedDiYBkTtlngEu2bmLiIeaV5VjIjR0M8gzp8V8lRYCFt9D7FSddVTwS8NHgaSo8J91jVTsEDfF23EU49eomeRWBfQIDAQAB"
+
+    braintree_api_key = braintree_api_key_PROD
+    if not running_in_prod:
+        braintree_api_key = braintree_api_key_SANDBOX
+    if request.user.username == 'testex' or request.user.username == 'testre':
+        braintree_api_key = braintree_api_key_SANDBOX
+    if request.user.is_superuser:
+        braintree_api_key = braintree_api_key_SANDBOX
+
+
     if request.method != 'POST': # a GET
 
         if user_is_retailer(request.user):
@@ -522,20 +534,22 @@ def register(request):
                     }
                 }
 
+                braintree_merchant_account_id_SANDBOX = '26f63sqbcy4hfn55'
+
                 if running_in_prod:
                     if venue == 'cakidsshow':
                         transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
                     # else nothing - defaults to NW Kids Show.
                 else:
-                    transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
+                    transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
 
                 # undo all that above if it is the special Test accounts (yes I hate this, oh well)
                 if request.user.username == 'testex' or request.user.username == 'testre':
-                    transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
+                    transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
 
                 # undo all that above if Laurie or Damien are registering - use test account only, even in prod.
                 if request.user.is_superuser:
-                    transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
+                    transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
 
                 if not running_in_prod:
                     pprint(transaction)
@@ -655,6 +669,7 @@ def register(request):
                                   'is_exhibitor': user_is_exhibitor(request.user),
                                   'message1': message1,
                                   'message2': message2,
+                                  'braintree_api_key': braintree_api_key,
                               },
                               context_instance=RequestContext(request))
 
