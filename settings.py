@@ -262,23 +262,23 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
 ###########################################################
 ### BRAINTREE CONFIG
 ###########################################################
-import braintree
+# import braintree
+#
+# if running_in_prod:
+    ### nwkidsshow AND cakidsshow keys####
+    # braintree.Configuration.configure(
+    #     braintree.Environment.Production,
+    #     "6h9msjjb8m3zkrmv",
+    #     "3znz8qs5n2ts7tdn",
+    #     "a903ad319d8515e18e7650a31e1a5a14"
+    # )
+# else:
+#     braintree.Configuration.configure(
+#         braintree.Environment.Sandbox,
+#         "x9qtcvgw2b26hjkr",
+#         "pgsvh3ftc2j4tk2c",
+#         "95abca2981f4face19dc2664c00d4773"
+#     )
 
-if running_in_prod:
-    #### nwkidsshow AND cakidsshow keys####
-    braintree.Configuration.configure(
-        braintree.Environment.Production,
-        "6h9msjjb8m3zkrmv",
-        "3znz8qs5n2ts7tdn",
-        "a903ad319d8515e18e7650a31e1a5a14"
-    )
-else:
-    braintree.Configuration.configure(
-        braintree.Environment.Sandbox,
-        "x9qtcvgw2b26hjkr",
-        "pgsvh3ftc2j4tk2c",
-        "95abca2981f4face19dc2664c00d4773"
-    )
-
-braintree.Configuration.use_unsafe_ssl = True
+# braintree.Configuration.use_unsafe_ssl = True
 ###########################################################

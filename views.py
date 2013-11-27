@@ -262,6 +262,17 @@ def _get_rooms(show):
     # pprint(rooms)
     return rooms
 
+def _use_braintree_sandbox(request):
+    use_sandbox = False # use PROD
+    if not running_in_prod:
+        use_sandbox = True
+    if request.user.username == 'testex' or request.user.username == 'testre':
+        use_sandbox = True
+    if request.user.is_superuser:
+        use_sandbox = True
+    return use_sandbox
+
+
 ### views ###
 
 def home(request):
@@ -536,20 +547,39 @@ def register(request):
 
                 braintree_merchant_account_id_SANDBOX = '26f63sqbcy4hfn55'
 
-                if running_in_prod:
-                    if venue == 'cakidsshow':
-                        transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
+                # if running_in_prod:
+                if venue == 'cakidsshow':
+                    transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
                     # else nothing - defaults to NW Kids Show.
-                else:
-                    transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+                # else:
+                #     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
 
                 # undo all that above if it is the special Test accounts (yes I hate this, oh well)
-                if request.user.username == 'testex' or request.user.username == 'testre':
+                if _use_braintree_sandbox(request):
                     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+                    braintree.Configuration.configure(
+                        braintree.Environment.Sandbox,
+                        "x9qtcvgw2b26hjkr",
+                        "pgsvh3ftc2j4tk2c",
+                        "95abca2981f4face19dc2664c00d4773"
+                    )
+                else:
+                    # no need to set the merchant ID - it defaults to NW Kids Show.
+                    #### nwkidsshow AND cakidsshow keys####
+                    braintree.Configuration.configure(
+                        braintree.Environment.Production,
+                        "6h9msjjb8m3zkrmv",
+                        "3znz8qs5n2ts7tdn",
+                        "a903ad319d8515e18e7650a31e1a5a14"
+                    )
+                braintree.Configuration.use_unsafe_ssl = True
+
+                # if request.user.username == 'testex' or request.user.username == 'testre':
+                #     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
 
                 # undo all that above if Laurie or Damien are registering - use test account only, even in prod.
-                if request.user.is_superuser:
-                    transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+                # if request.user.is_superuser:
+                #     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
 
                 if not running_in_prod:
                     pprint(transaction)
@@ -673,134 +703,6 @@ def register(request):
                               },
                               context_instance=RequestContext(request))
 
-
-@login_required(login_url='/advising/login/')
-@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
-def checkout(request, show_id):
-    venue = _get_venue(request)
-
-    try:
-        exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-    except ObjectDoesNotExist:
-        return redirect('/advising/noinvoice/')
-
-    if registration.has_paid:
-        logger.error('Exhibitor %s %s is checking out when has already paid for show %s %s' %
-                     (exhibitor.first_name_display(), exhibitor.last_name_display(), venue, show.name))
-
-    amount = '%.2f' % registration.total
-
-    if request.method != 'POST': # a GET
-        form = CheckoutForm()
-    else:
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-
-            # pprint(cd)
-            name   = cd['cardholder_name']
-            number = cd['number']
-            month  = cd['month']
-            year   = cd['year']
-
-            # do some validation on the fields? integers, lengths, etc....?
-            # No, braintree does all of that - I just need to convey the error message.
-
-            dynamic_descriptor = 'Laurel Event*nwkidshow'
-            if venue == 'cakidsshow':
-                dynamic_descriptor = 'Laurel Event*cakidshow'
-
-            transaction = {
-                "amount": amount,
-                "credit_card": {
-                    "cardholder_name": name,
-                    "number": number,
-                    "expiration_month": month,
-                    "expiration_year": year,
-                },
-                "options": {
-                    "submit_for_settlement": True,
-                },
-                "customer": {
-                    "first_name": exhibitor.first_name_display(),
-                    "last_name": exhibitor.last_name_display(),
-                    "company": exhibitor.company,
-                    "phone": exhibitor.phone,
-                    "fax": exhibitor.fax,
-                    "website": exhibitor.website,
-                    "email": exhibitor.email_display(),
-                },
-                "descriptor": {
-                    "name": dynamic_descriptor,
-                    "phone": "503-330-7167",
-                }
-            }
-
-            if running_in_prod:
-                if venue == 'cakidsshow':
-                    transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
-                # else nothing - defaults to NW Kids Show.
-            else:
-                transaction['merchant_account_id'] = '26f63sqbcy4hfn55'
-
-            if not running_in_prod:
-                pprint(transaction)
-
-            result = braintree.Transaction.sale(transaction)
-
-            if not running_in_prod:
-                pprint(result)
-
-            if result.is_success:
-                logger.error('%s %s (cardholder %s) successfully charged %s on %s' %
-                             (exhibitor.first_name_display(), exhibitor.last_name_display(),
-                              name, amount, result.transaction.credit_card['last_4']))
-
-                # update the database has_paid and details of the transaction for the receipt
-                registration.has_paid = True
-                registration.save()
-
-                # show them the receipt with relevant details (which they can print)
-                return render_to_response('receipt.html',
-                                          {
-                                              'transaction': result.transaction,
-                                          },
-                                          context_instance=RequestContext(request))
-            else:
-                status = result.transaction
-                status = status and result.transaction.status
-                if status == 'processor_declined':
-                    code = result.transaction.processor_response_code
-                    message1 = 'The payment processor declined the credit card transaction.'
-                    message2 = result.transaction.processor_response_text
-                elif status == 'gateway_rejected':
-                    code = 'n/a'
-                    message1 = 'The payment gateway rejected the credit card transaction.'
-                    message2 = result.transaction.gateway_rejection_reason
-                else:
-                    code = 'n/a'
-                    #code = ???? result.errors.deep_errors[0].code
-                    message1 = 'There was a problem processing this credit card transaction'
-                    message2 = result.message
-                logger.error('%s %s (cardholder %s) failed to charge %s: %s: %s' %
-                             (exhibitor.first_name_display(), exhibitor.last_name_display(),
-                              name, amount, status, message2))
-                return render_to_response('checkout_error.html',
-                              {
-                                  'message1': message1,
-                                  'message2': message2,
-                                  'show': show,
-                              },
-                              context_instance=RequestContext(request))
-                # result.message
-    return render_to_response('checkout.html',
-                              {
-                                  'form': form,
-                                  'amount': amount,
-                                  'message1': message1,
-                                  'message2': message2,
-                              },
-                              context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_retailer, login_url='/advising/denied/')
