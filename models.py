@@ -73,6 +73,7 @@ class Show(models.Model):
 
     late_date   = models.DateField()  # last day to register without a late fee
     closed_date = models.DateField()  # last day to register
+    # room_date   = models.DateField()  # last day to book a room
     start_date  = models.DateField()  # start date of the actual show
     end_date    = models.DateField()  # last day of the actual show
 
@@ -120,6 +121,7 @@ class Registration(models.Model):
     has_paid = models.BooleanField()
     booked_room = models.BooleanField()
     room = models.IntegerField(blank=True, null=True)
+    # special_requests = models.TextField(blank=True, null=True)
 
     def room_display(self):
         return '#'+str(self.room)
