@@ -16,7 +16,6 @@
         var assistant_total    = 0.0;
         var rack_total         = 0.0;
         var late_total         = 0.0;
-        var is_late = {{ is_late_js }};
         var show = "";
         var shows = {};
         {{ shows_fees_js }}
@@ -34,7 +33,7 @@
             assistant_total    = shows[show]["assistant_fee"] * num_assistants;
             rack_total         = shows[show]["rack_fee"] * num_racks;
             late_total = 0.0;
-            if (is_late) {
+            if (shows[show]["is_late"]) {
                 late_total = shows[show]["late_fee"];
             }
             total = registration_total + assistant_total + rack_total + late_total;

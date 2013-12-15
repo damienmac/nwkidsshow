@@ -402,13 +402,28 @@ def get_initial_exhibitor_registration(exhibitor, shows, show_count):
 # (bad) inject javascript with the session specific (show) info I need there.
 # TODO: use ajax some day and do this right
 def _make_show_fees_js(shows):
+    now_datetime_aware = timezone.localtime(timezone.now(), pacific_tzinfo)
     js = ''
     for show in shows:
+
+        late_date = show.late_date
+        late_datetime_aware = datetime.datetime(late_date.year, late_date.month, late_date.day,
+                                                hour=23, minute=59, second=59, tzinfo=pacific_tzinfo)
+        is_late = late_datetime_aware < now_datetime_aware
+        # print(late_datetime_aware)
+        # pprint(late_datetime_aware)
+        # print(now_datetime_aware)
+        # pprint(now_datetime_aware)
+        # print(is_late)
+        is_late = "true" if is_late else "false"
+        # print(is_late)
+
         js += '\t\tshows["%s"]={};\n' % show.name
         js += '\t\tshows["%s"]["registration_fee"] = %.2f;\n' % (show.name, show.registration_fee)
         js += '\t\tshows["%s"]["assistant_fee"] = %.2f;\n' %    (show.name, show.assistant_fee)
         js += '\t\tshows["%s"]["rack_fee"] = %.2f;\n' %         (show.name, show.rack_fee)
         js += '\t\tshows["%s"]["late_fee"] = %.2f;\n' %         (show.name, show.late_fee)
+        js += '\t\tshows["%s"]["is_late"] = %s;\n' %            (show.name, is_late)
     return js
 
 @login_required(login_url='/advising/login/')
@@ -475,7 +490,7 @@ def register(request):
                 num_rooms      = cd['num_rooms']
                 bed_type       = cd['bed_type']
 
-                # is_late        = cd['show'].late_date < datetime.date.today()
+                # TODO: this code copied into _make_show_fees_js - time for some refactoring! Or make is_late here use the result from the page!
                 late_date = cd['show'].late_date
                 late_datetime_aware = datetime.datetime(late_date.year, late_date.month, late_date.day,
                                                         hour=23, minute=59, second=59, tzinfo=pacific_tzinfo)
@@ -694,7 +709,6 @@ def register(request):
                               {
                                   'form': form,
                                   'show_count': show_count,
-                                  'is_late_js': 'true' if is_late else 'false',
                                   'shows_fees_js': mark_safe(show_fees_js),
                                   'is_exhibitor': user_is_exhibitor(request.user),
                                   'message1': message1,
