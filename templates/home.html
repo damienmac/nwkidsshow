@@ -35,7 +35,14 @@
                 through<br>
                 {{ show.end_date|date:"l, F jS" }}<br>
                 {{ show.end_date|date:"Y" }}<br>
-                9am to 6pm daily.
+                {% if venue == 'cakidsshow' %}
+                    <br>
+                    Sunday and Monday: 9am to 6pm
+                    <br>
+                    Tuesday: 9am to 4pm
+                {% else %}
+                    9am to 6pm daily.
+                {% endif %}
             {% else %}
                 Sorry, next show dates not available yet...
             {% endif %}
