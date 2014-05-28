@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'django.contrib.humanize',
+    'captcha',
     'nwkidsshow',
 )
 
@@ -258,6 +259,15 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     'nwkidsshow.views.banner_context',
 )
 ###########################################################
+
+if running_in_prod:
+    RECAPTCHA_PUBLIC_KEY  = '6LdeOfQSAAAAAEH6TDetkpLNM0MEuIVhLPJ1-Kox'
+    RECAPTCHA_PRIVATE_KEY = '6LdeOfQSAAAAAGF-Ku8-xCr_l4JvhlulUslXndC-'
+    RECAPTCHA_USE_SSL = False
+else:
+    RECAPTCHA_PUBLIC_KEY  = '6Lex6PMSAAAAAEelu8jreuaAmbIxPiehzsob8b5-'
+    RECAPTCHA_PRIVATE_KEY = '6Lex6PMSAAAAAI2nwQPSNvZ0M-23wndAfuGT4rU5'
+    RECAPTCHA_USE_SSL = False
 
 ###########################################################
 ### BRAINTREE CONFIG

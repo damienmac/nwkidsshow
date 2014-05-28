@@ -67,6 +67,22 @@
     <p></p>
     <fieldset>
     <legend>
+        Retailers
+    </legend>
+    <div class="block">
+        <p class="myheader">
+            You no longer need to login to register!
+        </p>
+        <p class="myparagraph">
+            Just <a href="/register-retailer/">CLICK HERE</a><br>
+            and fill out the form.<br>
+        </p>
+    </div>
+    </fieldset>
+
+    <p></p>
+    <fieldset>
+    <legend>
         Exhibitors
     </legend>
     <div class="block">
@@ -105,28 +121,6 @@
     <p></p>
     <fieldset>
     <legend>
-        Retailers
-    </legend>
-    <div class="block">
-        <p class="myheader">
-            Register Online!
-        </p>
-        <p class="myparagraph">
-            Already have an account?<br>
-            <a href="/accounts/login/">LOGIN HERE</a><br>
-            ... or request one by sending email to<br>
-            {% if venue == 'cakidsshow' %}
-            <a href="mailto:info@cakidsshow.com">info@cakidsshow.com</a>
-            {% else %}
-            <a href="mailto:info@nwkidsshow.com">info@nwkidsshow.com</a>
-            {% endif %}
-        </p>
-    </div>
-    </fieldset>
-
-    <p></p>
-    <fieldset>
-    <legend>
         Hotel Reservations
     </legend>
     <div class="block">
@@ -139,7 +133,7 @@
                 Click here
             </a> to make your Embassy Suites reservation online.
            {% else %}
-            <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-KID-20140307/index.jhtml">
+            <a href="http://doubletree.hilton.com/en/dt/groups/personalized/S/SEASPDT-NWK-20140926/index.jhtml">
                 Click here
             </a> to make your DoubleTree reservation online.
             {% endif %}
@@ -147,23 +141,23 @@
     </div>
     </fieldset>
 
-   {% if venue != 'cakidsshow' %}
-    <p></p>
-    <fieldset>
-    <legend>
-        2014 Show Dates
-    </legend>
-    <div class="block">
-        <p class="myheader">
-            Announcing the 2014<br>Northwest Kids Show Dates!
-        </p>
-        <p class="myparagraph">
-            March 8th through 10th<br>
-            September 27th through 29th
-        </p>
-    </div>
-    </fieldset>
-    {% endif %}
+{#   {% if venue != 'cakidsshow' %}#}
+{#    <p></p>#}
+{#    <fieldset>#}
+{#    <legend>#}
+{#        2014 Show Dates#}
+{#    </legend>#}
+{#    <div class="block">#}
+{#        <p class="myheader">#}
+{#            Announcing the 2014<br>Northwest Kids Show Dates!#}
+{#        </p>#}
+{#        <p class="myparagraph">#}
+{#            March 8th through 10th<br>#}
+{#            September 27th through 29th#}
+{#        </p>#}
+{#    </div>#}
+{#    </fieldset>#}
+{#    {% endif %}#}
 
    {% if venue != 'cakidsshow' %}
     <p></p>

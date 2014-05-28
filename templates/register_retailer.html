@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+
+{% block internal_css %}
+<style type="text/css">
+</style>
+{% endblock %}
+
+{% block jquery %}
+{% endblock %}
+
+{% block head %}
+REGISTER FOR A SHOW
+{% endblock %}
+
+{% block content %}
+    {% if not show_count %}
+        {# TODO: make this advice at top? Not in fieldset? #}
+        <p class="info">There aren't any new shows to register for right now.</p>
+    {% else %}
+        {% if form.errors %}
+            <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
+        {% endif %}
+
+        <form action="" method="post" id="checkout-form">
+        {% csrf_token %}
+
+        <fieldset>
+        <legend>Register for a show</legend>
+        <div id="center_inner">
+
+            <div class="field">
+                {% if form.first_name.errors %}
+                    <div class="error">{{ form.first_name.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.first_name.label }}:
+                    {% if form.first_name.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.first_name }}
+            </div>
+
+            <div class="field">
+                {% if form.last_name.errors %}
+                    <div class="error">{{ form.last_name.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.last_name.label }}:
+                    {% if form.last_name.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.last_name }}
+            </div>
+
+            <div class="field">
+                {% if form.email.errors %}
+                    <div class="error">{{ form.email.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.email.label }}:
+                    {% if form.email.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.email }}
+            </div>
+
+            <div class="field">
+                {% if form.company.errors %}
+                    <div class="error">{{ form.company.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.company.label }}:
+                    {% if form.company.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.company }}
+            </div>
+
+            <div class="field">
+                {% if form.website.errors %}
+                    <div class="error">{{ form.website.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.website.label }}:
+                    {% if form.website.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.website }}
+            </div>
+
+            <div class="field">
+                {% if form.address.errors %}
+                    <div class="error">{{ form.address.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.address.label }}:
+                    {% if form.address.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.address }}
+            </div>
+
+            <div class="field">
+                {% if form.address2.errors %}
+                    <div class="error">{{ form.address2.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.address2.label }}:
+                    {% if form.address2.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.address2 }}
+            </div>
+
+            <div class="field">
+                {% if form.city.errors %}
+                    <div class="error">{{ form.city.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.city.label }}:
+                    {% if form.city.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.city }}
+            </div>
+
+            <div class="field">
+                {% if form.state.errors %}
+                    <div class="error">{{ form.state.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.state.label }}:
+                    {% if form.state.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.state }}
+            </div>
+
+            <div class="field">
+                {% if form.zip.errors %}
+                    <div class="error">{{ form.zip.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.zip.label }}:
+                    {% if form.zip.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.zip }}
+            </div>
+
+            <div class="field">
+                {% if form.phone.errors %}
+                    <div class="error">{{ form.phone.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.phone.label }}:
+                    {% if form.phone.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.phone }}
+            </div>
+
+            <div class="field">
+                {% if form.fax.errors %}
+                    <div class="error">{{ form.fax.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.fax.label }}:
+                    {% if form.fax.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.fax }}
+            </div>
+
+            <br><br>
+
+            <div class="field">
+                {% if form.show.errors %}
+                    <div class="error">{{ form.show.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.show.label }}:
+                    {% if form.show.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.show }}
+            </div>
+
+            <div class="field">
+                {% if form.num_attendees.errors %}
+                    <div class="error">{{ form.num_attendees.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.num_attendees.label }}:
+                    {% if form.num_attendees.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+                {{ form.num_attendees }}
+            </div>
+
+            <div class="field">
+                {% if form.days_attending.errors %}
+                    <div class="error">{{ form.days_attending.errors|first }}</div>
+                {% endif %}
+                <label>
+                    {{ form.days_attending.label }}:
+                    {% if form.days_attending.field.required %}
+                        <span class="required"></span>
+                    {% endif %}
+                </label>
+            </div>
+            <div class="checkboxes">
+                {{ form.days_attending }}
+            </div>
+
+            <div class="field">
+                {% if form.captcha.errors %}
+                    <div class="error">{{ form.captcha.errors|first }}</div>
+                {% endif %}
+{#                {{ recaptcha_html | safe }}#}
+                {{ form.captcha | safe }}
+            </div>
+
+            <div class="submit">
+                <input type="submit" value="Submit">
+            </div>
+
+            <div id="required">&ldquo;<span class="required"></span>&rdquo; indicates a required field</div>
+        </div>
+        </fieldset>
+
+    </form>
+    {% endif %}
+{% endblock %}

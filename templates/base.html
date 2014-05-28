@@ -39,15 +39,13 @@
         <ul>
             <li><a href="/">Home</a></li>
             {% if not user.is_authenticated %}
-                <li><a href="/accounts/login/">Login</a></li>
+                <li><a href="/retailer/home/">Retailers</a></li>
+                <li><a href="/accounts/login/">Exhibitor Login</a></li>
             {% else %}
                 {% ifexhibitor %}
                     <li><a href="/exhibitor/home/">Exhibitor</a></li>
                 {% endifexhibitor %}
-                {%  ifretailer %}
-                    <li><a href="/retailer/home/">Retailer</a></li>
-                {% endifretailer %}
-            <li><a href="/accounts/logout/">Logout</a></li>
+                <li><a href="/accounts/logout/">Logout</a></li>
             {% endif %}
             <li><a href="/contact/">Contact</a></li>
             <li><a href="/about/">About</a></li>

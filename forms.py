@@ -7,6 +7,8 @@ from django.forms.widgets import TextInput, Select
 
 from nwkidsshow.models import Show, Exhibitor, Retailer
 
+from captcha.fields import ReCaptchaField
+
 class SensitiveTextInput(TextInput):
     def build_attrs(self, extra_attrs=None, **kwargs):
         attrs = super(SensitiveTextInput, self).build_attrs(extra_attrs, **kwargs)
@@ -95,7 +97,16 @@ class ExhibitorRegistrationForm(forms.Form):
         self.fields['show'].queryset = show
 
 
-class RetailerRegistrationForm(forms.Form):
+#class RetailerRegistrationForm(forms.Form):
+class RetailerRegistrationForm(ModelForm):
+
+    first_name = forms.CharField(max_length=30)
+    last_name  = forms.CharField(max_length=30)
+    email      = forms.EmailField()
+    class Meta:
+        model = Retailer
+        exclude = ('user', )
+
     show = forms.ModelChoiceField(queryset=Show.objects.none(), required=True, initial=0, label='Pick a show')
     num_attendees = forms.IntegerField(required=True, min_value=1, max_value=20, initial=1, label='Attendees')
     choices = [(0, 'Day 1'),
@@ -107,12 +118,15 @@ class RetailerRegistrationForm(forms.Form):
                                                initial=choices[0],
                                                label='Choose days')
 
-    def __init__(self, request=None, show=None, initial=None, better_choices=None):
+    captcha = ReCaptchaField(
+        attrs={'theme' : 'blackglass'}
+    )
+
+    def __init__(self, request=None, show=None, initial=None, better_choices=None, running_in_prod=False, venue='nwkidsshow'):
         if request:
             super(RetailerRegistrationForm, self).__init__(request, initial=initial)
         else:
             super(RetailerRegistrationForm, self).__init__(initial=initial)
-        # self.fields['show'].queryset = Show.objects.filter(end_date__gte=timezone.localtime(timezone.now(), pacific_tzinfo))
         self.fields['show'].queryset = show
         if better_choices:
             self.choices = better_choices

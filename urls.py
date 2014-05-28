@@ -7,7 +7,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
     url(r'^$', 'nwkidsshow.views.home', name='home'),
     # url(r'^nwkidsshow/', include('nwkidsshow.foo.urls')),
 
@@ -34,12 +33,13 @@ urlpatterns = patterns('',
     url(r'^retailer/home/$', 'nwkidsshow.views.retailer_home', name='retailer_home'),
 
     url(r'^register/$', 'nwkidsshow.views.register', name='register'),
+    url(r'^register-retailer/$', 'nwkidsshow.views.register_retailer', name='register_retailer'),
 
     url(r'^invoices/$', 'nwkidsshow.views.invoices', name='invoices'),
     url(r'^invoice/(?P<show_id>\w+)/$', 'nwkidsshow.views.invoice', name='invoice'),
 
     url(r'^registrations/$', 'nwkidsshow.views.registrations', name='registrations'),
-    url(r'^registered/(?P<show_id>\w+)/$', 'nwkidsshow.views.registered', name='registered'),
+    url(r'^registered/(?P<show_id>\w+)/(?P<retailer_id>\w+)/$', 'nwkidsshow.views.registered', name='registered'),
 
     url(r'^lines/$', 'nwkidsshow.views.lines', name='lines'),
     url(r'^edit/$', 'nwkidsshow.views.edit', name='edit'),
