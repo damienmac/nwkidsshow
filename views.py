@@ -801,7 +801,9 @@ def register_retailer(request):
             days_attending = ','.join(days_attending) # gives you: u'0,1', suitable for the stupid CommaSeparatedIntegerField
 
             # Retailers no longer login, let's see if someone with this name already exists
+            username = (first_name + '_' + last_name).strip()
             user, created = User.objects.get_or_create(
+                username=username,
                 first_name=first_name,
                 last_name=last_name,
                 email=email
