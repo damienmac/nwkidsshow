@@ -37,7 +37,7 @@ EXHIBITORS AT A SHOW
                     {% if e.city %}{{ e.city }},&nbsp;{% endif %}
                     {% if e.state %}{{ e.state }}&nbsp;{% endif %}
                     {% if e.zip %}{{ e.zip }}{% endif %}
-                    {% if e.lines %}<br>{{ e.lines }}{% endif %}
+                    {% if lines|get_item:e.id %}<br>{{ lines|get_item:e.id }}{% endif %}
                     {% if rooms|get_item:e.id %}<br>Room #{{ rooms|get_item:e.id }}{% endif %}
                 </p>
                 <hr>

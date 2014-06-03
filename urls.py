@@ -12,6 +12,8 @@ urlpatterns = patterns('',
 
     url(r'^dump/$', 'nwkidsshow.views.dump', name='dump'),
     url(r'^seed/$', 'nwkidsshow.views.seed', name='seed'),
+    url(r'^convert-lines/$', 'nwkidsshow.views.convert_lines_to_json', name='convert_lines_to_json'),
+    # url(r'^fix-lines/$', 'nwkidsshow.views.fix_my_typo', name='fix_my_typo'),
     url(r'^add-user/$', 'nwkidsshow.views.add_user', name='adduser'),
     url(r'^make-500/$', 'nwkidsshow.views.make_500', name='make_500'),
     

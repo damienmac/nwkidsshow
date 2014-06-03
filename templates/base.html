@@ -37,18 +37,28 @@
     </div>
     <div class="navbar">
         <ul>
-            <li><a href="/">Home</a></li>
             {% if not user.is_authenticated %}
+                <li><a href="/">Home</a></li>
                 <li><a href="/retailer/home/">Retailers</a></li>
                 <li><a href="/accounts/login/">Exhibitor Login</a></li>
-            {% else %}
+                <li><a href="/contact/">Contact</a></li>
+                <li><a href="/about/">About</a></li>
+            {% elif user.is_superuser %}
+                <li><a href="/">Home</a></li>
+                <li><a href="/retailer/home/">Retailers</a></li>
+                <li><a href="/exhibitor/home/">Exhibitor</a></li>
+                <li><a href="/accounts/logout/">Logout</a></li>
+                <li><a href="/contact/">Contact</a></li>
+                <li><a href="/about/">About</a></li>
+            {% else %} {#  an exhibitor (or old retailer login?) #}
+                <li><a href="/">Home</a></li>
                 {% ifexhibitor %}
                     <li><a href="/exhibitor/home/">Exhibitor</a></li>
                 {% endifexhibitor %}
                 <li><a href="/accounts/logout/">Logout</a></li>
+                <li><a href="/contact/">Contact</a></li>
+                <li><a href="/about/">About</a></li>
             {% endif %}
-            <li><a href="/contact/">Contact</a></li>
-            <li><a href="/about/">About</a></li>
         </ul>
     </div>
 </div>

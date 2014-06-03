@@ -51,6 +51,7 @@ import braintree
 #from recaptcha import recaptcha
 
 # python stuff
+import json
 import logging
 logger = logging.getLogger(__name__)
 import datetime
@@ -267,11 +268,31 @@ def _get_rooms(show):
     # pprint(rooms)
     return rooms
 
+# convert the json lines to a list of lines
+def _build_lines_string(exhibitor, venue):
+    lines_json = exhibitor.lines
+    lines_python = json.loads(lines_json)
+    lines_dict = lines_python[venue]
+    # case insensitive sort by the line name
+    lines_list = sorted(lines_dict.values(), key=lambda t: t.lower())
+    lines_string = ' * '.join(lines_list)
+    return lines_string
+
+def _get_lines(show, venue):
+    lines = {}
+    registrations = Registration.objects.filter(show=show)
+    for r in registrations:
+        lines[r.exhibitor.id] = _build_lines_string(r.exhibitor, venue)
+    # print("LINES:")
+    # pprint(lines)
+    return lines
+
+
 def _use_braintree_sandbox(request):
     use_sandbox = False # use PROD
     if not running_in_prod:
         use_sandbox = True
-    if request.user.username == 'testex' or request.user.username == 'testre':
+    if request.user.username == 'testex':
         use_sandbox = True
     if request.user.is_superuser:
         use_sandbox = True
@@ -432,283 +453,222 @@ def _make_show_fees_js(shows):
     return js
 
 @login_required(login_url='/advising/login/')
-@user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
+@user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def register(request):
     venue = _get_venue(request)
     today = timezone.localtime(timezone.now(), pacific_tzinfo).date()
-    retailer = None
     exhibitor = None
     form = None
-    is_late = False
     message1 = message2 = None # special error messages from Braintree, not django forms.
 
-    if user_is_exhibitor(request.user):
-        exhibitor = Exhibitor.objects.get(user=request.user)
-        shows = Show.objects.filter(Q(venue=venue) & Q(closed_date__gte=today) & ~Q(exhibitors=exhibitor))
-    else: # retailer
-        retailer = Retailer.objects.get(user=request.user)
-        shows = Show.objects.filter(venue=venue,
-                                    end_date__gte=today)
+    exhibitor = Exhibitor.objects.get(user=request.user)
+
+    shows = Show.objects.filter(Q(venue=venue) & Q(closed_date__gte=today) & ~Q(exhibitors=exhibitor))
     show_count = shows.count()
     show_fees_js = _make_show_fees_js(shows)
 
     braintree_api_key_PROD    = "MIIBCgKCAQEAtfAZ1MJ4zSqtnPufPj2/M0ctK9KrJHCCmF/sfqZ8VbtYyYptfhEJ6nGEm7SqNa9MssiS21S9+9FdwVKJRU0aGvHkjlxSAposuc0lmJdauJzz2CTAMMmyCUkEZkDmyaqBJM9WrGkM47FYz2n8cNn92ThjGc+XpxGfAfTrA4W2qZwJNwetuiddD+xJeTlCQKobsmy7hyq2xzT3Sk4qqTcSY0GUkR1Otlg5Od6EgY5Mzqf8YLS34rSIBSggXu3kdsqJtdSlqvzci++DxSksV61i4Kl0eQ5oEgxfuHtWb5rbdNsJHJN7h76nne+31gXFdG92hmizb9lmT5cIe217mgfivwIDAQAB"
     braintree_api_key_SANDBOX = "MIIBCgKCAQEAqgULrOr7Sdox/umGCtIveF0Mao/Q/6HA65QKG9aymBC3tPVW8aqO6VcMRMjaB9QY1aQyGUJ/3AzhNEmkbjXIequ5QewXiY7V1ADDCV3k8dIPxwJMPyBvJKMCYRrh5VTuTnxSGV6BXDCoR8TX8mvPxR6ffG1wfsYHSSzpsEah7UKWu+ceka16rKM6heO8dZrYACltDehsYOfWCRzPOZeNqZPdAeV0RbBhXR2j0XILh7JUzwT2+u9LNXjwnqgkCedDiYBkTtlngEu2bmLiIeaV5VjIjR0M8gzp8V8lRYCFt9D7FSddVTwS8NHgaSo8J91jVTsEDfF23EU49eomeRWBfQIDAQAB"
 
-    braintree_api_key = braintree_api_key_PROD
-    if not running_in_prod:
+    if _use_braintree_sandbox(request):
         braintree_api_key = braintree_api_key_SANDBOX
-    if request.user.username == 'testex' or request.user.username == 'testre':
-        braintree_api_key = braintree_api_key_SANDBOX
-    if request.user.is_superuser:
-        braintree_api_key = braintree_api_key_SANDBOX
-
+    else:
+        braintree_api_key = braintree_api_key_PROD
 
     if request.method != 'POST': # a GET
 
-        if user_is_retailer(request.user):
-            form = RetailerRegistrationForm(
-                show=shows,
-                initial=get_initial_retailer_registration(retailer, shows, show_count),
-                better_choices=get_better_choices(shows, show_count)
-            )
-
-        if user_is_exhibitor(request.user):
-            form = ExhibitorRegistrationForm(
-                show=shows,
-                initial=get_initial_exhibitor_registration(exhibitor, shows, show_count)
-            )
+        form = ExhibitorRegistrationForm(
+            show=shows,
+            initial=get_initial_exhibitor_registration(exhibitor, shows, show_count)
+        )
 
     else: # a POST
 
-        if user_is_exhibitor(request.user):
-            form = ExhibitorRegistrationForm(request.POST, show=shows)
-            if form.is_valid():
-                cd = form.cleaned_data
+        form = ExhibitorRegistrationForm(request.POST, show=shows)
+        if form.is_valid():
+            cd = form.cleaned_data
 
-                # grab some fields form the form
-                show           = cd['show']
-                num_associates = cd['num_associates']
-                num_assistants = cd['num_assistants'] or 0
-                num_racks      = cd['num_racks'] or 0
-                num_tables     = cd['num_tables'] or 0
-                num_rooms      = cd['num_rooms']
-                bed_type       = cd['bed_type']
+            # grab some fields form the form
+            show           = cd['show']
+            num_associates = cd['num_associates']
+            num_assistants = cd['num_assistants'] or 0
+            num_racks      = cd['num_racks'] or 0
+            num_tables     = cd['num_tables'] or 0
+            num_rooms      = cd['num_rooms']
+            bed_type       = cd['bed_type']
 
-                # TODO: this code copied into _make_show_fees_js - time for some refactoring! Or make is_late here use the result from the page!
-                late_date = cd['show'].late_date
-                late_datetime_aware = datetime.datetime(late_date.year, late_date.month, late_date.day,
-                                                        hour=23, minute=59, second=59, tzinfo=pacific_tzinfo)
-                now_datetime_aware = timezone.localtime(timezone.now(), pacific_tzinfo)
-                # print(late_datetime_aware)
-                # pprint(late_datetime_aware)
-                # print(now_datetime_aware)
-                # pprint(now_datetime_aware)
-                is_late = late_datetime_aware < now_datetime_aware
+            # TODO: this code copied into _make_show_fees_js - time for some refactoring! Or make is_late here use the result from the page!
+            late_date = cd['show'].late_date
+            late_datetime_aware = datetime.datetime(late_date.year, late_date.month, late_date.day,
+                                                    hour=23, minute=59, second=59, tzinfo=pacific_tzinfo)
+            now_datetime_aware = timezone.localtime(timezone.now(), pacific_tzinfo)
+            # print(late_datetime_aware)
+            # pprint(late_datetime_aware)
+            # print(now_datetime_aware)
+            # pprint(now_datetime_aware)
+            is_late = late_datetime_aware < now_datetime_aware
 
-                # compute the individual charges...
-                registration_total = cd['show'].registration_fee
-                assistant_total    = cd['show'].assistant_fee * num_assistants
-                rack_total         = cd['show'].rack_fee * num_racks
-                late_total         = cd['show'].late_fee if is_late else 0.0
+            # compute the individual charges...
+            registration_total = cd['show'].registration_fee
+            assistant_total    = cd['show'].assistant_fee * num_assistants
+            rack_total         = cd['show'].rack_fee * num_racks
+            late_total         = cd['show'].late_fee if is_late else 0.0
 
-                # ... and the final total
-                total = registration_total + \
-                        assistant_total + \
-                        rack_total + \
-                        late_total
+            # ... and the final total
+            total = registration_total + \
+                    assistant_total + \
+                    rack_total + \
+                    late_total
 
-                # store in the object for display on the next page !!! not if you fix this !!!
-                # TODO: can I remove this now?
-                cd['registration_total'] = registration_total
-                cd['assistant_total']    = assistant_total
-                cd['rack_total']         = rack_total
-                cd['late_total']         = late_total
-                cd['total']              = total
+            # store in the object for display on the next page !!! not if you fix this !!!
+            # TODO: can I remove this now?
+            cd['registration_total'] = registration_total
+            cd['assistant_total']    = assistant_total
+            cd['rack_total']         = rack_total
+            cd['late_total']         = late_total
+            cd['total']              = total
 
-                amount = '%.2f' % total
-                name   = cd['cardholder_name']
-                number = cd['number']
-                month  = cd['month']
-                year   = cd['year']
+            amount = '%.2f' % total
+            name   = cd['cardholder_name']
+            number = cd['number']
+            month  = cd['month']
+            year   = cd['year']
 
-                # do some validation on the fields? integers, lengths, etc....?
-                # No, Braintree does all of that - I just need to convey the error message.
+            # do some validation on the fields? integers, lengths, etc....?
+            # No, Braintree does all of that - I just need to convey the error message.
 
-                dynamic_descriptor = 'Laurel Event*nwkidshow'
-                if venue == 'cakidsshow':
-                    dynamic_descriptor = 'Laurel Event*cakidshow'
+            dynamic_descriptor = 'Laurel Event*nwkidshow'
+            if venue == 'cakidsshow':
+                dynamic_descriptor = 'Laurel Event*cakidshow'
 
-                transaction = {
-                    "amount": amount,
-                    "credit_card": {
-                        "cardholder_name": name,
-                        "number": number,
-                        "expiration_month": month,
-                        "expiration_year": year,
-                    },
-                    "options": {
-                        "submit_for_settlement": True,
-                    },
-                    "customer": {
-                        "first_name": exhibitor.first_name_display(),
-                        "last_name": exhibitor.last_name_display(),
-                        "company": exhibitor.company,
-                        "phone": exhibitor.phone,
-                        "fax": exhibitor.fax,
-                        "website": exhibitor.website,
-                        "email": exhibitor.email_display(),
-                    },
-                    "descriptor": {
-                        "name": dynamic_descriptor,
-                        "phone": "503-330-7167",
-                    }
+            transaction = {
+                "amount": amount,
+                "credit_card": {
+                    "cardholder_name": name,
+                    "number": number,
+                    "expiration_month": month,
+                    "expiration_year": year,
+                },
+                "options": {
+                    "submit_for_settlement": True,
+                },
+                "customer": {
+                    "first_name": exhibitor.first_name_display(),
+                    "last_name": exhibitor.last_name_display(),
+                    "company": exhibitor.company,
+                    "phone": exhibitor.phone,
+                    "fax": exhibitor.fax,
+                    "website": exhibitor.website,
+                    "email": exhibitor.email_display(),
+                },
+                "descriptor": {
+                    "name": dynamic_descriptor,
+                    "phone": "503-330-7167",
                 }
+            }
 
-                braintree_merchant_account_id_SANDBOX = '26f63sqbcy4hfn55'
+            braintree_merchant_account_id_SANDBOX = '26f63sqbcy4hfn55'
 
-                # if running_in_prod:
-                if venue == 'cakidsshow':
-                    transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
-                    # else nothing - defaults to NW Kids Show.
-                # else:
-                #     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+            if venue == 'cakidsshow':
+                transaction['merchant_account_id'] = 'LaurelEventCAKidsShow_instant'
+                # else nothing - defaults to NW Kids Show.
 
-                # undo all that above if it is the special Test accounts (yes I hate this, oh well)
-                if _use_braintree_sandbox(request):
-                    transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
-                    braintree.Configuration.configure(
-                        braintree.Environment.Sandbox,
-                        "x9qtcvgw2b26hjkr",
-                        "pgsvh3ftc2j4tk2c",
-                        "95abca2981f4face19dc2664c00d4773"
-                    )
-                else:
-                    # no need to set the merchant ID - it defaults to NW Kids Show.
-                    #### nwkidsshow AND cakidsshow keys####
-                    braintree.Configuration.configure(
-                        braintree.Environment.Production,
-                        "6h9msjjb8m3zkrmv",
-                        "3znz8qs5n2ts7tdn",
-                        "a903ad319d8515e18e7650a31e1a5a14"
-                    )
-                braintree.Configuration.use_unsafe_ssl = True
 
-                # if request.user.username == 'testex' or request.user.username == 'testre':
-                #     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+            # undo all that above if it is the special Test accounts (yes I hate this, oh well)
+            if _use_braintree_sandbox(request):
+                transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+                braintree.Configuration.configure(
+                    braintree.Environment.Sandbox,
+                    "x9qtcvgw2b26hjkr",
+                    "pgsvh3ftc2j4tk2c",
+                    "95abca2981f4face19dc2664c00d4773"
+                )
+            else:
+                # no need to set the merchant ID - it defaults to NW Kids Show.
+                #### nwkidsshow AND cakidsshow keys####
+                braintree.Configuration.configure(
+                    braintree.Environment.Production,
+                    "6h9msjjb8m3zkrmv",
+                    "3znz8qs5n2ts7tdn",
+                    "a903ad319d8515e18e7650a31e1a5a14"
+                )
+            braintree.Configuration.use_unsafe_ssl = True
 
-                # undo all that above if Laurie or Damien are registering - use test account only, even in prod.
-                # if request.user.is_superuser:
-                #     transaction['merchant_account_id'] = braintree_merchant_account_id_SANDBOX
+            if not running_in_prod:
+                pprint(transaction)
 
-                if not running_in_prod:
-                    pprint(transaction)
+            result = braintree.Transaction.sale(transaction)
 
-                result = braintree.Transaction.sale(transaction)
+            if not running_in_prod:
+                pprint(result)
 
-                if not running_in_prod:
-                    pprint(result)
+            if result.is_success:
+                logger.error('%s %s (cardholder %s) successfully charged %s on %s' %
+                             (exhibitor.first_name_display(), exhibitor.last_name_display(),
+                              name, amount, result.transaction.credit_card['last_4']))
 
-                if result.is_success:
-                    logger.error('%s %s (cardholder %s) successfully charged %s on %s' %
-                                 (exhibitor.first_name_display(), exhibitor.last_name_display(),
-                                  name, amount, result.transaction.credit_card['last_4']))
-
-                    # add a new registration object and associate with this exhibitor & show
-                    # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
-                    try:
-                        r = Registration.objects.get(exhibitor=exhibitor, show=show)
-                        # print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
-                    except ObjectDoesNotExist:
-                        r = Registration(exhibitor=exhibitor, show=show)
-                        r.has_paid = False
-                        # print "created registration: (%s & %s)" % (exhibitor.user, show.name)
-                    r.num_exhibitors     = num_associates
-                    r.num_assistants     = num_assistants
-                    r.num_racks          = num_racks
-                    r.num_tables         = num_tables
-                    r.num_rooms          = num_rooms
-                    r.bed_type           = bed_type
-                    r.is_late            = is_late
-                    r.date_registered    = today
-                    r.registration_total = registration_total
-                    r.assistant_total    = assistant_total
-                    r.rack_total         = rack_total
-                    r.late_total         = late_total
-                    r.total              = total
-                    r.has_paid           = True
-                    r.save()
-
-                    # Add this exhibitor to the Show exhibitors
-                    show.exhibitors.add(exhibitor)
-
-                    # display the show info, fees, disclaimers, etc. on a nice page
-                    # return redirect('/invoice/%s/' % show.id)
-                    # show them the receipt with relevant details (which they can print)
-                    return render_to_response('receipt.html',
-                                              {
-                                                  'transaction': result.transaction,
-                                              },
-                                              context_instance=RequestContext(request))
-                else: # error from Braintree
-                    status = result.transaction
-                    status = status and result.transaction.status
-                    if status == 'processor_declined':
-                        code = result.transaction.processor_response_code
-                        message1 = 'The payment processor declined the credit card transaction.'
-                        message2 = result.transaction.processor_response_text
-                    elif status == 'gateway_rejected':
-                        code = 'n/a'
-                        message1 = 'The payment gateway rejected the credit card transaction.'
-                        message2 = result.transaction.gateway_rejection_reason
-                    else:
-                        code = 'n/a'
-                        #code = ???? result.errors.deep_errors[0].code
-                        message1 = 'There was a problem processing this credit card transaction'
-                        message2 = result.message
-                    logger.error('%s %s (cardholder %s) FAILED to charge %s: %s: %s' %
-                                 (exhibitor.first_name_display(), exhibitor.last_name_display(),
-                                  name, amount, status, message2))
-
-            # Whether we got here by a form error or a Braintree error,
-            # manually clear the (now encrypted) credit card number field so does not show encrypted string,
-            # and remove the error about the now missing required field.
-            form = ExhibitorRegistrationForm(request.POST.copy(), show=shows)
-            form.data['number'] = ''
-            form.errors['number'] = None
-
-        else:
-            # print "### found retailer %s" % retailer.user
-            form = RetailerRegistrationForm(request.POST, show=shows, better_choices=get_better_choices(shows, show_count))
-            if form.is_valid():
-                cd = form.cleaned_data
-                # pprint(cd)
-
-                # grab some fields form the form
-                show           = cd['show']
-                num_attendees  = cd['num_attendees']
-                days_attending = cd['days_attending'] # gives you: [u'0', u'1']
-                # days_attending = [eval(x) for x in days_attending] # gives you: [0, 1]
-                # days_attending = [unicode(x) for x in days_attending] # gives you: [u'0', u'1']
-                days_attending = ','.join(days_attending) # gives you: u'0,1', suitable for the stupid CommaSeparatedIntegerField
-
-                # Add this retailer to the Show retailers
-                show.retailers.add(retailer)
-
-                # add a new registration object and associate with this retailer & show
+                # add a new registration object and associate with this exhibitor & show
                 # TODO change this and all others like this to use get_or_create()  obj, created = Person.objects.get_or_create(first_name='John', last_name='Lennon', defaults={'birthday': date(1940, 10, 9)})
                 try:
-                    r = RetailerRegistration.objects.get(retailer=retailer, show=show)
-                    # print "RetailerRegistration for (%s & %s) already exists" % (retailer.user, show.name)
+                    r = Registration.objects.get(exhibitor=exhibitor, show=show)
+                    # print "Registration for (%s & %s) already exists" % (exhibitor.user, show.name)
                 except ObjectDoesNotExist:
-                    r = RetailerRegistration(retailer=retailer, show=show)
-                    # print "created RetailerRegistration: (%s & %s)" % (retailer.user, show.name)
-                r.num_attendees  = num_attendees
-                r.days_attending = days_attending
+                    r = Registration(exhibitor=exhibitor, show=show)
+                    r.has_paid = False
+                    # print "created registration: (%s & %s)" % (exhibitor.user, show.name)
+                r.num_exhibitors     = num_associates
+                r.num_assistants     = num_assistants
+                r.num_racks          = num_racks
+                r.num_tables         = num_tables
+                r.num_rooms          = num_rooms
+                r.bed_type           = bed_type
+                r.is_late            = is_late
+                r.date_registered    = today
+                r.registration_total = registration_total
+                r.assistant_total    = assistant_total
+                r.rack_total         = rack_total
+                r.late_total         = late_total
+                r.total              = total
+                r.has_paid           = True
                 r.save()
 
-                # TODO: convert days attending to actual dates and show on the "registered" page.
-                return redirect('/registered/%s/' % show.id)
+                # Add this exhibitor to the Show exhibitors
+                show.exhibitors.add(exhibitor)
+
+                # display the show info, fees, disclaimers, etc. on a nice page
+                # return redirect('/invoice/%s/' % show.id)
+                # show them the receipt with relevant details (which they can print)
+                return render_to_response('receipt.html',
+                                          {
+                                              'transaction': result.transaction,
+                                          },
+                                          context_instance=RequestContext(request))
+            else: # error from Braintree
+                status = result.transaction
+                status = status and result.transaction.status
+                if status == 'processor_declined':
+                    code = result.transaction.processor_response_code
+                    message1 = 'The payment processor declined the credit card transaction.'
+                    message2 = result.transaction.processor_response_text
+                elif status == 'gateway_rejected':
+                    code = 'n/a'
+                    message1 = 'The payment gateway rejected the credit card transaction.'
+                    message2 = result.transaction.gateway_rejection_reason
+                else:
+                    code = 'n/a'
+                    #code = ???? result.errors.deep_errors[0].code
+                    message1 = 'There was a problem processing this credit card transaction'
+                    message2 = result.message
+                logger.error('%s %s (cardholder %s) FAILED to charge %s: %s: %s' %
+                             (exhibitor.first_name_display(), exhibitor.last_name_display(),
+                              name, amount, status, message2))
+
+        # Whether we got here by a form error or a Braintree error,
+        # manually clear the (now encrypted) credit card number field so does not show encrypted string,
+        # and remove the error about the now missing required field.
+        form = ExhibitorRegistrationForm(request.POST.copy(), show=shows)
+        form.data['number'] = ''
+        form.errors['number'] = None
 
     return render_to_response('register.html',
                               {
@@ -742,21 +702,7 @@ def register_retailer(request):
             venue=venue
         )
 
-        # recaptcha_html = recaptcha.displayhtml(
-        #     public_key='6Lex6PMSAAAAAEelu8jreuaAmbIxPiehzsob8b5-',
-        #     use_ssl=False,
-        #     error=None
-        # )
-
     else: # a POST
-
-        # recaptcha check
-        # recaptcha_response = recaptcha.submit(
-        #     request['recaptcha_challenge_field'],
-        #     request['recaptcha_response_field'],
-        #     '6Lex6PMSAAAAAI2nwQPSNvZ0M-23wndAfuGT4rU5',
-        #     request.remote_addr
-        # )
 
         form = RetailerRegistrationForm(
             request.POST,
@@ -765,13 +711,6 @@ def register_retailer(request):
             running_in_prod=running_in_prod,
             venue=venue
         )
-
-        # recaptcha_html = recaptcha.displayhtml(
-        #     public_key='6Lex6PMSAAAAAEelu8jreuaAmbIxPiehzsob8b5-',
-        #     use_ssl=False,
-        #     # error=recaptcha_response.error_code
-        #     error=None
-        # )
 
         # if recaptcha_response.is_valid() and form.is_valid():
         if form.is_valid():
@@ -808,7 +747,8 @@ def register_retailer(request):
                 last_name=last_name,
                 email=email
             )
-            user.save()
+            if created:
+                user.save()
 
             # Retailers no longer login, let's see if someone with this name already registered
             retailer, created = Retailer.objects.get_or_create(
@@ -849,7 +789,6 @@ def register_retailer(request):
                               {
                                   'form': form,
                                   'show_count': show_count,
-                                  # 'recaptcha_html': recaptcha_html,
                               },
                               context_instance=RequestContext(request))
 
@@ -905,20 +844,41 @@ def invoice(request, show_id):
                                   'bed_type': bed_type,
                               },
                               context_instance=RequestContext(request))
+# need to not store blanks (that's how they remove lines)
+# and move the existing ones to the top n slots, maintaining the order!
+# so that this:
+#     line_1 : 'a'
+#     line_2 : ''
+#     line_3 : 'c'
+# becomes:
+#     line_1 : 'a'
+#     line_2 : 'c'
+# note the renaming to maintain the ordering in the dict
+# and for json, we like empty ones to actually look like this:
+# {"cakidsshow": {"line_1": ""}, "nwkidsshow": {"line_1": ""}}
+def _shrink_lines(lines_dict):
+    num_lines = len(lines_dict.values())
+    lines_list = []
+    for i in xrange(1, num_lines + 1):
+        lines_list.append(lines_dict['line_%i' % i])
+    lines_list = filter(None, lines_list) # remove anything that evaluates to False
+    num_lines = len(lines_list)
+    if num_lines == 0: # all erased? json likes one empty...
+        return { 'line_1': '' }
+    lines_dict_shrunk = {}
+    for i in xrange(1, num_lines + 1):
+        lines_dict_shrunk['line_%i' % i] = lines_list[i-1]
+    return lines_dict_shrunk
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor, login_url='/advising/denied/')
 def lines(request):
+    venue = _get_venue(request)
     exhibitor = Exhibitor.objects.get(user=request.user)
-    lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
-    # pprint(lines_str)
-    lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
-    # pprint(lines_list)
-    num_lines = len(lines_list)
-    lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
-    for i in xrange(1, num_lines + 1):
-        lines_dict['line_%i' % i] = lines_list[i-1]
-    # pprint(lines_dict)
+    lines_python = json.loads(exhibitor.lines) # stored as a json string
+    lines_dict = lines_python[venue] # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
+    num_lines = len(lines_dict.keys())
+
     if request.method != 'POST': # a GET
         form = ExhibitorLinesForm(num_lines=num_lines, initial=lines_dict)
     else:
@@ -926,19 +886,9 @@ def lines(request):
         if form.is_valid():
             lines_dict = form.cleaned_data # {'line_1': u'aline1', 'line_2': u'aline2', 'line_3': u'aline3'}
             # pprint(lines_dict)
-            # grab some fields form the form
-            # build it back into my ' * ' delimited format
-            lines_list = []
-            for key in sorted(lines_dict.iterkeys()):
-                if lines_dict[key]:
-                    lines_list.append(lines_dict[key])
-                else:
-                    del lines_dict[key]
-            # pprint(lines_list)
-            lines_str = ' * '.join(lines_list)
-            # pprint(lines_str)
-            # and store it back to the database
-            exhibitor.lines = lines_str
+            lines_dict = _shrink_lines(lines_dict)
+            lines_python[venue] = lines_dict
+            exhibitor.lines = json.dumps(lines_python)
             exhibitor.save()
             if 'save' in request.POST:
                 return redirect('/lines/')
@@ -946,6 +896,44 @@ def lines(request):
                 return redirect('/exhibitor/home/')
 
     return render_to_response('lines.html', {'form': form}, context_instance=RequestContext(request))
+# def lines(request):
+#     exhibitor = Exhibitor.objects.get(user=request.user)
+#     lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
+#     # pprint(lines_str)
+#     lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
+#     # pprint(lines_list)
+#     num_lines = len(lines_list)
+#     lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
+#     for i in xrange(1, num_lines + 1):
+#         lines_dict['line_%i' % i] = lines_list[i-1]
+#     # pprint(lines_dict)
+#     if request.method != 'POST': # a GET
+#         form = ExhibitorLinesForm(num_lines=num_lines, initial=lines_dict)
+#     else:
+#         form = ExhibitorLinesForm(request.POST, num_lines=num_lines)
+#         if form.is_valid():
+#             lines_dict = form.cleaned_data # {'line_1': u'aline1', 'line_2': u'aline2', 'line_3': u'aline3'}
+#             # pprint(lines_dict)
+#             # grab some fields form the form
+#             # build it back into my ' * ' delimited format
+#             lines_list = []
+#             for key in sorted(lines_dict.iterkeys()):
+#                 if lines_dict[key]:
+#                     lines_list.append(lines_dict[key])
+#                 else:
+#                     del lines_dict[key]
+#             # pprint(lines_list)
+#             lines_str = ' * '.join(lines_list)
+#             # pprint(lines_str)
+#             # and store it back to the database
+#             exhibitor.lines = lines_str
+#             exhibitor.save()
+#             if 'save' in request.POST:
+#                 return redirect('/lines/')
+#             elif 'done' in request.POST:
+#                 return redirect('/exhibitor/home/')
+#
+#     return render_to_response('lines.html', {'form': form}, context_instance=RequestContext(request))
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
@@ -1142,22 +1130,17 @@ def report_exhibitors_form(request):
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_exhibitors(request, show_id):
-    # try:
-    #     if user_is_exhibitor(request.user):
-    #         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-    #     else:
-    #         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-    #     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
-    # except ObjectDoesNotExist:
-    #     return redirect('/advising/noregistration/')
     show = Show.objects.get(id=show_id)
     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     rooms = _get_rooms(show)
+    lines = _get_lines(show, _get_venue(request))
+
     return render_to_response('report_exhibitors.html',
                               {
                                   'exhibitors': exhibitors,
                                   'show': show,
                                   'rooms': rooms,
+                                  'lines':lines,
                                },
                               context_instance=RequestContext(request))
 
@@ -1165,14 +1148,6 @@ def report_exhibitors(request, show_id):
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_exhibitors_xls(request, show_id):
-    # try:
-    #     if user_is_exhibitor(request.user):
-    #         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-    #     else:
-    #         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-    #     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
-    # except ObjectDoesNotExist:
-    #     return redirect('/advising/noregistration/')
     show = Show.objects.get(id=show_id)
     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).order_by('user__last_name')
     rooms = _get_rooms(show)
@@ -1186,7 +1161,6 @@ def report_exhibitors_xls(request, show_id):
               'zip',
               'phone',
               'fax',
-              'lines',
               ]
 
     exhibitors_list = []
@@ -1199,6 +1173,7 @@ def report_exhibitors_xls(request, show_id):
         t = t + (exhibitor.email_display(),)
         for f in fields:
             t = t + (e[f],)
+        t = t + (_build_lines_string(exhibitor, _get_venue(request)),)
         exhibitors_list += [t]
 
     http_response = HttpResponse(mimetype='application/vnd.ms-excel')
@@ -1209,18 +1184,17 @@ def report_exhibitors_xls(request, show_id):
     return http_response
 
 # return a sorted list of tuples [(line, name, id, room#), ... ]
-def _build_lines_data(show):
+def _build_lines_data(show, venue):
     rooms = _get_rooms(show)
     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).exclude(user__is_superuser=1)
 
     lines_list2 = []
     for exhibitor in exhibitors:
         exhibitor_name = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
-        lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
-        # pprint(lines_str)
-        lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
-        # pprint(lines_list)
-        for line in lines_list:
+        lines_json = exhibitor.lines
+        lines_python = json.loads(lines_json)
+        lines_dict = lines_python[venue]
+        for line in lines_dict.values():
             stripped_line = line.strip()
             if stripped_line:
                 lines_list2 += [(stripped_line, exhibitor_name, exhibitor.id, rooms[exhibitor.id]),]
@@ -1229,20 +1203,33 @@ def _build_lines_data(show):
     lines_list = sorted(lines_list2, key=lambda t: tuple(t[0].lower()))
     # pprint(lines_list)
     return lines_list
+# def _build_lines_data(show):
+#     rooms = _get_rooms(show)
+#     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).exclude(user__is_superuser=1)
+#
+#     lines_list2 = []
+#     for exhibitor in exhibitors:
+#         exhibitor_name = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
+#         lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
+#         # pprint(lines_str)
+#         lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
+#         # pprint(lines_list)
+#         for line in lines_list:
+#             stripped_line = line.strip()
+#             if stripped_line:
+#                 lines_list2 += [(stripped_line, exhibitor_name, exhibitor.id, rooms[exhibitor.id]),]
+#     # pprint(lines_list2)
+#     # case insensitive sort by the line name
+#     lines_list = sorted(lines_list2, key=lambda t: tuple(t[0].lower()))
+#     # pprint(lines_list)
+#     return lines_list
 
 
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_lines(request, show_id):
-    # try:
-    #     if user_is_exhibitor(request.user):
-    #         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-    #     else:
-    #         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-    # except ObjectDoesNotExist:
-    #     return redirect('/advising/noregistration/')
     show = Show.objects.get(id=show_id)
-    lines_list = _build_lines_data(show)
+    lines_list = _build_lines_data(show, _get_venue(request))
     return render_to_response('report_lines.html',
                               {
                                   'show': show,
@@ -1253,15 +1240,8 @@ def report_lines(request, show_id):
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_lines_xls(request, show_id):
-    # try:
-    #     if user_is_exhibitor(request.user):
-    #         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-    #     else:
-    #         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-    # except ObjectDoesNotExist:
-    #     return redirect('/advising/noregistration/')
     show = Show.objects.get(id=show_id)
-    lines_list = _build_lines_data(show)
+    lines_list = _build_lines_data(show, _get_venue(request))
     lines_list = [(a,b,c) for a,b,x,c in lines_list]  # don't need the id
 
     http_response = HttpResponse(mimetype='application/vnd.ms-excel')
@@ -1274,28 +1254,69 @@ def report_lines_xls(request, show_id):
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def exhibitor(request, exhibitor_id, show_id):
-    # make sure this retailer and exhibitor (they want to see) have BOTH registered for this show!
-    # try:
-    #     if user_is_exhibitor(request.user):
-    #         exhibitor, show, registration = _fetch_exhibitor(request.user, show_id=show_id)
-    #     else:
-    #         retailer, show, registration = _fetch_retailer(request.user, show_id=show_id)
-    #     exhibitor, show, registration = _fetch_exhibitor_id(exhibitor_id, show_id=show_id)
-    # except ObjectDoesNotExist:
-    #     return redirect('/advising/not_allowed_exhibitor/')
-
     try:
         exhibitor, show, registration = _fetch_exhibitor_id(exhibitor_id, show_id=show_id)
     except ObjectDoesNotExist:
         return redirect('/advising/not_allowed_exhibitor/')
 
+    # convert the json lines into the '*' delimited list
+    lines_string = _build_lines_string(exhibitor, _get_venue(request))
+
     return render_to_response('exhibitor_info.html',
                               {
                                   'e': exhibitor,
+                                  'lines': lines_string,
                                   'room': registration.room,
                               },
                               context_instance=RequestContext(request))
 
+
+# @staff_member_required
+# def fix_my_typo(request):
+#     exhibitors = Exhibitor.objects.all()
+#     for exhibitor in exhibitors:
+#         lines_json = exhibitor.lines
+#         lines_python = json.loads(lines_json)
+#         if 'cakisshow' in lines_python:
+#             lines_python['cakidsshow'] = lines_python['cakisshow']
+#             del lines_python['cakisshow']
+#             lines_json = json.dumps(lines_python)
+#             exhibitor.lines = lines_json
+#             exhibitor.save()
+
+@staff_member_required
+def convert_lines_to_json(request):
+    exhibitors = Exhibitor.objects.all()
+    for exhibitor in exhibitors:
+
+        lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
+        print '\nLINES STRING', lines_str
+
+        lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
+        num_lines = len(lines_list)
+        print 'LINES LIST', lines_list
+
+        lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
+        for i in xrange(1, num_lines + 1):
+            lines_dict['line_%i' % i] = lines_list[i-1]
+        print 'LINES DICT', lines_dict
+
+        venue_dict = {}
+        venue_dict['nwkidsshow'] = lines_dict
+        venue_dict['cakidsshow'] = lines_dict
+        print 'VENUE DICT', venue_dict
+
+        lines_json = json.dumps(venue_dict)
+        print 'VENUE JSON', lines_json
+
+        # to see if it all works okay, try and convert back to python
+        lines_python = json.loads(lines_json)
+        print 'BACK TO PYTHON', lines_python
+
+        exhibitor.lines = lines_json
+        exhibitor.save()
+
+    return redirect('/about/')
 
 @staff_member_required
 def add_user(request):
