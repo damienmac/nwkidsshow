@@ -59,10 +59,6 @@ from Pacific_tzinfo import pacific_tzinfo
 from pprint import pprint
 
 ### notes ###
-#TODO: I need test accounts that are not real users: "testex" and "testret". Need to hide them from reports, but otherwise work like a real user.
-#TODO: why is it looking for this on retailer login? "GET /retailer/home/css/messages.css HTTP/1.1" 404 2991
-#TODO: why is it looking for this on exhibitor login?  "GET /exhibitor/home/css/messages.css HTTP/1.1" 404 2994
-#TODO: no-cache on our pages? how? Laurie was seeing cached pages on FF.
 
 ### helpers ###
 
@@ -271,6 +267,8 @@ def _get_rooms(show):
 # convert the json lines to a list of lines
 def _build_lines_string(exhibitor, venue):
     lines_json = exhibitor.lines
+    if not lines_json:
+        lines_json = '{}'
     lines_python = json.loads(lines_json)
     lines_dict = lines_python[venue]
     # case insensitive sort by the line name
@@ -875,7 +873,10 @@ def _shrink_lines(lines_dict):
 def lines(request):
     venue = _get_venue(request)
     exhibitor = Exhibitor.objects.get(user=request.user)
-    lines_python = json.loads(exhibitor.lines) # stored as a json string
+    lines_json = exhibitor.lines
+    if not lines_json:
+        lines_json = '{}'
+    lines_python = json.loads(lines_json) # stored as a json string
     lines_dict = lines_python[venue] # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
     num_lines = len(lines_dict.keys())
 
@@ -896,44 +897,7 @@ def lines(request):
                 return redirect('/exhibitor/home/')
 
     return render_to_response('lines.html', {'form': form}, context_instance=RequestContext(request))
-# def lines(request):
-#     exhibitor = Exhibitor.objects.get(user=request.user)
-#     lines_str = exhibitor.lines # 'aline1 * aline 2 * aline 3'
-#     # pprint(lines_str)
-#     lines_list = lines_str.split(' * ') # ['aline1','aline2','aline3']
-#     # pprint(lines_list)
-#     num_lines = len(lines_list)
-#     lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
-#     for i in xrange(1, num_lines + 1):
-#         lines_dict['line_%i' % i] = lines_list[i-1]
-#     # pprint(lines_dict)
-#     if request.method != 'POST': # a GET
-#         form = ExhibitorLinesForm(num_lines=num_lines, initial=lines_dict)
-#     else:
-#         form = ExhibitorLinesForm(request.POST, num_lines=num_lines)
-#         if form.is_valid():
-#             lines_dict = form.cleaned_data # {'line_1': u'aline1', 'line_2': u'aline2', 'line_3': u'aline3'}
-#             # pprint(lines_dict)
-#             # grab some fields form the form
-#             # build it back into my ' * ' delimited format
-#             lines_list = []
-#             for key in sorted(lines_dict.iterkeys()):
-#                 if lines_dict[key]:
-#                     lines_list.append(lines_dict[key])
-#                 else:
-#                     del lines_dict[key]
-#             # pprint(lines_list)
-#             lines_str = ' * '.join(lines_list)
-#             # pprint(lines_str)
-#             # and store it back to the database
-#             exhibitor.lines = lines_str
-#             exhibitor.save()
-#             if 'save' in request.POST:
-#                 return redirect('/lines/')
-#             elif 'done' in request.POST:
-#                 return redirect('/exhibitor/home/')
-#
-#     return render_to_response('lines.html', {'form': form}, context_instance=RequestContext(request))
+
 
 @login_required(login_url='/advising/login/')
 @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
@@ -1090,13 +1054,7 @@ def report_retailers_xls(request, show_id):
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
 def report_exhibitors_form(request):
-    # user = get_user(request)
     venue = _get_venue(request)
-    # Have the retailer or exhibitor choose which show to report on.
-    # if user_is_exhibitor(request.user):
-    #     shows = Show.objects.filter(venue=venue, exhibitors=user)
-    # else:
-    #     shows = Show.objects.filter(venue=venue, retailers=user)
     shows = Show.objects.filter(venue=venue)
     show_count = shows.count()
     show_latest_id = None
@@ -1203,27 +1161,6 @@ def _build_lines_data(show, venue):
     lines_list = sorted(lines_list2, key=lambda t: tuple(t[0].lower()))
     # pprint(lines_list)
     return lines_list
-# def _build_lines_data(show):
-#     rooms = _get_rooms(show)
-#     exhibitors = Exhibitor.objects.filter(show=show).exclude(user__first_name='Test').exclude(user__is_superuser=1).exclude(user__is_superuser=1)
-#
-#     lines_list2 = []
-#     for exhibitor in exhibitors:
-#         exhibitor_name = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
-#         lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
-#         # pprint(lines_str)
-#         lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
-#         # pprint(lines_list)
-#         for line in lines_list:
-#             stripped_line = line.strip()
-#             if stripped_line:
-#                 lines_list2 += [(stripped_line, exhibitor_name, exhibitor.id, rooms[exhibitor.id]),]
-#     # pprint(lines_list2)
-#     # case insensitive sort by the line name
-#     lines_list = sorted(lines_list2, key=lambda t: tuple(t[0].lower()))
-#     # pprint(lines_list)
-#     return lines_list
-
 
 # @login_required(login_url='/advising/login/')
 # @user_passes_test(user_is_exhibitor_or_retailer, login_url='/advising/denied/')
@@ -1272,51 +1209,38 @@ def exhibitor(request, exhibitor_id, show_id):
 
 
 # @staff_member_required
-# def fix_my_typo(request):
+# def convert_lines_to_json(request):
 #     exhibitors = Exhibitor.objects.all()
 #     for exhibitor in exhibitors:
-#         lines_json = exhibitor.lines
+#
+#         lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
+#         print '\nLINES STRING', lines_str
+#
+#         lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
+#         num_lines = len(lines_list)
+#         print 'LINES LIST', lines_list
+#
+#         lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
+#         for i in xrange(1, num_lines + 1):
+#             lines_dict['line_%i' % i] = lines_list[i-1]
+#         print 'LINES DICT', lines_dict
+#
+#         venue_dict = {}
+#         venue_dict['nwkidsshow'] = lines_dict
+#         venue_dict['cakidsshow'] = lines_dict
+#         print 'VENUE DICT', venue_dict
+#
+#         lines_json = json.dumps(venue_dict)
+#         print 'VENUE JSON', lines_json
+#
+#         # to see if it all works okay, try and convert back to python
 #         lines_python = json.loads(lines_json)
-#         if 'cakisshow' in lines_python:
-#             lines_python['cakidsshow'] = lines_python['cakisshow']
-#             del lines_python['cakisshow']
-#             lines_json = json.dumps(lines_python)
-#             exhibitor.lines = lines_json
-#             exhibitor.save()
-
-@staff_member_required
-def convert_lines_to_json(request):
-    exhibitors = Exhibitor.objects.all()
-    for exhibitor in exhibitors:
-
-        lines_str = exhibitor.lines  # 'aline1 * aline 2 * aline 3'
-        print '\nLINES STRING', lines_str
-
-        lines_list = lines_str.split(' * ')  # ['aline1','aline2','aline3']
-        num_lines = len(lines_list)
-        print 'LINES LIST', lines_list
-
-        lines_dict = {} # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
-        for i in xrange(1, num_lines + 1):
-            lines_dict['line_%i' % i] = lines_list[i-1]
-        print 'LINES DICT', lines_dict
-
-        venue_dict = {}
-        venue_dict['nwkidsshow'] = lines_dict
-        venue_dict['cakidsshow'] = lines_dict
-        print 'VENUE DICT', venue_dict
-
-        lines_json = json.dumps(venue_dict)
-        print 'VENUE JSON', lines_json
-
-        # to see if it all works okay, try and convert back to python
-        lines_python = json.loads(lines_json)
-        print 'BACK TO PYTHON', lines_python
-
-        exhibitor.lines = lines_json
-        exhibitor.save()
-
-    return redirect('/about/')
+#         print 'BACK TO PYTHON', lines_python
+#
+#         exhibitor.lines = lines_json
+#         exhibitor.save()
+#
+#     return redirect('/about/')
 
 @staff_member_required
 def add_user(request):
