@@ -60,6 +60,9 @@ from pprint import pprint
 
 ### notes ###
 
+### constants ###
+EMPTY_LINES = '{"nwkidsshow": {}, "cakidsshow": {}}'
+
 ### helpers ###
 
 def user_is_exhibitor(user):
@@ -268,7 +271,7 @@ def _get_rooms(show):
 def _build_lines_string(exhibitor, venue):
     lines_json = exhibitor.lines
     if not lines_json:
-        lines_json = '{}'
+        lines_json = EMPTY_LINES
     lines_python = json.loads(lines_json)
     lines_dict = lines_python[venue]
     # case insensitive sort by the line name
@@ -853,7 +856,8 @@ def invoice(request, show_id):
 #     line_2 : 'c'
 # note the renaming to maintain the ordering in the dict
 # and for json, we like empty ones to actually look like this:
-# {"cakidsshow": {"line_1": ""}, "nwkidsshow": {"line_1": ""}}
+# {"nwkidsshow": {}, "cakidsshow": {}}
+# in EMPTY_LINES
 def _shrink_lines(lines_dict):
     num_lines = len(lines_dict.values())
     lines_list = []
@@ -862,7 +866,7 @@ def _shrink_lines(lines_dict):
     lines_list = filter(None, lines_list) # remove anything that evaluates to False
     num_lines = len(lines_list)
     if num_lines == 0: # all erased? json likes one empty...
-        return { 'line_1': '' }
+        return { }
     lines_dict_shrunk = {}
     for i in xrange(1, num_lines + 1):
         lines_dict_shrunk['line_%i' % i] = lines_list[i-1]
@@ -875,7 +879,7 @@ def lines(request):
     exhibitor = Exhibitor.objects.get(user=request.user)
     lines_json = exhibitor.lines
     if not lines_json:
-        lines_json = '{}'
+        lines_json = EMPTY_LINES
     lines_python = json.loads(lines_json) # stored as a json string
     lines_dict = lines_python[venue] # {'line_1':'aline1', 'line_2':'aline2', 'line_3':'aline3' }
     num_lines = len(lines_dict.keys())
@@ -1150,6 +1154,8 @@ def _build_lines_data(show, venue):
     for exhibitor in exhibitors:
         exhibitor_name = '%s %s' % (exhibitor.first_name_display(),exhibitor.last_name_display())
         lines_json = exhibitor.lines
+        if not lines_json:
+            lines_json = EMPTY_LINES
         lines_python = json.loads(lines_json)
         lines_dict = lines_python[venue]
         for line in lines_dict.values():
@@ -1260,6 +1266,7 @@ def add_user(request):
             if cd['attendee_type'] == 'exhibitor':
                 e = Exhibitor(user=u)
                 e.must_change_password = True
+                e.lines = EMPTY_LINES
                 e.save()
                 # print "creating exhibitor %s" % e
                 group = Group.objects.get(name='exhibitor_group')
