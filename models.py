@@ -56,7 +56,7 @@ class Attendee(models.Model):
 
 
 class Exhibitor(Attendee):
-    lines = models.TextField() # TODO: find a better model for this, on a per-exhibitor basis.
+    lines = models.TextField()
 
 
 class Retailer(Attendee):

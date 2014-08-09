@@ -743,13 +743,13 @@ def register_retailer(request):
             # Retailers no longer login, let's see if someone with this name already exists
             username = (first_name + '_' + last_name).strip()
             user, created = User.objects.get_or_create(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                email=email
+                username=username
             )
+            user.email = email
             if created:
-                user.save()
+                user.first_name = first_name
+                user.last_name  = last_name
+            user.save()
 
             # Retailers no longer login, let's see if someone with this name already registered
             retailer, created = Retailer.objects.get_or_create(

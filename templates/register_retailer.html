@@ -15,7 +15,6 @@ REGISTER FOR A SHOW
 
 {% block content %}
     {% if not show_count %}
-        {# TODO: make this advice at top? Not in fieldset? #}
         <p class="info">There aren't any new shows to register for right now.</p>
     {% else %}
         {% if form.errors %}
